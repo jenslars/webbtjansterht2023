@@ -124,9 +124,29 @@ public class ServerRunner {
      * Metod som skickar en förfrågan till Spotify's API för att få en access token som senare används i alla andra anrop till Spotify's API.
      */
     private void requestAccessToken() {
-        // Implementation for requesting access token
-    }
+        try {
+            httpClient = HttpClients.createDefault();
 
+            String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
+            String clientSecret = "b9f53919c0774da89f480a8863d5234e";
+            String requestBody = "grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret;
+
+            httpPost = new HttpPost("https://accounts.spotify.com/api/token");
+            httpPost.setHeader("Content-Type:", "application/x-www-form-urlencoded");
+            httpPost.setEntity(new StringEntity(requestBody));
+
+            try {
+                response = httpClient.execute(httpPost);
+                accessToken = response.getEntity().toString(); //TODO: Klassens instansvariabel accessToken blir reassigned här. Dubbelkolla så att det funkar och om datatyp är giltig.
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);;
+        }
+    }
+    
     /**
      * Metod för att läsa innehållet i en HTML-fil.
      *
