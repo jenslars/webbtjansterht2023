@@ -53,6 +53,8 @@ public class ServerRunner {
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
+                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
+                    ctx.html(htmlContent);
                 })
                 .get("/scripts/{filename}", ctx -> {
                     serverRunner.serveJavaScriptFile(ctx);
@@ -166,6 +168,7 @@ public class ServerRunner {
      */
     private void exchangeCodeForAccessToken(String code) {
         try {
+            System.out.println("Exchanging code for access token: " + code);
             CloseableHttpClient httpClient = HttpClients.createDefault();
             String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
