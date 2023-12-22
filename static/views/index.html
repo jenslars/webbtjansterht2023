@@ -25,21 +25,23 @@
             <div id="mainContent">
                 <div id="featureContainer">
                     <div id="featureContainerLabel"><h1 id="featureContainerLabel">Choose Service</h1></div>
-                    <nav id="featureNav">
-                        <a class="active">Identify song</a>
-                        <a>Identify playlist</a>
-                        <a>Convert playlist</a>
-                    </nav>
+                    <div id="identifySongContainer">
+                        <nav id="featureNav">
+                            <a class="active">Identify song</a>
+                            <a>Identify playlist</a>
+                            <a>Convert playlist</a>
+                        </nav>
+                        <form>
+                            <input type="text" id="URLinput">
+                            <p id="error-message"></p>
+                            <input type="submit" id="URLsubmit" value="Submit">
+                        </form>
+                    </div>
                 </div>
                 <div id="descriptionContainer">
                     <h1>About Youtube to Spotify</h1>
                 </div>
-            </div>
-            <form>
-                <input type="text" id="URLinput">
-                <p id="error-message"></p>
-                <input type="submit" id="URLsubmit" value="Submit">
-            </form>
+            </div> 
         </main>
     </body>
     <script src="scripts/urlPostScript.js"></script>

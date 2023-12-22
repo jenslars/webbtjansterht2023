@@ -21,7 +21,7 @@ html{
 
 #featureContainerLabel{
     font-weight: 500;
-    margin-left: 20px;
+    margin-left: 3%;
     padding-top: 1px;
     font-size: 25px;
 }
@@ -31,7 +31,6 @@ html{
     border-radius: 10px;
     display: flex;
     padding: 10px;
-    width: 80%;
     margin: auto;
     justify-content: space-between;
 }
@@ -56,4 +55,12 @@ html{
     margin-left: 20px;
     padding-top: 1px;
     font-size: 25px;
+}
+
+#identifySongContainer{
+    background-color: #3b3b3d;
+    height: 70%;
+    width: 89%;
+    margin: auto;
+    border-radius: 20px;
 }
