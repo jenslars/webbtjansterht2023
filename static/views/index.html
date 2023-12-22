@@ -4,12 +4,41 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+        <link href="static/styling/navbar.css" rel="stylesheet" type="text/css">
+        <link href="static/styling/home.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <main>
+            <nav class="mainNav">
+                <div class="logo">
+                    <a>Youtube to Spotify</a>
+                </div>
+                <div class="links">
+                    <a>Placeholder</a>
+                    <a>Placeholder</a>
+                    <a>Help</a>
+                </div>
+            </nav>
+            <div id="mainContent">
+                <div id="featureContainer">
+                    <div id="featureContainerLabel"><h1 id="featureContainerLabel">Choose Service</h1></div>
+                    <nav id="featureNav">
+                        <a class="active">Identify song</a>
+                        <a>Identify playlist</a>
+                        <a>Convert playlist</a>
+                    </nav>
+                </div>
+                <div id="descriptionContainer">
+                    <h1>About Youtube to Spotify</h1>
+                </div>
+            </div>
             <form>
                 <input type="text" id="URLinput">
                 <p id="error-message"></p>
+                <input type="submit" id="URLsubmit" value="Submit">
             </form>
         </main>
     </body>

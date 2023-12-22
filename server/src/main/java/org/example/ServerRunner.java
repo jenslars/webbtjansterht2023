@@ -45,6 +45,9 @@ public class ServerRunner {
                 .get("/scripts/{filename}", ctx -> {
                     serverRunner.serveJavaScriptFile(ctx);
                 })
+                .get("/static/styling/{filename}", ctx -> {
+                    serverRunner.serveCssFile(ctx);
+                })
                 .get("/{id}", ctx -> {
                     serverRunner.getSongUrl(ctx);
                 })
@@ -94,6 +97,28 @@ public class ServerRunner {
             try {
                 ctx.result(new String(Files.readAllBytes(filePath)));
             } catch (IOException e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta CSS-fil.
+    */
+    private void serveCssFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("static/styling/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("text/css");
+
+            try {
+                ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (Exception e) {
                 e.printStackTrace();
                 ctx.status(500).result("Internal Server Error");
             }

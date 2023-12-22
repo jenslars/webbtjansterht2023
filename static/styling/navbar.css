@@ -1,0 +1,36 @@
+.mainNav{
+    background-color: #262628;
+    width: 99%;
+    margin: auto;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-family: 'Lexend';
+}
+
+.logo{
+    font-family: 'Lexend';
+    font-weight: 700;
+    font-size: 40px;
+    margin-left: 10px;
+    color: #ffffff;
+}
+
+.links{
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    margin-left: 20%;
+}
+
+.links a{
+    padding-right: 40px;
+    color: #c8c8c8;
+}
+
+.links a:hover{
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 16px;
+}
