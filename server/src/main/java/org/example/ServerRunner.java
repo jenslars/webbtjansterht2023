@@ -1,7 +1,6 @@
 package org.example;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -13,11 +12,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Base64;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.acrcloud.utils.ACRCloudRecognizer;
 
 public class ServerRunner {
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -26,7 +27,7 @@ public class ServerRunner {
     HttpPut httpPut = null;
     CloseableHttpResponse response = null;
     String accessToken = null;
-    Gson gson = new Gson();
+    ACRCloudRecognizer recognizer;
 
     /**
      * Main-metod som startar servern och lyssnar efter API-anrop.
@@ -36,6 +37,7 @@ public class ServerRunner {
     public static void main(String[] args) {
         ServerRunner serverRunner = new ServerRunner();
         serverRunner.requestAccessToken();
+        serverRunner.recognizeSong();
         Javalin app = Javalin.create(config -> {
         })
                 .get("/", ctx -> {
@@ -61,6 +63,24 @@ public class ServerRunner {
             ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
             ctx.header("Access-Control-Allow-Headers", "*");
         });
+    }
+
+    private void recognizeSong() {
+        Map<String, Object> config = new HashMap<>();
+        config.put("host", "identify-eu-west-1.acrcloud.com");
+        config.put("protocol", "http");
+        config.put("access_key", "4ee095c457208ad88f1a28a5b14b9f87");
+        config.put("access_secret", "6O8dg2TJ95w0QSqODexAwrJqm0VaDvHzF5aCl8BE");
+        config.put("timeout", 5);
+        config.put("rec_type", ACRCloudRecognizer.RecognizerType.AUDIO);
+        config.put("debug", false);
+        recognizer = new ACRCloudRecognizer(config);
+
+        String songInfo = recognizer.recognizeByFile("resources/StarWars60.wav", 0);
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(songInfo).getAsJsonObject();
+        String title = json.getAsJsonObject("metadata").getAsJsonArray("music").get(0).getAsJsonObject().get("title").getAsString();
+        System.out.println(title);
     }
 
     /**
