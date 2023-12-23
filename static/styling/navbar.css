@@ -5,7 +5,6 @@
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
-    padding: 10px;
     font-family: 'Lexend';
 }
 
@@ -15,6 +14,14 @@
     font-size: 40px;
     margin-left: 10px;
     color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+.logo img{
+    height: 200px;
+    margin-top: -40px;
+    margin-bottom: -40px;
 }
 
 .links{
@@ -25,12 +32,12 @@
 }
 
 .links a{
-    padding-right: 40px;
+    padding-right: 60px;
     color: #c8c8c8;
+    font-size: 30px;
 }
 
 .links a:hover{
     cursor: pointer;
     color: #ffffff;
-    font-size: 16px;
 }

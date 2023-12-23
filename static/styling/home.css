@@ -17,6 +17,7 @@ html{
     color: #ffffff;
     font-family: 'Lexend';
     margin-top: 20px;
+    box-shadow: 2px 2px #161616;
 }
 
 #featureContainerLabel{
@@ -28,11 +29,12 @@ html{
 
 #featureNav{
     background-color: #4a4a4c;
-    border-radius: 10px;
     display: flex;
     padding: 10px;
     margin: auto;
     justify-content: space-between;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 #featureNav a.active{
@@ -63,4 +65,18 @@ html{
     width: 89%;
     margin: auto;
     border-radius: 20px;
+    box-shadow: 2px 2px #252525;
+}
+
+.urlForm{
+    display: flex;
+}
+
+#URLinput{
+    margin-top: 20px;
+    background-color: #444447;
+    border: none;
+    height: 30px;
+    width: 400px;
+    margin-left: 40px;
 }

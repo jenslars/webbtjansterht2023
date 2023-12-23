@@ -47,6 +47,9 @@ public class ServerRunner {
                 })
                 .get("/static/styling/{filename}", ctx -> {
                     serverRunner.serveCssFile(ctx);
+                });
+                app.get("/images/{filename}", ctx -> {
+                    serverRunner.serveSvgFile(ctx);
                 })
                 .get("/{id}", ctx -> {
                     serverRunner.getSongUrl(ctx);
@@ -115,6 +118,28 @@ public class ServerRunner {
 
         if (Files.exists(filePath)) {
             ctx.contentType("text/css");
+
+            try {
+                ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta SVG-fil.
+    */
+    private void serveSvgFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("images/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("svg+xml");
 
             try {
                 ctx.result(new String(Files.readAllBytes(filePath)));
