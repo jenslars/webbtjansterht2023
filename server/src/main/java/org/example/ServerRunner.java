@@ -11,6 +11,9 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.HttpHeaders;
+import org.apache.http.util.EntityUtils;
+
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +21,7 @@ import java.util.Base64;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 public class ServerRunner {
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -40,6 +44,16 @@ public class ServerRunner {
         })
                 .get("/", ctx -> {
                     String htmlContent = serverRunner.readHtmlFile("static/views/index.html");
+                    ctx.html(htmlContent);
+                })
+                .get("/login", ctx -> {
+                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
+                    ctx.html(htmlContent);
+                })
+                .get("/callback", ctx -> {
+                    String code = ctx.queryParam("code");
+                    serverRunner.exchangeCodeForAccessToken(code);
+                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
                     ctx.html(htmlContent);
                 })
                 .get("/scripts/{filename}", ctx -> {
@@ -144,6 +158,39 @@ public class ServerRunner {
 
         } catch (Exception e) {
             System.out.println(e);;
+        }
+    }
+
+    /**
+     * Metod som byter ut den temporära koden som användaren fick vid inloggning mot en access token.
+     *
+     * @param code 
+     */
+    private void exchangeCodeForAccessToken(String code) {
+        try {
+            System.out.println("Exchanging code for access token: " + code);
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
+            String clientSecret = "b9f53919c0774da89f480a8863d5234e";
+            String redirectURI = "http://localhost:5000/callback";
+            String requestBody = "grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirectURI;
+    
+            HttpPost httpPost = new HttpPost("https://accounts.spotify.com/api/token");
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+            httpPost.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
+            String auth = clientID + ":" + clientSecret;
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+    
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+    
+            Gson gson = new Gson();
+            JsonObject json = gson.fromJson(responseBody, JsonObject.class);
+            accessToken = json.get("access_token").getAsString();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
     
