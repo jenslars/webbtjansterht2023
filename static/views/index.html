@@ -4,13 +4,81 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+        <link href="static/styling/navbar.css" rel="stylesheet" type="text/css">
+        <link href="static/styling/home.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <main>
-            <form>
-                <input type="text" id="URLinput">
-                <p id="error-message"></p>
-            </form>
+            <nav class="mainNav">
+                <div class="logo">
+                    <img src="images/youtubelogo.svg" alt="Youtube">
+                    <p>-></p>
+                    <img src="images/spotifylogo.svg" alt="Spotify">
+                </div>
+                <div class="links">
+                    <a>Placeholder</a>
+                    <a>Placeholder</a>
+                    <a>Help</a>
+                </div>
+            </nav>
+            <div id="mainContent">
+                <div id="serviceContainer">
+                    <div id="serviceContainerLabel"><h1 id="serviceLabel">Choose Service</h1></div>
+                    <div id="featureContainer">
+                        <div id="featureNav">
+                            <div id="featureNavLinks">
+                                <div id="featureNavIdSong" class="active"><a onclick="toggleFeature('featureNavIdSong')">Identify song</a></div>
+                            <div id="featureNavIdPlaylist"><a onclick="toggleFeature('featureNavIdPlaylist')">Identify playlist</a></div>
+                            <div id="featureNavConvertPlaylist"><a onclick="toggleFeature('featureNavConvertPlaylist')">Convert playlist</a></div>
+                            </div>
+                        </div>
+                        <div class="formContainer">
+                            <div id="identifySongContainer" class="active">
+                                    <form class="urlForm">
+                                        <div class="urlFormInputLabel">
+                                            <p>Please insert a valid YouTube URL with a timestamp for the song you wish to identify</p>
+                                        </div>
+                                        <div class="inputDiv">
+                                            <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                            <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                        </div>
+                                        <p id="error-message"></p>
+                                    </form>
+                            </div>
+                            <div id="identifyPlaylistContainer">
+                                <form class="urlForm">
+                                    <div class="urlFormInputLabel">
+                                        <p>Please insert a valid YouTube URL for a video to identify all songs</p>
+                                    </div>
+                                    <div class="inputDiv">
+                                        <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                    </div>
+                                    <p id="error-message"></p>
+                                </form>
+                            </div>
+                            <div id="convertPlaylistContainer">
+                                <form class="urlForm">
+                                    <div class="urlFormInputLabel">
+                                        <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
+                                    </div>
+                                    <div class="inputDiv">
+                                        <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                    </div>
+                                    <p id="error-message"></p>
+                                </form>
+                            </div>
+                        </div>  
+                    </div>
+                </div>
+                <div id="descriptionContainer">
+                    <h1>About Youtube to Spotify</h1>
+                </div>
+            </div> 
         </main>
     </body>
     <script src="scripts/urlPostScript.js"></script>

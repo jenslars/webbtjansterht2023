@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ServerRunner",
+            "request": "launch",
+            "mainClass": "org.example.ServerRunner",
+            "projectName": "server"
+        },
+        {
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "name": "Launch add-on",
+            "addonPath": "${workspaceFolder}"
+        }
+    ]
+}
