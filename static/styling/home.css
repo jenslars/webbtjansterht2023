@@ -37,15 +37,18 @@ html{
 #featureNavLinks{
     display: flex;
     width: 70%;
+    cursor: pointer;
 }
 
 #featureNavLinks > div{
     padding: 10px;
     justify-content: space-between;
+    border-right:1px solid #4f4f4f;
 }
 
 #featureNavLinks > div.active{
     background-color: #3b3b3d;
+    cursor:default;
 }
 
 #featureNavIdSong{
@@ -90,6 +93,9 @@ html{
     margin-top: 0px;
 }
 
+.urlForm p{
+    margin-top: 20px;
+}
 
 #URLinput{
     background-color: #444447;
@@ -133,7 +139,7 @@ html{
 }
 
 #identifySongContainer.active, #identifyPlaylistContainer.active, #convertPlaylistContainer.active{
-    visibility: visible;
+    display: inline;
     height: 85%;
     width: 100%;
     background-color: #3b3b3d;
@@ -142,13 +148,13 @@ html{
 }
 
 #identifySongContainer{
-    visibility: hidden;
+    display: none;
 }
 
 #identifyPlaylistContainer{
-    visibility: hidden;
+    display: none;
 }
 
 #convertPlaylistContainer{
-    visibility:hidden ;
+    display: none;
 }
