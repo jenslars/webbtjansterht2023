@@ -9,7 +9,7 @@ html{
     justify-content: space-between;
 }
 
-#featureContainer{
+#serviceContainer{
     background-color: #262628;
     height: 400px;
     width: 60%;
@@ -17,10 +17,9 @@ html{
     color: #ffffff;
     font-family: 'Lexend';
     margin-top: 20px;
-    box-shadow: 2px 2px #161616;
 }
 
-#featureContainerLabel{
+#serviceLabel{
     font-weight: 500;
     margin-left: 3%;
     padding-top: 1px;
@@ -28,17 +27,34 @@ html{
 }
 
 #featureNav{
-    background-color: #4a4a4c;
+    background-color: #414144;
     display: flex;
-    padding: 10px;
     margin: auto;
-    justify-content: space-between;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
 
-#featureNav a.active{
-    background-color: #4a4a4c;
+#featureNavLinks{
+    display: flex;
+    width: 70%;
+}
+
+#featureNavLinks > div{
+    padding: 10px;
+    justify-content: space-between;
+}
+
+#featureNavLinks > div.active{
+    background-color: #3b3b3d;
+}
+
+#featureNavIdSong{
+    border-top-left-radius: 10px;
+    background-color: #414144;
+}
+
+#featureNavIdPlaylist{
+    background-color: #414144;
 }
 
 #descriptionContainer{
@@ -59,7 +75,7 @@ html{
     font-size: 25px;
 }
 
-#identifySongContainer{
+#featureContainer{
     background-color: #3b3b3d;
     height: 70%;
     width: 89%;
@@ -68,15 +84,71 @@ html{
     box-shadow: 2px 2px #252525;
 }
 
-.urlForm{
-    display: flex;
+.urlFormInputLabel p{
+    margin-left: 40px;
+    font-size: 12px;
+    margin-top: 0px;
 }
 
+
 #URLinput{
-    margin-top: 20px;
     background-color: #444447;
     border: none;
     height: 30px;
     width: 400px;
     margin-left: 40px;
+    border-radius: 5px;
+    color: #ffffff;
+    padding-left: 12px;
+}
+
+#URLinput:focus{
+    outline: 1px solid #368dff
+}
+
+.inputDiv{
+    display: flex;
+}
+
+#URLsubmit-btn{
+    margin-left: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #444447;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-family: 'Lexend';
+}
+
+#URLsubmit-btn.active{
+    background-color: #368dff;
+    transition: 1s;
+}
+
+#error-message{
+    margin-left: 25%;
+    font-size: 12px;
+    color: #e73030;
+}
+
+#identifySongContainer.active, #identifyPlaylistContainer.active, #convertPlaylistContainer.active{
+    visibility: visible;
+    height: 85%;
+    width: 100%;
+    background-color: #3b3b3d;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+#identifySongContainer{
+    visibility: hidden;
+}
+
+#identifyPlaylistContainer{
+    visibility: hidden;
+}
+
+#convertPlaylistContainer{
+    visibility:hidden ;
 }

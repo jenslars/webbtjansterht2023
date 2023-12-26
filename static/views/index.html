@@ -25,19 +25,54 @@
                 </div>
             </nav>
             <div id="mainContent">
-                <div id="featureContainer">
-                    <div id="featureContainerLabel"><h1 id="featureContainerLabel">Choose Service</h1></div>
-                    <div id="identifySongContainer">
-                        <nav id="featureNav">
-                            <a class="active">Identify song</a>
-                            <a>Identify playlist</a>
-                            <a>Convert playlist</a>
-                        </nav>
-                        <form class="urlForm">
-                            <input type="text" id="URLinput">
-                            <p id="error-message"></p>
-                            <input type="submit" id="URLsubmit" value="Submit">
-                        </form>
+                <div id="serviceContainer">
+                    <div id="serviceContainerLabel"><h1 id="serviceLabel">Choose Service</h1></div>
+                    <div id="featureContainer">
+                        <div id="featureNav">
+                            <div id="featureNavLinks">
+                                <div id="featureNavIdSong" class="active"><a onclick="toggleFeature('featureNavIdSong')">Identify song</a></div>
+                            <div id="featureNavIdPlaylist"><a onclick="toggleFeature('featureNavIdPlaylist')">Identify playlist</a></div>
+                            <div id="featureNavConvertPlaylist"><a onclick="toggleFeature('featureNavConvertPlaylist')">Convert playlist</a></div>
+                            </div>
+                        </div>
+                        <div class="formContainer">
+                            <div id="identifySongContainer" class="active">
+                                    <form class="urlForm">
+                                        <div class="urlFormInputLabel">
+                                            <p>Please insert a valid YouTube URL with a timestamp for the song you wish to identify</p>
+                                        </div>
+                                        <div class="inputDiv">
+                                            <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                            <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                        </div>
+                                        <p id="error-message"></p>
+                                    </form>
+                            </div>
+                            <div id="identifyPlaylistContainer">
+                                <form class="urlForm">
+                                    <div class="urlFormInputLabel">
+                                        <p>Please insert a valid YouTube URL for a video to identify all songs</p>
+                                    </div>
+                                    <div class="inputDiv">
+                                        <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                    </div>
+                                    <p id="error-message"></p>
+                                </form>
+                            </div>
+                            <div id="convertPlaylistContainer">
+                                <form class="urlForm">
+                                    <div class="urlFormInputLabel">
+                                        <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
+                                    </div>
+                                    <div class="inputDiv">
+                                        <input type="text" id="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                    </div>
+                                    <p id="error-message"></p>
+                                </form>
+                            </div>
+                        </div>  
                     </div>
                 </div>
                 <div id="descriptionContainer">

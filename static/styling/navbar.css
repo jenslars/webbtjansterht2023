@@ -19,7 +19,7 @@
 }
 
 .logo img{
-    height: 200px;
+    height: 150px;
     margin-top: -40px;
     margin-bottom: -40px;
 }
@@ -34,7 +34,7 @@
 .links a{
     padding-right: 60px;
     color: #c8c8c8;
-    font-size: 30px;
+    font-size: 20px;
 }
 
 .links a:hover{
