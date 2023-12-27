@@ -97,7 +97,7 @@ html{
     margin-top: 20px;
 }
 
-#URLinput{
+.URLinput{
     background-color: #444447;
     border: none;
     height: 30px;
@@ -108,7 +108,7 @@ html{
     padding-left: 12px;
 }
 
-#URLinput:focus{
+.URLinput:focus{
     outline: 1px solid #368dff
 }
 
@@ -132,8 +132,8 @@ html{
     transition: 1s;
 }
 
-#error-message{
-    margin-left: 25%;
+#error-message1, #error-message2, #error-message3{
+    margin-left: 50px;
     font-size: 12px;
     color: #e73030;
 }
