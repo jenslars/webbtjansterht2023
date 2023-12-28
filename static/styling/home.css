@@ -27,7 +27,7 @@ html{
 }
 
 #featureNav{
-    background-color: #414144;
+    background-color: #4a4a4d;
     display: flex;
     margin: auto;
     border-top-left-radius: 10px;
@@ -36,14 +36,14 @@ html{
 
 #featureNavLinks{
     display: flex;
-    width: 70%;
+    width: 80%;
     cursor: pointer;
 }
 
 #featureNavLinks > div{
     padding: 10px;
     justify-content: space-between;
-    border-right:1px solid #4f4f4f;
+    border-right:1px solid #636363;
 }
 
 #featureNavLinks > div.active{
@@ -53,11 +53,11 @@ html{
 
 #featureNavIdSong{
     border-top-left-radius: 10px;
-    background-color: #414144;
+    background-color: #4a4a4d;
 }
 
 #featureNavIdPlaylist{
-    background-color: #414144;
+    background-color: #4a4a4d;
 }
 
 #descriptionContainer{
@@ -106,6 +106,7 @@ html{
     border-radius: 5px;
     color: #ffffff;
     padding-left: 12px;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
 }
 
 .URLinput:focus{
@@ -116,18 +117,29 @@ html{
     display: flex;
 }
 
-#URLsubmit-btn{
+#URLsubmit-btn1, #URLsubmit-btn2, #URLsubmit-btn3{
+    display:inline-block;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+    cursor:pointer;
+    vertical-align:middle;
+    padding: 5px;
+    text-align: center;
+    font-size: 14px;
+    height: 20px;
     margin-left: 20px;
-    border: none;
     border-radius: 5px;
     background-color: #444447;
     color: #ffffff;
+    font-family: 'Lexend';
     padding-left: 10px;
     padding-right: 10px;
-    font-family: 'Lexend';
 }
 
-#URLsubmit-btn.active{
+#URLsubmit-btn1 p, #URLsubmit-btn2 p, #URLsubmit-btn3 p{ 
+    margin: 2px auto auto auto;
+}
+
+#URLsubmit-btn1.active, #URLsubmit-btn2.active, #URLsubmit-btn3.active{
     background-color: #368dff;
     transition: 1s;
 }

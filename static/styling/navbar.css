@@ -6,6 +6,7 @@
     display: flex;
     justify-content: space-between;
     font-family: 'Lexend';
+    height: 100px;
 }
 
 .logo{
@@ -19,9 +20,11 @@
 }
 
 .logo img{
-    height: 120px;
-    margin-top: -40px;
-    margin-bottom: -40px;
+    height: 40px;
+}
+
+#spotifylogo{
+    margin-left: 20px;
 }
 
 .links{

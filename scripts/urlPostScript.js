@@ -1,11 +1,37 @@
 /* Metod för att validera url*/
+var urlInput_1 = document.getElementsByClassName("URLinput")[0];
 
-var inputElement = document.getElementsByClassName("URLinput")[0];
-
-inputElement.addEventListener("change", function() {
+urlInput_1.addEventListener("change", function() {
     var inputValue = this.value;
     var errorMessage = document.getElementById("error-message1");
-    var submitButton = document.getElementById("URLsubmit-btn");
+    var submitButton = document.getElementById("URLsubmit-btn1");
+
+    if (validateYouTubeVideoTimestampUrl(inputValue)) {
+        console.log("Valid YouTube URL");
+        submitButton.classList.add("active");
+        errorMessage.innerText = "";
+    } else {
+        console.log("Invalid YouTube URL");
+        errorMessage.innerText = "Invalid YouTube URL";
+    }
+});
+
+function validateYouTubeVideoTimestampUrl(urlToParse) {
+    if (urlToParse) {
+        var regExp = /^(https?:\/\/)?(www\.)?(youtube\.com\/(.*\/)?|youtu\.be\/)([\w-]{11})(\?.*t=([\dhms]+))?$/;
+        if (urlToParse.match(regExp)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var urlInput_2 = document.getElementsByClassName("URLinput")[1];
+
+urlInput_2.addEventListener("change", function() {
+    var inputValue = this.value;
+    var errorMessage = document.getElementById("error-message2");
+    var submitButton = document.getElementById("URLsubmit-btn2");
 
     if (validateYouTubeVideoUrl(inputValue)) {
         console.log("Valid YouTube URL");
@@ -27,14 +53,14 @@ function validateYouTubeVideoUrl(urlToParse) {
     return false;
 }
 
-var inputElement = document.getElementsByClassName("URLinput")[2];
+var urlInput_3 = document.getElementsByClassName("URLinput")[2];
 
-inputElement.addEventListener("change", function() {
+urlInput_3.addEventListener("change", function() {
     var inputValue = this.value;
-    var errorMessage = document.getElementById("error-message1");
-    var submitButton = document.getElementById("URLsubmit-btn");
+    var errorMessage = document.getElementById("error-message3");
+    var submitButton = document.getElementById("URLsubmit-btn3");
 
-    if (validateYouTubeVideoUrl(inputValue)) {
+    if (validateYouTubePlaylistUrl(inputValue)) {
         console.log("Valid YouTube URL");
         submitButton.classList.add("active");
         errorMessage.innerText = "";
@@ -44,20 +70,9 @@ inputElement.addEventListener("change", function() {
     }
 });
 
-
-function validateYouTubeUrl(urlToParse) {
+function validateYouTubePlaylistUrl(urlToParse) {
     if (urlToParse) {
-        var regExp = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-        if (urlToParse.match(regExp)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function validateYouTubeUrl(urlToParse) {
-    if (urlToParse) {
-        var regExp = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|playlist\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+        var regExp = /^(https?:\/\/)?(www\.)?(youtube\.com\/(.*\/)?|youtu\.be\/)playlist\?list=([\w-]+)(\?.*)?$/;
         if (urlToParse.match(regExp)) {
             return true;
         }

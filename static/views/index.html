@@ -16,7 +16,7 @@
                 <div class="logo">
                     <img src="images/youtubelogo.svg" alt="Youtube">
                     <p>-></p>
-                    <img src="images/spotifylogo.svg" alt="Spotify">
+                    <img src="images/spotifylogo.svg" alt="Spotify" id="spotifylogo">
                 </div>
                 <div class="links">
                     <a>Placeholder</a>
@@ -31,7 +31,7 @@
                         <div id="featureNav">
                             <div id="featureNavLinks">
                                 <div id="featureNavIdSong" class="active"><a onclick="toggleFeature('featureNavIdSong')">Identify song</a></div>
-                            <div id="featureNavIdPlaylist"><a onclick="toggleFeature('featureNavIdPlaylist')">Identify playlist</a></div>
+                            <div id="featureNavIdPlaylist"><a onclick="toggleFeature('featureNavIdPlaylist')">Identify all songs in a video</a></div>
                             <div id="featureNavConvertPlaylist"><a onclick="toggleFeature('featureNavConvertPlaylist')">Convert playlist</a></div>
                             </div>
                         </div>
@@ -43,7 +43,7 @@
                                         </div>
                                         <div class="inputDiv">
                                             <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
-                                            <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                            <div id="URLsubmit-btn1"><p>Submit</p></div>
                                         </div>
                                         <p id="error-message1"></p>
                                     </form>
@@ -55,7 +55,7 @@
                                     </div>
                                     <div class="inputDiv">
                                         <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
-                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                        <div id="URLsubmit-btn2"><p>Submit</p></div>
                                     </div>
                                     <p id="error-message2"></p>
                                 </form>
@@ -66,8 +66,8 @@
                                         <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
                                     </div>
                                     <div class="inputDiv">
-                                        <input type="text" class="URLinput" placeholder="youtube.com/playlist?v=YoU-tuBe_23">
-                                        <input type="submit" id="URLsubmit-btn" value="Submit">  
+                                        <input type="text" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
+                                        <div id="URLsubmit-btn3"><p>Submit</p></div>
                                     </div>
                                     <p id="error-message3"></p>
                                 </form>
