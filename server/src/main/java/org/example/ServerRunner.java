@@ -1,6 +1,8 @@
 package org.example;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -108,7 +110,51 @@ public class ServerRunner {
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
     private void convertPlaylist(String url) {
-        System.out.print(url);
+        System.out.println("Received URL: " + url);
+        String playlistId = extractPlaylistId(url);
+
+        if (playlistId != null) {
+            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+            String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
+            String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s", playlistId, apiKey);
+
+            httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
+
+            try {
+                response = httpClient.execute(httpGet);
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+                Gson gson = new Gson();
+                JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+
+                if (responseJson.has("items")) {
+                    JsonArray itemsArray = responseJson.getAsJsonArray("items");
+
+                    for (JsonElement item : itemsArray) {
+                        JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
+                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                        String videoId = snippet.getAsJsonObject("resourceId").getAsJsonPrimitive("videoId").getAsString();
+
+                        System.out.println("Video Title: " + videoTitle);
+                        System.out.println("Video ID: " + videoId);
+
+                    }
+                } else {
+                    System.out.println("No videos found in the playlist");
+                }
+            } catch (Exception e) {
+                System.out.println("Error fetching YouTube playlist: " + e);
+            }
+        } else {
+            System.out.println("Invalid YouTube playlist URL");
+    }
+}
+
+    private String extractPlaylistId(String url) {
+        String regex = "[&?]list=([^&]+)";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+        java.util.regex.Matcher matcher = pattern.matcher(url);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
    /**

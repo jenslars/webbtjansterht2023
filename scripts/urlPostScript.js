@@ -122,15 +122,9 @@ function toggleFeature(id) {
 
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
-    console.log("Vi är i convertPlaylist");
     var url = document.getElementById("convertPlaylistInput").value;
-    console.log(url);
-    fetch('convertPlaylist', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: url }),
+    fetch('/convertPlaylist?url=' + encodeURIComponent(url), {
+        method: 'GET',
     })
     .then(response => {
         console.log('Backend response:', response);
