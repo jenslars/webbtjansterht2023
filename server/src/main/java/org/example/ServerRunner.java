@@ -50,6 +50,10 @@ public class ServerRunner {
                     String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
                     ctx.html(htmlContent);
                 })
+                .get("/convertPlaylist", ctx -> {
+                    String url = ctx.queryParam("url");
+                    serverRunner.convertPlaylist(url);
+                })
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
@@ -98,6 +102,13 @@ public class ServerRunner {
             System.out.println(e);
         }
         ctx.json(response);
+    }
+
+    /**
+     * Metod för att konvertera YouTube-spellista till Spotify-spellista.
+    */
+    private void convertPlaylist(String url) {
+        System.out.print(url);
     }
 
    /**

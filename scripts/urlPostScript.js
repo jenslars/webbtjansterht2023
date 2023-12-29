@@ -119,3 +119,23 @@ function toggleFeature(id) {
         identifySongContainer.classList.remove("active")   
     }
 }
+
+/* Metod för att skicka spellista-url till backend*/
+function convertPlaylist() {
+    console.log("Vi är i convertPlaylist");
+    var url = document.getElementById("convertPlaylistInput").value;
+    console.log(url);
+    fetch('convertPlaylist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url }),
+    })
+    .then(response => {
+        console.log('Backend response:', response);
+    })
+    .catch(error => {
+        console.error('Error sending data to backend:', error);
+    });
+}

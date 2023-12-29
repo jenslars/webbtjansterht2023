@@ -42,7 +42,7 @@
                                             <p>Please insert a valid YouTube URL with a timestamp for the song you wish to identify</p>
                                         </div>
                                         <div class="inputDiv">
-                                            <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
+                                            <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23t=1">
                                             <div id="URLsubmit-btn1"><p>Submit</p></div>
                                         </div>
                                         <p id="error-message1"></p>
@@ -66,8 +66,8 @@
                                         <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
                                     </div>
                                     <div class="inputDiv">
-                                        <input type="text" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
-                                        <div id="URLsubmit-btn3"><p>Submit</p></div>
+                                        <input type="text" id="convertPlaylistInput" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
+                                        <div id="URLsubmit-btn3" onclick="convertPlaylist()"><p>Submit</p></div>
                                     </div>
                                     <p id="error-message3"></p>
                                 </form>
