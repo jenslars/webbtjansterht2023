@@ -127,7 +127,14 @@ function convertPlaylist() {
         method: 'GET',
     })
     .then(response => {
-        console.log('Backend response:', response);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();  // Use response.text() for plain text
+    })
+    .then(data => {
+        console.log('Backend response:', data);
+        // Process the data as needed (e.g., update the UI)
     })
     .catch(error => {
         console.error('Error sending data to backend:', error);

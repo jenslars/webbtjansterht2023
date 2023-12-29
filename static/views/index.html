@@ -61,16 +61,21 @@
                                 </form>
                             </div>
                             <div id="convertPlaylistContainer">
-                                <form class="urlForm">
-                                    <div class="urlFormInputLabel">
-                                        <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
+                                <div id="expandedConvertPlaylistContainer" class="active">
+                                    <form class="urlForm">
+                                        <div class="urlFormInputLabel">
+                                            <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
+                                        </div>
+                                        <div class="inputDiv">
+                                            <input type="text" id="convertPlaylistInput" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
+                                            <div id="URLsubmit-btn3" onclick="convertPlaylist()"><p>Submit</p></div>
+                                        </div>
+                                        <p id="error-message3"></p>
+                                    </form>
+                                    <div id="resultContainer">
+
                                     </div>
-                                    <div class="inputDiv">
-                                        <input type="text" id="convertPlaylistInput" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
-                                        <div id="URLsubmit-btn3" onclick="convertPlaylist()"><p>Submit</p></div>
-                                    </div>
-                                    <p id="error-message3"></p>
-                                </form>
+                                </div>
                             </div>
                         </div>  
                     </div>

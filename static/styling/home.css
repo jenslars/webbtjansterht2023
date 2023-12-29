@@ -170,3 +170,10 @@ html{
 #convertPlaylistContainer{
     display: none;
 }
+
+#expandedConvertPlaylistContainer.active{
+    height: 500px;
+    background-color: #3b3b3d;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}

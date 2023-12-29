@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -19,7 +20,10 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +36,7 @@ public class ServerRunner {
     HttpPut httpPut = null;
     CloseableHttpResponse response = null;
     String accessToken = null;
-    Gson gson = new Gson();
+    static Gson gson = new Gson();
 
     /**
      * Main-metod som startar servern och lyssnar efter API-anrop.
@@ -55,6 +59,14 @@ public class ServerRunner {
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
                     serverRunner.convertPlaylist(url);
+
+                    List<TrackInfo> trackInfoList = serverRunner.convertPlaylist(url);
+
+                    JsonObject jsonResponse = new JsonObject();
+                    jsonResponse.addProperty("status", "success");
+                    jsonResponse.addProperty("message", "Playlist converted successfully");
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    ctx.json(jsonResponse.toString());
                 })
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
@@ -109,7 +121,7 @@ public class ServerRunner {
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
-    private void convertPlaylist(String url) {
+    private List<TrackInfo> convertPlaylist(String url) {
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
 
@@ -130,15 +142,18 @@ public class ServerRunner {
                 if (responseJson.has("items")) {
                     JsonArray itemsArray = responseJson.getAsJsonArray("items");
 
+                    List<String> videoTitles = new ArrayList<>();
+
                     for (JsonElement item : itemsArray) {
                         JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                         String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
-                        String videoId = snippet.getAsJsonObject("resourceId").getAsJsonPrimitive("videoId").getAsString();
 
                         System.out.println("Video Title: " + videoTitle);
-                        System.out.println("Video ID: " + videoId);
 
+                        videoTitles.add(videoTitle);
                     }
+
+                    return searchSongsOnSpotify(videoTitles);
                 } else {
                     System.out.println("No videos found in the playlist");
                 }
@@ -147,14 +162,77 @@ public class ServerRunner {
             }
         } else {
             System.out.println("Invalid YouTube playlist URL");
+        }
+
+        return new ArrayList<>();
     }
-}
 
     private String extractPlaylistId(String url) {
         String regex = "[&?]list=([^&]+)";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group(1) : null;
+    }
+
+    /**
+     * Metod för att hämta lista av hittade låtar hos Spotify.
+    */
+
+    private List<TrackInfo> searchSongsOnSpotify(List<String> titles) {
+        requestAccessToken();
+        List<TrackInfo> trackInfoList = new ArrayList<>();
+
+        if (accessToken == null) {
+            System.out.println("Access token is null.");
+            return trackInfoList;
+        }
+
+        String spotifyApiUrl = "https://api.spotify.com/v1/search";
+
+        for (String title : titles) {
+            try {
+                String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
+                String searchUrl = String.format("%s?q=%s&type=track", spotifyApiUrl, encodedTitle);
+
+                HttpGet httpGet = new HttpGet(searchUrl);
+                httpGet.setHeader("Authorization", "Bearer " + accessToken);
+                CloseableHttpResponse response = httpClient.execute(httpGet);
+
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+                Gson gson = new Gson();
+                JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+
+                if (responseJson.has("tracks")) {
+                    JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
+
+                    for (JsonElement track : tracksArray) {
+                        JsonObject trackInfoJson = new JsonObject();
+                        trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
+                        trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
+                        trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
+
+                        trackInfoList.add(gson.fromJson(trackInfoJson, TrackInfo.class));
+                    }
+                }
+                response.close();
+            } catch (Exception e) {
+                System.out.println("Error searching on Spotify: " + e);
+            }
+        }
+
+        return trackInfoList;
+    }
+
+    /**
+     * Klass för en låt på spotify.
+    */
+
+    private static class TrackInfo {
+        String title;
+        String artist;
+        String imageUrl;
+
     }
 
    /**
@@ -247,24 +325,32 @@ public class ServerRunner {
     private void requestAccessToken() {
         try {
             httpClient = HttpClients.createDefault();
-
+    
             String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String requestBody = "grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret;
-
+    
             httpPost = new HttpPost("https://accounts.spotify.com/api/token");
-            httpPost.setHeader("Content-Type:", "application/x-www-form-urlencoded");
+            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             httpPost.setEntity(new StringEntity(requestBody));
-
+    
             try {
                 response = httpClient.execute(httpPost);
-                accessToken = response.getEntity().toString(); //TODO: Klassens instansvariabel accessToken blir reassigned här. Dubbelkolla så att det funkar och om datatyp är giltig.
+    
+                // Correct way to obtain the access token from the response
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                JsonParser parser = new JsonParser();
+                JsonObject json = parser.parse(responseBody).getAsJsonObject();
+                accessToken = json.get("access_token").getAsString();
+    
+                // Print the access token for debugging
+                System.out.println("Access Token: " + accessToken);
             } catch (Exception e) {
                 System.out.println(e);
             }
-
+    
         } catch (Exception e) {
-            System.out.println(e);;
+            System.out.println(e);
         }
     }
 
