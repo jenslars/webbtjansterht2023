@@ -179,7 +179,7 @@ public class ServerRunner {
 
     /**
      * Metod för att hämta lista av hittade låtar hos Spotify
-     * Tar URL som input och kan återanvändas av andra metoder
+     * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
     */
 
     private List<TrackInfo> searchSongsOnSpotify(List<String> titles) {
