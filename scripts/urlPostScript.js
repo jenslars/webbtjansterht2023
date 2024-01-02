@@ -1,7 +1,7 @@
 /* Metod för att validera url*/
 var urlInput_1 = document.getElementsByClassName("URLinput")[0];
 
-urlInput_1.addEventListener("change", function() {
+urlInput_1.addEventListener("input", function() {
     var inputValue = this.value;
     var errorMessage = document.getElementById("error-message1");
     var submitButton = document.getElementById("URLsubmit-btn1");
@@ -13,6 +13,7 @@ urlInput_1.addEventListener("change", function() {
     } else {
         console.log("Invalid YouTube URL");
         errorMessage.innerText = "Invalid YouTube URL";
+        submitButton.classList.remove("active");
     }
 });
 
@@ -28,7 +29,7 @@ function validateYouTubeVideoTimestampUrl(urlToParse) {
 
 var urlInput_2 = document.getElementsByClassName("URLinput")[1];
 
-urlInput_2.addEventListener("change", function() {
+urlInput_2.addEventListener("input", function() {
     var inputValue = this.value;
     var errorMessage = document.getElementById("error-message2");
     var submitButton = document.getElementById("URLsubmit-btn2");
@@ -40,6 +41,7 @@ urlInput_2.addEventListener("change", function() {
     } else {
         console.log("Invalid YouTube URL");
         errorMessage.innerText = "Invalid YouTube URL";
+        submitButton.classList.remove("active");
     }
 });
 
@@ -55,18 +57,23 @@ function validateYouTubeVideoUrl(urlToParse) {
 
 var urlInput_3 = document.getElementsByClassName("URLinput")[2];
 
-urlInput_3.addEventListener("change", function() {
+urlInput_3.addEventListener("input", function() {
     var inputValue = this.value;
-    var errorMessage = document.getElementById("error-message3");
-    var submitButton = document.getElementById("URLsubmit-btn3");
+    var errorMessage3 = document.getElementById("error-message3");
+    var submitButton3 = document.getElementById("URLsubmit-btn3");
 
     if (validateYouTubePlaylistUrl(inputValue)) {
         console.log("Valid YouTube URL");
-        submitButton.classList.add("active");
-        errorMessage.innerText = "";
+        submitButton3.classList.add("active");
+        errorMessage3.innerText = "";
+        submitButton3.onclick = function() {
+            convertPlaylist();
+        };
     } else {
         console.log("Invalid YouTube URL");
-        errorMessage.innerText = "Invalid YouTube URL";
+        errorMessage3.innerText = "Invalid YouTube URL";
+        submitButton3.classList.remove("active");
+        submitButton3.onclick = null; 
     }
 });
 
@@ -78,6 +85,10 @@ function validateYouTubePlaylistUrl(urlToParse) {
         }
     }
     return false;
+}
+
+function toggleCheckbox(checkbox) {
+    checkbox.classList.toggle('active');
 }
 
 /* Metod för att visa rätt feature container*/
@@ -130,13 +141,143 @@ function convertPlaylist() {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.text();  // Use response.text() for plain text
+        return response.json();
     })
     .then(data => {
         console.log('Backend response:', data);
-        // Process the data as needed (e.g., update the UI)
+        var serviceContainer = document.getElementById('serviceContainer')
+        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
+        
+        expandedConvertPlaylistContainer.classList.add('active')
+        serviceContainer.classList.add("active")
+        createPlaylistElements(data);
+        
     })
     .catch(error => {
         console.error('Error sending data to backend:', error);
     });
 }
+
+function createPlaylistElements(data) {
+    // Get the expandedConvertPlaylistContainer
+    var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
+
+    // Create resultContainer if it doesn't exist
+    var resultContainer = document.getElementById('resultContainer');
+    if (!resultContainer) {
+        resultContainer = document.createElement('div');
+        resultContainer.id = 'resultContainer';
+        expandedConvertPlaylistContainer.appendChild(resultContainer);
+    }
+
+    var resultDivider = document.createElement('div');
+    resultDivider.className = 'resultDivider';
+    resultContainer.appendChild(resultDivider);
+
+    var resultHeader = document.createElement('div');
+    resultHeader.className = 'resultHeader';
+    resultContainer.appendChild(resultHeader);
+
+    var h3Element = document.createElement('h3');
+    h3Element.textContent = 'Songs identified on Spotify';
+    resultHeader.appendChild(h3Element);
+
+    var resultSpotifyButtons = document.createElement('div');
+    resultSpotifyButtons.className = 'resultSpotifyButtons';
+    resultHeader.appendChild(resultSpotifyButtons);
+
+    var addToPlaylistBtn = document.createElement('button');
+    addToPlaylistBtn.className = 'addToPlaylist-btn';
+    addToPlaylistBtn.textContent = 'Add to playlist';
+    resultSpotifyButtons.appendChild(addToPlaylistBtn);
+
+    var createPlaylistBtn = document.createElement('button');
+    createPlaylistBtn.className = 'createPlaylist-btn';
+    createPlaylistBtn.textContent = 'Create new playlist';
+    resultSpotifyButtons.appendChild(createPlaylistBtn);
+
+    var scrollContainer = document.createElement('div');
+    scrollContainer.className = 'scrollContainer';
+    resultContainer.appendChild(scrollContainer);
+
+    var spotifyTable = document.createElement('table');
+    spotifyTable.className = 'spotifyTable';
+    scrollContainer.appendChild(spotifyTable);
+
+    var theadElement = document.createElement('thead');
+    spotifyTable.appendChild(theadElement);
+
+    var trHead = document.createElement('tr');
+    trHead.className = 'tableHead';
+    theadElement.appendChild(trHead);
+
+    var thInclude = document.createElement('th');
+    thInclude.textContent = 'Include';
+    trHead.appendChild(thInclude);
+
+    var thTitle = document.createElement('th');
+    thTitle.textContent = 'Title';
+    trHead.appendChild(thTitle);
+
+    var thAlbum = document.createElement('th');
+    thAlbum.textContent = 'Album';
+    trHead.appendChild(thAlbum);
+
+    var tbodyElement = document.createElement('tbody');
+    spotifyTable.appendChild(tbodyElement);
+
+    var trDivider = document.createElement('tr');
+    trDivider.className = 'tableDivider';
+    tbodyElement.appendChild(trDivider);
+
+    for (var i = 0; i < data.tracks.length; i++) {
+        var track = data.tracks[i];
+
+        var trTrack = document.createElement('tr');
+        trTrack.className = 'tableTrackRow';
+        tbodyElement.appendChild(trTrack);
+
+        var tdCheckbox = document.createElement('td');
+        trTrack.appendChild(tdCheckbox);
+
+        var divCheckbox = document.createElement('div');
+        divCheckbox.className = 'customCheckbox active';
+        divCheckbox.onclick = function() {
+            toggleCheckbox(this);
+        };
+        tdCheckbox.appendChild(divCheckbox);
+
+        var tdTitle = document.createElement('td');
+        trTrack.appendChild(tdTitle);
+
+        var divTitleRow = document.createElement('div');
+        divTitleRow.className = 'titleRow';
+        tdTitle.appendChild(divTitleRow);
+
+        var imgTitle = document.createElement('img');
+        imgTitle.src = track.imageUrl;
+        imgTitle.alt = track.title;
+        divTitleRow.appendChild(imgTitle);
+
+        var divTitleRowText = document.createElement('div');
+        divTitleRowText.className = 'titleRowText';
+        divTitleRow.appendChild(divTitleRowText);
+
+        var pTitleSong = document.createElement('p');
+        pTitleSong.className = 'titleSong';
+        pTitleSong.textContent = track.title;
+        divTitleRowText.appendChild(pTitleSong);
+
+        var pTitleArtist = document.createElement('p');
+        pTitleArtist.className = 'titleArtist';
+        pTitleArtist.textContent = track.artist;
+        divTitleRowText.appendChild(pTitleArtist);
+
+        var tdAlbum = document.createElement('td');
+        tdAlbum.className = 'titleAlbum';
+        tdAlbum.textContent = track.album;
+        trTrack.appendChild(tdAlbum);
+    }
+}
+
+

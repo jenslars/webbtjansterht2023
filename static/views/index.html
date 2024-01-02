@@ -14,9 +14,9 @@
         <main>
             <nav class="mainNav">
                 <div class="logo">
-                    <img src="images/youtubelogo.svg" alt="Youtube">
+                    <img src="images/svg/youtubelogo.svg" alt="Youtube">
                     <p>-></p>
-                    <img src="images/spotifylogo.svg" alt="Spotify" id="spotifylogo">
+                    <img src="images/svg/spotifylogo.svg" alt="Spotify" id="spotifylogo">
                 </div>
                 <div class="links">
                     <a>Placeholder</a>
@@ -43,7 +43,7 @@
                                         </div>
                                         <div class="inputDiv">
                                             <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23t=1">
-                                            <div id="URLsubmit-btn1"><p>Submit</p></div>
+                                            <button id="URLsubmit-btn1" type="button">Submit</button>
                                         </div>
                                         <p id="error-message1"></p>
                                     </form>
@@ -55,26 +55,62 @@
                                     </div>
                                     <div class="inputDiv">
                                         <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
-                                        <div id="URLsubmit-btn2"><p>Submit</p></div>
+                                        <button id="URLsubmit-btn2" type="button">Submit</button>
                                     </div>
                                     <p id="error-message2"></p>
                                 </form>
                             </div>
                             <div id="convertPlaylistContainer">
-                                <div id="expandedConvertPlaylistContainer" class="active">
+                                <div id="expandedConvertPlaylistContainer">
                                     <form class="urlForm">
                                         <div class="urlFormInputLabel">
                                             <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
                                         </div>
                                         <div class="inputDiv">
                                             <input type="text" id="convertPlaylistInput" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
-                                            <div id="URLsubmit-btn3" onclick="convertPlaylist()"><p>Submit</p></div>
+                                            <button type="button" id="URLsubmit-btn3">Submit</button>
                                         </div>
                                         <p id="error-message3"></p>
                                     </form>
+                                    <!--This is a comment. Comments are not displayed in the browser
                                     <div id="resultContainer">
-
+                                        <div class="resultDivider"></div>
+                                        <div class="resultHeader">
+                                            <h3>Songs identified on Spotify</h3>
+                                            <div class="resultSpotifyButtons">
+                                                <button class="addToPlaylist-btn">Add to playlist</button>
+                                                <button class="createPlaylist-btn">Create new playlist</button>
+                                            </div>
+                                        </div>
+                                        <div class="scrollContainer">
+                                            <table class="spotifyTable">
+                                                <thead>
+                                                    <tr class="tableHead">
+                                                        <th>Include</th>
+                                                        <th>Title</th>
+                                                        <th>Album</th>
+                                                    </tr>
+                                                    <tr class="tableDivider">
+                                                        <td colspan="3"></td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="tableTrackRow">
+                                                        <td><div class="customCheckbox active" onclick="toggleCheckbox(this)"></div></td>
+                                                        <td class="titleRow">
+                                                            <img src="https://i.scdn.co/image/ab67616d0000b2737af0c13dce12e734753b4790">
+                                                            <div class="titleRowText">
+                                                                <p class="titleSong">Pikachu</p>
+                                                                <p class="titleArtist">Yung Lean</p>
+                                                            </div>
+                                                        </td>
+                                                        <td class="titleAlbum">Starz</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
+                                -->
                                 </div>
                             </div>
                         </div>  

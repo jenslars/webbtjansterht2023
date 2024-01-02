@@ -19,6 +19,17 @@ html{
     margin-top: 20px;
 }
 
+#serviceContainer.active{
+    background-color: #262628;
+    height: 680px;
+    width: 60%;
+    border-radius: 20px;
+    color: #ffffff;
+    font-family: 'Lexend';
+    margin-top: 20px;
+    transition: 0.5s;
+}
+
 #serviceLabel{
     font-weight: 500;
     margin-left: 3%;
@@ -95,22 +106,28 @@ html{
 
 .urlForm p{
     margin-top: 20px;
+   
+}
+
+.urlForm{
+    margin-bottom: 30px;
 }
 
 .URLinput{
+    border: 1px solid #a5a5a5;
     background-color: #444447;
-    border: none;
     height: 30px;
     width: 400px;
     margin-left: 40px;
-    border-radius: 5px;
+    border-radius: 50px;
     color: #ffffff;
-    padding-left: 12px;
+    padding-left: 20px;
     box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
 }
 
 .URLinput:focus{
-    outline: 1px solid #368dff
+    border: 1px solid #ffffff;
+    outline: none;
 }
 
 .inputDiv{
@@ -118,21 +135,18 @@ html{
 }
 
 #URLsubmit-btn1, #URLsubmit-btn2, #URLsubmit-btn3{
-    display:inline-block;
-    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-    cursor:pointer;
-    vertical-align:middle;
-    padding: 5px;
-    text-align: center;
-    font-size: 14px;
-    height: 20px;
-    margin-left: 20px;
-    border-radius: 5px;
-    background-color: #444447;
-    color: #ffffff;
+    font-size: 12px;
+    border: 1px solid #a5a5a5;
     font-family: 'Lexend';
-    padding-left: 10px;
-    padding-right: 10px;
+    color: #ffffff;
+    background-color: #3b3b3d;
+    font-weight: 700;
+    transition-duration: 33ms;
+    border-radius: 50px;
+    padding: 7px 15px 7px 15px;
+    height: 30px;
+    margin-left: 20px;
+    transition: 0.5s;
 }
 
 #URLsubmit-btn1 p, #URLsubmit-btn2 p, #URLsubmit-btn3 p{ 
@@ -141,7 +155,9 @@ html{
 
 #URLsubmit-btn1.active, #URLsubmit-btn2.active, #URLsubmit-btn3.active{
     background-color: #368dff;
-    transition: 1s;
+    transition: 0.5s;
+    border: none;
+    cursor: pointer;
 }
 
 #error-message1, #error-message2, #error-message3{
@@ -171,9 +187,181 @@ html{
     display: none;
 }
 
+#expandedConvertPlaylistContainer{
+    height: 300px;
+    overflow: hidden;
+}
+
 #expandedConvertPlaylistContainer.active{
-    height: 500px;
+    height: 520px;
     background-color: #3b3b3d;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
+    transition: 0.2s;
+    overflow: visible;
 }
+
+.resultDivider{
+    height: 5px;
+    width: 95%;
+    background-color: #636363;
+    margin: auto;
+    border-radius: 20px;
+}
+
+.resultHeader{
+    display: flex;
+    margin-left: 40px;
+    align-items: center;
+}
+
+.resultHeader button{
+    margin-left:10px;
+}
+
+.createPlaylist-btn, .addToPlaylist-btn{
+    font-size: 12px;
+    border: 1px solid #a5a5a5;
+    cursor: pointer;
+    font-family: 'Lexend';
+    color: #ffffff;
+    background-color: #3b3b3d;
+    font-weight: 700;
+    transition-duration: 33ms;
+    border-radius: 50px;
+    padding: 7px 15px 7px 15px;
+    height: 30px;
+}
+
+.createPlaylist-btn:hover, .addToPlaylist-btn:hover{
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+    border: 1px solid #ffffff;
+    transition-duration: 33ms;
+}
+
+.resultSpotifyButtons{
+    margin-left: auto;
+    margin-right: 40px;
+}
+
+#resultContainer th{
+    font-weight: 300;
+    font-size: 12px;
+    color: #a5a5a5;
+    text-align: left;
+}
+
+.titleRow{
+    display: flex;
+    font-size: 16px;
+    align-items: center;
+}
+
+.titleRow img{
+    height: 40px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+}
+
+.titleRowText{
+    margin-left: 5px;
+    margin-top: -3px;
+}
+
+.titleArtist{
+    color: #c5c5c5;
+    font-size: 12px;
+    margin-top: -15px;
+}
+
+.titleAlbum{
+    font-size: 14px;
+    color: #c5c5c5;
+}
+
+.customCheckbox.active{
+    background-color: #1ed760;
+    background-image: url(/images/png/checkblack.png);
+    background-size: 55%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border-radius: 100px;
+    border: none;
+    width: 35px;
+    height: 35px;
+    transition: 0.33s;
+    cursor: pointer;
+}
+
+.customCheckbox{
+    background-color: #1d1c1c00;
+    background-image: url(/images/png/checkgrey.png);
+    border: 1px solid  #a5a5a5;
+    transition: 0.33s;
+    background-size: 55%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border-radius: 100px;
+    width: 35px;
+    height: 35px;
+    transition: 0.33s;
+    cursor: pointer;
+}
+
+.tableDivider{
+    height: 1px;
+    width: 90%;
+    background-color: #525252;
+    margin: auto;
+    position: sticky;
+    top: 20px;
+    z-index: 2;
+}
+
+.spotifyTable{
+    margin: auto;
+    width: 80%;
+}
+
+.tableHead th{
+    padding-left: 20px;
+    position: sticky;
+    top: 0px; 
+    z-index: 1;
+    background-color: #3b3b3d;
+    padding-bottom: 4px;
+}
+
+
+.tableHead{
+    background-color: #3b3b3d;
+
+}
+
+.tableTrackRow td{
+    padding-left: 20px;
+}
+
+#resultContainer {
+    max-height: 420px;
+}
+
+.scrollContainer {
+    max-height: 320px;
+    overflow-y: auto;
+    width: 90%;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    transition: 0.25s;
+  }

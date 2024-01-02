@@ -80,8 +80,11 @@ public class ServerRunner {
                 .get("/static/styling/{filename}", ctx -> {
                     serverRunner.serveCssFile(ctx);
                 });
-                app.get("/images/{filename}", ctx -> {
+                app.get("/images/svg/{filename}", ctx -> {
                     serverRunner.serveSvgFile(ctx);
+                });
+                app.get("/images/png/{filename}", ctx -> {
+                    serverRunner.servePngFile(ctx);
                 })
                 .get("/{id}", ctx -> {
                     serverRunner.getSongUrl(ctx);
@@ -175,44 +178,51 @@ public class ServerRunner {
     }
 
     /**
-     * Metod för att hämta lista av hittade låtar hos Spotify.
+     * Metod för att hämta lista av hittade låtar hos Spotify
+     * Tar URL som input och kan återanvändas av andra metoder
     */
 
     private List<TrackInfo> searchSongsOnSpotify(List<String> titles) {
         requestAccessToken();
         List<TrackInfo> trackInfoList = new ArrayList<>();
-
+    
         if (accessToken == null) {
             System.out.println("Access token is null.");
             return trackInfoList;
         }
-
+    
         String spotifyApiUrl = "https://api.spotify.com/v1/search";
-
+    
         for (String title : titles) {
             try {
                 String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
                 String searchUrl = String.format("%s?q=%s&type=track", spotifyApiUrl, encodedTitle);
-
+    
                 HttpGet httpGet = new HttpGet(searchUrl);
                 httpGet.setHeader("Authorization", "Bearer " + accessToken);
                 CloseableHttpResponse response = httpClient.execute(httpGet);
-
+    
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
+    
                 Gson gson = new Gson();
                 JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
-
+    
                 if (responseJson.has("tracks")) {
                     JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
-
+    
                     for (JsonElement track : tracksArray) {
                         JsonObject trackInfoJson = new JsonObject();
                         trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
                         trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
                         trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
-
-                        trackInfoList.add(gson.fromJson(trackInfoJson, TrackInfo.class));
+                        trackInfoJson.addProperty("album", track.getAsJsonObject().getAsJsonObject("album").getAsJsonPrimitive("name").getAsString());
+    
+                        TrackInfo newTrack = gson.fromJson(trackInfoJson, TrackInfo.class);
+    
+                        // Check for duplicates before adding to the list
+                        if (!isDuplicate(trackInfoList, newTrack)) {
+                            trackInfoList.add(newTrack);
+                        }
                     }
                 }
                 response.close();
@@ -220,20 +230,51 @@ public class ServerRunner {
                 System.out.println("Error searching on Spotify: " + e);
             }
         }
-
+    
         return trackInfoList;
     }
+    
+    private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
+        // Check for duplicates based on your criteria
+        // For example, you might consider two tracks with the same title and artist as duplicates
+        for (TrackInfo existingTrack : trackInfoList) {
+            if (existingTrack.getTitle().equals(newTrack.getTitle()) &&
+                existingTrack.getArtist().equals(newTrack.getArtist())) {
+                return true; // Duplicate found
+            }
+        }
+        return false; // No duplicate found
+    }
+    
+    
 
     /**
      * Klass för en låt på spotify.
     */
 
     private static class TrackInfo {
-        String title;
-        String artist;
-        String imageUrl;
-
+        private String title;
+        private String artist;
+        private String imageUrl;
+        private String album;
+    
+        public String getTitle() {
+            return title;
+        }
+    
+        public String getArtist() {
+            return artist;
+        }
+    
+        public String getImageUrl() {
+            return imageUrl;
+        }
+    
+        public String getAlbum() {
+            return album;
+        }
     }
+    
 
    /**
      * Metod för att hämta Javascript-fil.
@@ -285,13 +326,35 @@ public class ServerRunner {
     private void serveSvgFile(io.javalin.http.Context ctx) {
         String fileName = ctx.pathParam("filename");
 
-        Path filePath = Paths.get("images/" + fileName);
+        Path filePath = Paths.get("images/svg/" + fileName);
 
         if (Files.exists(filePath)) {
-            ctx.contentType("svg+xml");
+            ctx.contentType("image/svg+xml");
 
             try {
                 ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta PNG-fil.
+    */
+    private void servePngFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+    
+        Path filePath = Paths.get("images/png/" + fileName);
+    
+        if (Files.exists(filePath)) {
+            ctx.contentType("image/png");
+    
+            try {
+                ctx.result(Files.readAllBytes(filePath));
             } catch (Exception e) {
                 e.printStackTrace();
                 ctx.status(500).result("Internal Server Error");

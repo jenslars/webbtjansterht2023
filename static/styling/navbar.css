@@ -7,6 +7,7 @@
     justify-content: space-between;
     font-family: 'Lexend';
     height: 100px;
+    align-items: center;
 }
 
 .logo{
@@ -29,9 +30,7 @@
 
 .links{
     justify-content: space-between;
-    align-items: center;
-    margin: auto;
-    margin-left: 20%;
+    margin-left: auto;
 }
 
 .links a{
