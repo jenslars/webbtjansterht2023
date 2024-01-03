@@ -1,3 +1,36 @@
+//Popup for spotify
+function spotifyPopup(type) {
+    if (type == 'createPlaylist') {
+        var spotifyPopupDiv = document.getElementById('spotifyPopupCreate');
+        var mainContainer = document.getElementById('main');
+        spotifyPopupDiv.classList.add('active');
+        mainContainer.classList.add('blur');
+    }
+
+    else if (type == 'addToPlaylist') {
+        var spotifyPopupDiv2 = document.getElementById('spotifyPopupAdd');
+        var mainContainer = document.getElementById('main');
+        spotifyPopupDiv2.classList.add('active');
+        mainContainer.classList.add('blur');
+    }
+}
+
+function cancelSpotifyPopup(type) {
+    if (type == 'createPlaylist') {
+        var spotifyPopupDiv = document.getElementById('spotifyPopupCreate');
+        var mainContainer = document.getElementById('main');
+        spotifyPopupDiv.classList.remove('active');
+        mainContainer.classList.remove('blur');
+    }
+
+    else if (type == 'addToPlaylist') {
+        var spotifyPopupDiv = document.getElementById('spotifyPopupAdd');
+        var mainContainer = document.getElementById('main');
+        spotifyPopupDiv.classList.remove('active');
+        mainContainer.classList.remove('blur');
+    }
+}
+
 /* Metod för att validera url*/
 var urlInput_1 = document.getElementsByClassName("URLinput")[0];
 
@@ -189,11 +222,17 @@ function createPlaylistElements(data) {
     var addToPlaylistBtn = document.createElement('button');
     addToPlaylistBtn.className = 'addToPlaylist-btn';
     addToPlaylistBtn.textContent = 'Add to playlist';
+    addToPlaylistBtn.onclick = function() {
+        spotifyPopup('addToPlaylist');
+    };
     resultSpotifyButtons.appendChild(addToPlaylistBtn);
 
     var createPlaylistBtn = document.createElement('button');
     createPlaylistBtn.className = 'createPlaylist-btn';
     createPlaylistBtn.textContent = 'Create new playlist';
+    createPlaylistBtn.onclick = function() {
+        spotifyPopup('createPlaylist');
+    };
     resultSpotifyButtons.appendChild(createPlaylistBtn);
 
     var scrollContainer = document.createElement('div');
