@@ -78,8 +78,6 @@ public class ServerRunner {
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
-                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
-                    ctx.html(htmlContent);
                 })
                 .get("/scripts/{filename}", ctx -> {
                     serverRunner.serveJavaScriptFile(ctx);
@@ -244,15 +242,13 @@ public class ServerRunner {
     
     
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
-        // Check for duplicates based on your criteria
-        // For example, you might consider two tracks with the same title and artist as duplicates
         for (TrackInfo existingTrack : trackInfoList) {
             if (existingTrack.getTitle().equals(newTrack.getTitle()) &&
                 existingTrack.getArtist().equals(newTrack.getArtist())) {
-                return true; // Duplicate found
+                return true;
             }
         }
-        return false; // No duplicate found
+        return false;
     }
     
     
