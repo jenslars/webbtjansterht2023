@@ -78,6 +78,8 @@ public class ServerRunner {
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
+                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
+                    ctx.html(htmlContent);
                 })
                 .get("/scripts/{filename}", ctx -> {
                     serverRunner.serveJavaScriptFile(ctx);
