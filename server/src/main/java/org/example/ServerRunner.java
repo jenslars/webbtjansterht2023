@@ -216,6 +216,7 @@ public class ServerRunner {
                         trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
                         trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
                         trackInfoJson.addProperty("album", track.getAsJsonObject().getAsJsonObject("album").getAsJsonPrimitive("name").getAsString());
+                        trackInfoJson.addProperty("id", track.getAsJsonObject().getAsJsonPrimitive("id").getAsString());
     
                         TrackInfo newTrack = gson.fromJson(trackInfoJson, TrackInfo.class);
     
@@ -233,6 +234,7 @@ public class ServerRunner {
     
         return trackInfoList;
     }
+    
     
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         // Check for duplicates based on your criteria
@@ -257,6 +259,7 @@ public class ServerRunner {
         private String artist;
         private String imageUrl;
         private String album;
+        private String id;
     
         public String getTitle() {
             return title;
@@ -272,6 +275,10 @@ public class ServerRunner {
     
         public String getAlbum() {
             return album;
+        }
+    
+        public String getId() {
+            return id;
         }
     }
     

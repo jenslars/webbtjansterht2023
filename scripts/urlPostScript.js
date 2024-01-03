@@ -164,6 +164,22 @@ function toggleFeature(id) {
     }
 }
 
+let selectedTrackIds = [];
+
+function connectToSpotify() {
+    document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
+        const checkbox = trackRow.querySelector('.customCheckbox');
+        if (checkbox.classList.contains('active')) {
+            const trackId = trackRow.querySelector('.trackId').textContent;
+            selectedTrackIds.push(trackId);
+        }
+    });
+
+    console.log('Selected Track IDs:', selectedTrackIds);
+    selectedTrackIds = [];
+}
+
+
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
     var url = document.getElementById("convertPlaylistInput").value;
@@ -293,6 +309,13 @@ function createPlaylistElements(data) {
         divTitleRow.className = 'titleRow';
         tdTitle.appendChild(divTitleRow);
 
+        // Add a hidden element to store the track ID
+        var spanTrackId = document.createElement('span');
+        spanTrackId.className = 'trackId';
+        spanTrackId.textContent = track.id; // Replace 'id' with the actual property name in your TrackInfo class
+        spanTrackId.style.display = 'none'; // Hide the element
+        divTitleRow.appendChild(spanTrackId);
+
         var imgTitle = document.createElement('img');
         imgTitle.src = track.imageUrl;
         imgTitle.alt = track.title;
@@ -318,5 +341,6 @@ function createPlaylistElements(data) {
         trTrack.appendChild(tdAlbum);
     }
 }
+
 
 
