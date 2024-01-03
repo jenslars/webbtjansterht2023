@@ -11,7 +11,7 @@
         <link href="static/styling/home.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <main>
+        <main id="main" class="blur">
             <nav class="mainNav">
                 <div class="logo">
                     <img src="images/svg/youtubelogo.svg" alt="Youtube">
@@ -121,6 +121,12 @@
                 </div>
             </div> 
         </main>
+        <div id="spotifyPopup" class="active">
+            <h3>Creating playlist</h3>
+            <p>In order to create a playlist you need to connect to Spotify</p>
+            <button id="login-btn">Connect to</button>
+            <button id="cancelSpotifyPopup">Cancel</button>
+        </div>
     </body>
     <script src="scripts/urlPostScript.js"></script>
 </html>
