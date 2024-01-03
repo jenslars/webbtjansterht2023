@@ -16,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.HttpHeaders;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.ContentType;
 
 
 import java.io.IOException;
@@ -28,6 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class ServerRunner {
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -55,6 +59,9 @@ public class ServerRunner {
                 .get("/login", ctx -> {
                     String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
                     ctx.html(htmlContent);
+                })
+                .get("/createPlaylist", ctx -> {
+                    serverRunner.createPlaylist(ctx);
                 })
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
@@ -381,6 +388,43 @@ public class ServerRunner {
     }
 
     /**
+     * Metod för att skapa en ny spellista i användarens Spotify-konto.
+     *
+     * @param ctx
+     */
+    private void createPlaylist(Context ctx) {
+        // Implementation for getting playlist ID
+
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            String userId = getUserId(accessToken);
+            HttpPost httpPost = new HttpPost("https://api.spotify.com/v1/users/" + userId + "/playlists");
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+            // hämtar datum och använder den som namn på listan, kanske kan passa bättre med titel på video?
+            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    
+            JsonObject playlistDetails = new JsonObject();
+            playlistDetails.addProperty("name", currentDate);
+            playlistDetails.addProperty("description", "Created with Spotify API");
+            playlistDetails.addProperty("public", false);
+    
+            StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
+            httpPost.setEntity(requestEntity);
+    
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+    
+            System.out.println("Response from Spotify API: " + responseBody);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+
+
+    /**
      * Metod för att lägga till låten i användarens Spotify-spellista.
      *
      * @param ctx
@@ -437,7 +481,7 @@ public class ServerRunner {
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String redirectURI = "http://localhost:5000/callback";
             String requestBody = "grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirectURI;
-    
+        
             HttpPost httpPost = new HttpPost("https://accounts.spotify.com/api/token");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
             httpPost.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
@@ -445,13 +489,17 @@ public class ServerRunner {
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-    
+        
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-    
+        
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(responseBody, JsonObject.class);
             accessToken = json.get("access_token").getAsString();
+        
+            // Get and print the user ID
+            String userId = getUserId(accessToken);
+            System.out.println("User ID: " + userId);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -463,6 +511,25 @@ public class ServerRunner {
      * @param filePath Sökväg till HTML-filen.
      * @return Innehållet i HTML-filen som en sträng.
      */
+
+    
+    private String getUserId(String accessToken) {
+    try {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://api.spotify.com/v1/me");
+        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+        String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+        Gson gson = new Gson();
+        JsonObject json = gson.fromJson(responseBody, JsonObject.class);
+        return json.get("id").getAsString();
+    } catch (Exception e) {
+        System.out.println(e);
+        return null;
+    }
+}
     private String readHtmlFile(String filePath) {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(filePath));
