@@ -178,12 +178,12 @@ function connectToSpotify() {
 
     console.log('Selected Track IDs:', selectedTrackIds);
 
-    fetch('/createPlaylist', {
+      fetch('/createPlaylist', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ trackIds: selectedTrackIds }),
+        body: JSON.stringify({ trackIds: selectedTrackIds }), // Send selectedTrackIds in the request body
     })
     .then(response => {
         if (!response.ok) {
@@ -240,9 +240,9 @@ function authenticateSpotify() {
 }
 
 
-
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
+    console.log('In convert playlist')
     var url = document.getElementById("convertPlaylistInput").value;
     fetch('/convertPlaylist?url=' + encodeURIComponent(url), {
         method: 'GET',
