@@ -60,7 +60,7 @@ public class ServerRunner {
                     String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
                     ctx.html(htmlContent);
                 })
-                .get("/createPlaylist", ctx -> {
+                .post("/createPlaylist", ctx -> {
                     serverRunner.createPlaylist(ctx);
                 })
                 .get("/convertPlaylist", ctx -> {
@@ -99,9 +99,11 @@ public class ServerRunner {
                 .get("/playlist/{id}", ctx -> {
                     serverRunner.getPlaylistID(ctx);
                 })
+                        /**
                 .post("/{id}", ctx -> {
                     serverRunner.addSongToPlaylist(ctx);
                 })
+                         **/
                 .start(5000);
 
         app.before(ctx -> {
@@ -190,14 +192,13 @@ public class ServerRunner {
     */
 
     private List<TrackInfo> searchSongsOnSpotify(List<String> titles) {
-        requestAccessToken();
         List<TrackInfo> trackInfoList = new ArrayList<>();
-    
+        /** 
         if (accessToken == null) {
             System.out.println("Access token is null.");
             return trackInfoList;
         }
-    
+        */
         String spotifyApiUrl = "https://api.spotify.com/v1/search";
     
         for (String title : titles) {
@@ -286,7 +287,14 @@ public class ServerRunner {
             return id;
         }
     }
+  
+    private static class TrackIdsRequestBody {
+        private List<String> trackIds;
     
+        public List<String> getTrackIds() {
+            return trackIds;
+        }
+    }
 
    /**
      * Metod för att hämta Javascript-fil.
@@ -392,7 +400,9 @@ public class ServerRunner {
      */
     private void createPlaylist(Context ctx) {
         // Implementation for getting playlist ID
-
+        TrackIdsRequestBody requestBody = ctx.bodyAsClass(TrackIdsRequestBody.class);
+        List<String> trackIds = requestBody.getTrackIds();
+        System.out.println("creating playlist...");
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
             String userId = getUserId(accessToken);
@@ -402,21 +412,45 @@ public class ServerRunner {
 
             // hämtar datum och använder den som namn på listan, kanske kan passa bättre med titel på video?
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    
+
             JsonObject playlistDetails = new JsonObject();
             playlistDetails.addProperty("name", currentDate);
             playlistDetails.addProperty("description", "Created with Spotify API");
             playlistDetails.addProperty("public", false);
-    
+
             StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
-    
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-    
+
             System.out.println("Response from Spotify API: " + responseBody);
+
+            // Parse the response to get the playlist ID
+            JsonObject jsonResponse = new JsonParser().parse(responseBody).getAsJsonObject();
+            String playlistId = jsonResponse.get("id").getAsString();
+
+            // Add tracks to the playlist
+            HttpPost httpPostAddTracks = new HttpPost("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks");
+            httpPostAddTracks.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            httpPostAddTracks.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+            JsonObject tracksDetails = new JsonObject();
+            // Convert track IDs to Spotify URI format and add them to a JsonArray
+            JsonArray trackUris = new JsonArray();
+            for (String trackId : trackIds) {
+                trackUris.add("spotify:track:" + trackId);
+            }
+            tracksDetails.add("uris", trackUris);
+            StringEntity requestEntityAddTracks = new StringEntity(tracksDetails.toString(), ContentType.APPLICATION_JSON);
+            httpPostAddTracks.setEntity(requestEntityAddTracks);
+
+            CloseableHttpResponse responseAddTracks = httpClient.execute(httpPostAddTracks);
+            String responseBodyAddTracks = EntityUtils.toString(responseAddTracks.getEntity(), StandardCharsets.UTF_8);
+
+            System.out.println("Response from Spotify API for adding tracks: " + responseBodyAddTracks);
         } catch (Exception e) {
-            System.out.println(e);
+        System.out.println(e);
         }
     }
 
@@ -426,11 +460,10 @@ public class ServerRunner {
      * Metod för att lägga till låten i användarens Spotify-spellista.
      *
      * @param ctx
-     */
+
     private void addSongToPlaylist(Context ctx) {
         // Implementation for adding a song to the playlist
     }
-
     /**
      * Metod som skickar en förfrågan till Spotify's API för att få en access token som senare används i alla andra anrop till Spotify's API.
      */
@@ -438,8 +471,8 @@ public class ServerRunner {
         try {
             httpClient = HttpClients.createDefault();
     
-            String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
-            String clientSecret = "b9f53919c0774da89f480a8863d5234e";
+            String clientID = "a66e725b0ad542689a61932186fc2593";
+            String clientSecret = "405c65f41e284f5782050a9b496509bb";
             String requestBody = "grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret;
     
             httpPost = new HttpPost("https://accounts.spotify.com/api/token");
