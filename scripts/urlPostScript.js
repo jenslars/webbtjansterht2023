@@ -167,6 +167,7 @@ function toggleFeature(id) {
 let selectedTrackIds = [];
 
 function connectToSpotify() {
+    authenticateSpotify();
     document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
         const checkbox = trackRow.querySelector('.customCheckbox');
         if (checkbox.classList.contains('active')) {
@@ -176,8 +177,68 @@ function connectToSpotify() {
     });
 
     console.log('Selected Track IDs:', selectedTrackIds);
+
+    fetch('/createPlaylist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ trackIds: selectedTrackIds }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log('Backend response:', data);
+    })
+    .catch(error => {
+        console.error('Error sending data to backend:', error);
+    });
+
     selectedTrackIds = [];
 }
+
+
+const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
+const redirect_uri = "http://localhost:5000/callback";
+
+// random sträng
+function generateRandomString(length) {
+  let text = "";
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < length; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
+// Scope som skall hämtas
+const scope =
+  "user-read-private playlist-modify-public playlist-modify-private";
+
+function authenticateSpotify() {
+  const state = generateRandomString(16);
+  let url = "https://accounts.spotify.com/authorize";
+  url += "?response_type=code";
+  url += "&client_id=" + encodeURIComponent(client_id);
+  url += "&scope=" + encodeURIComponent(scope);
+  url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+  url += "&state=" + encodeURIComponent(state);
+
+  // Open the Spotify authentication in a new window
+  const authWindow = window.open(url, "SpotifyAuthenticationWindow", "width=600,height=600");
+
+  // Optional: You can focus on the new window
+  if (authWindow) {
+    authWindow.focus();
+  }
+}
+
 
 
 /* Metod för att skicka spellista-url till backend*/

@@ -78,7 +78,7 @@ public class ServerRunner {
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
-                    String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
+                    String htmlContent = serverRunner.readHtmlFile("static/views/redirect.html");
                     ctx.html(htmlContent);
                 })
                 .get("/scripts/{filename}", ctx -> {
@@ -479,7 +479,7 @@ public class ServerRunner {
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String redirectURI = "http://localhost:5000/callback";
             String requestBody = "grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirectURI;
-        
+    
             HttpPost httpPost = new HttpPost("https://accounts.spotify.com/api/token");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
             httpPost.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
@@ -487,21 +487,31 @@ public class ServerRunner {
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-        
+    
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-        
+    
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(responseBody, JsonObject.class);
-            accessToken = json.get("access_token").getAsString();
-        
-            // Get and print the user ID
-            String userId = getUserId(accessToken);
-            System.out.println("User ID: " + userId);
+    
+            // Check if the "access_token" field is present
+            if (json.has("access_token")) {
+                String accessToken = json.getAsJsonPrimitive("access_token").getAsString();
+                System.out.println("Access Token: " + accessToken);
+    
+                // Get and print the user ID
+                String userId = getUserId(accessToken);
+                System.out.println("User ID: " + userId);
+            } else {
+                System.out.println("Response Body: " + responseBody);
+                System.out.println("Access token not found in the response.");
+            }
         } catch (Exception e) {
             System.out.println(e);
         }
     }
+    
+    
     
     /**
      * Metod för att läsa innehållet i en HTML-fil.
