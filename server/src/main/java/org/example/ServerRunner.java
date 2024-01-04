@@ -390,7 +390,38 @@ public class ServerRunner {
      * @param ctx
      */
 
+    private void createPlaylist(Context ctx) {
+        // Implementation for getting playlist ID
+
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            String userId = getUserId(accessToken);
+            HttpPost httpPost = new HttpPost("https://api.spotify.com/v1/users/" + userId + "/playlists");
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+            // hämtar datum och använder den som namn på listan, kanske kan passa bättre med titel på video?
+            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     
+            JsonObject playlistDetails = new JsonObject();
+            playlistDetails.addProperty("name", currentDate);
+            playlistDetails.addProperty("description", "Created with Spotify API");
+            playlistDetails.addProperty("public", false);
+    
+            StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
+            httpPost.setEntity(requestEntity);
+    
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+    
+            System.out.println("Response from Spotify API: " + responseBody);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * 
      private void createPlaylist(Context ctx) {
         try {
             String requestBody = ctx.body();

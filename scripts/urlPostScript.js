@@ -167,38 +167,42 @@ function toggleFeature(id) {
 let selectedTrackIds = [];
 
 function connectToSpotify() {
-    authenticateSpotify();
-    document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
-        const checkbox = trackRow.querySelector('.customCheckbox');
-        if (checkbox.classList.contains('active')) {
-            const trackId = trackRow.querySelector('.trackId').textContent;
-            selectedTrackIds.push(trackId);
-        }
-    });
+  authenticateSpotify();
 
-    console.log('Selected Track IDs:', selectedTrackIds);
+  document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
+      const checkbox = trackRow.querySelector('.customCheckbox');
+      if (checkbox.classList.contains('active')) {
+          const trackId = trackRow.querySelector('.trackId').textContent;
+          selectedTrackIds.push(trackId);
+      }
+  });
 
+  console.log('Selected Track IDs:', selectedTrackIds);
+
+  // Add a 10-second delay using setTimeout
+  setTimeout(() => {
       fetch('/createPlaylist', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ trackIds: selectedTrackIds }), // Send selectedTrackIds in the request body
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.text();
-    })
-    .then(data => {
-        console.log('Backend response:', data);
-    })
-    .catch(error => {
-        console.error('Error sending data to backend:', error);
-    });
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ trackIds: selectedTrackIds }), // Send selectedTrackIds in the request body
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.text();
+      })
+      .then(data => {
+          console.log('Backend response:', data);
+      })
+      .catch(error => {
+          console.error('Error sending data to backend:', error);
+      });
 
-    selectedTrackIds = [];
+      selectedTrackIds = [];
+  }, 10000); // 10000 milliseconds = 10 seconds
 }
 
 
