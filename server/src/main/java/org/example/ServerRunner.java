@@ -60,11 +60,12 @@ public class ServerRunner {
                     String htmlContent = serverRunner.readHtmlFile("static/views/login.html");
                     ctx.html(htmlContent);
                 })
-                .post("/createPlaylist", ctx -> {
+                .get("/createPlaylist", ctx -> {
                     serverRunner.createPlaylist(ctx);
                 })
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
+ 
 
                     List<TrackInfo> trackInfoList = serverRunner.convertPlaylist(url);
 
@@ -389,7 +390,6 @@ public class ServerRunner {
      *
      * @param ctx
      */
-
     private void createPlaylist(Context ctx) {
         // Implementation for getting playlist ID
 
@@ -420,81 +420,7 @@ public class ServerRunner {
         }
     }
 
-    /**
-     * 
-     private void createPlaylist(Context ctx) {
-        try {
-            String requestBody = ctx.body();
-            JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
-            JsonArray trackIdsArray = json.getAsJsonArray("trackIds");
-            String userId = getUserId(accessToken);
-            HttpPost httpPost = new HttpPost("https://api.spotify.com/v1/users/" + userId + "/playlists");
-            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-    
-            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    
-            JsonObject playlistDetails = new JsonObject();
-            playlistDetails.addProperty("name", currentDate);
-            playlistDetails.addProperty("description", "Created with Spotify API");
-            playlistDetails.addProperty("public", false);
-    
-            StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
-            httpPost.setEntity(requestEntity);
-    
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-    
-            if (statusCode == 201) {
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                JsonObject playlistResponse = new Gson().fromJson(responseBody, JsonObject.class);
-                String playlistId = playlistResponse.get("id").getAsString();
-    
-                addTracksToPlaylist(userId, playlistId, trackIdsArray);
-    
-                System.out.println("Playlist created successfully!");
-            } else {
-                System.out.println("Failed to create the playlist. Status code: " + statusCode);
-            }
-        } catch (Exception e) {
-            System.out.println("Error creating playlist: " + e.getMessage());
 
-        }
-    }
-    
-    private void addTracksToPlaylist(String userId, String playlistId, JsonArray trackIdsArray) {
-        try {
-            String apiUrl = String.format("https://api.spotify.com/v1/playlists/%s/tracks", playlistId);
-
-            JsonArray uris = new JsonArray();
-            for (JsonElement trackIdElement : trackIdsArray) {
-                String trackId = trackIdElement.getAsString();
-                uris.add("spotify:track:" + trackId);
-            }
-    
-            JsonObject requestJson = new JsonObject();
-            requestJson.add("uris", uris);
-    
-            HttpPost httpPost = new HttpPost(apiUrl);
-            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-    
-            StringEntity requestEntity = new StringEntity(requestJson.toString(), ContentType.APPLICATION_JSON);
-            httpPost.setEntity(requestEntity);
-    
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-    
-            if (statusCode == 201) {
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                System.out.println("Response from Spotify API (Add Tracks): " + responseBody);
-            } else {
-                System.out.println("Error adding tracks to the playlist. Status code: " + statusCode);
-            }
-        } catch (Exception e) {
-            System.out.println("Error adding tracks to the playlist: " + e.getMessage());
-        }
-    }
 
     /**
      * Metod för att lägga till låten i användarens Spotify-spellista.
@@ -577,11 +503,6 @@ public class ServerRunner {
         }
     }
     
-    
-    
-    
-    
-    
     /**
      * Metod för att läsa innehållet i en HTML-fil.
      *
@@ -617,4 +538,3 @@ public class ServerRunner {
         }
     }
 }
-

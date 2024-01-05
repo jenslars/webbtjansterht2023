@@ -166,55 +166,41 @@ function toggleFeature(id) {
 
 let selectedTrackIds = [];
 
-function connectToSpotify() {
+function connectTosSpotify() {
+    authenticateSpotify();
   
-    const state = generateRandomString(16);
-    let url = "https://accounts.spotify.com/authorize";
-    url += "?response_type=code";
-    url += "&client_id=" + encodeURIComponent(client_id);
-    url += "&scope=" + encodeURIComponent(scope);
-    url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
-    url += "&state=" + encodeURIComponent(state);
-
-    window.location.href = url;
-}
-
-/*
-  document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
-      const checkbox = trackRow.querySelector('.customCheckbox');
-      if (checkbox.classList.contains('active')) {
-          const trackId = trackRow.querySelector('.trackId').textContent;
-          selectedTrackIds.push(trackId);
-      }
-  });
-
-  console.log('Selected Track IDs:', selectedTrackIds);
-
-  // Add a 10-second delay using setTimeout
-  setTimeout(() => {
-      fetch('/createPlaylist', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ trackIds: selectedTrackIds }), // Send selectedTrackIds in the request body
-      })
-      .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          return response.text();
-      })
-      .then(data => {
-          console.log('Backend response:', data);
-      })
-      .catch(error => {
-          console.error('Error sending data to backend:', error);
-      });
-
-      selectedTrackIds = [];
-  }, 10000); // 10000 milliseconds = 10 seconds
-  */
+    document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
+        const checkbox = trackRow.querySelector('.customCheckbox');
+        if (checkbox.classList.contains('active')) {
+            const trackId = trackRow.querySelector('.trackId').textContent;
+            selectedTrackIds.push(trackId);
+        }
+    });
+  
+    console.log('Selected Track IDs:', selectedTrackIds);
+  
+        fetch('/createPlaylist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ trackIds: selectedTrackIds }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log('Backend response:', data);
+        })
+        .catch(error => {
+            console.error('Error sending data to backend:', error);
+        });
+  
+        selectedTrackIds = [];
+    }
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
@@ -235,17 +221,16 @@ function generateRandomString(length) {
 const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
-function authenticateSpotify() {
-  const state = generateRandomString(16);
-  let url = "https://accounts.spotify.com/authorize";
-  url += "?response_type=code";
-  url += "&client_id=" + encodeURIComponent(client_id);
-  url += "&scope=" + encodeURIComponent(scope);
-  url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
-  url += "&state=" + encodeURIComponent(state);
-
-  // Open the Spotify authentication in a new window
-  const authWindow = window.open(url, "SpotifyAuthenticationWindow", "width=600,height=600");
+function connectToSpotify() {
+    const state = generateRandomString(16);
+    let url = "https://accounts.spotify.com/authorize";
+    url += "?response_type=code";
+    url += "&client_id=" + encodeURIComponent(client_id);
+    url += "&scope=" + encodeURIComponent(scope);
+    url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+    url += "&state=" + encodeURIComponent(state);
+  
+    const authWindow = window.open(url, "SpotifyAuthenticationWindow", "width=600,height=600");
 
   // Optional: You can focus on the new window
   if (authWindow) {
