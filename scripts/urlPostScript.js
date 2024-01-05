@@ -166,41 +166,43 @@ function toggleFeature(id) {
 
 let selectedTrackIds = [];
 
-function connectTosSpotify() {
+function connectToSpotify() {
     authenticateSpotify();
-  
+
+    // Delay fetch call by 5 seconds (5000 milliseconds)
+    setTimeout(() => {
+        fetch("http://localhost:5000/createPlaylist", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.text().then(text => text ? JSON.parse(text) : {});
+        })
+        .then((data) => console.log(data))
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    }, 5000); // 5000 milliseconds = 5 seconds
+}
+
+/*
     document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
         const checkbox = trackRow.querySelector('.customCheckbox');
         if (checkbox.classList.contains('active')) {
             const trackId = trackRow.querySelector('.trackId').textContent;
             selectedTrackIds.push(trackId);
         }
-    });
-  
-    console.log('Selected Track IDs:', selectedTrackIds);
-  
-        fetch('/createPlaylist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ trackIds: selectedTrackIds }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(data => {
-            console.log('Backend response:', data);
-        })
-        .catch(error => {
-            console.error('Error sending data to backend:', error);
-        });
-  
+    })
+    
+    
         selectedTrackIds = [];
     }
+    */
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
@@ -221,7 +223,7 @@ function generateRandomString(length) {
 const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
-function connectToSpotify() {
+function authenticateSpotify() {
     const state = generateRandomString(16);
     let url = "https://accounts.spotify.com/authorize";
     url += "?response_type=code";
