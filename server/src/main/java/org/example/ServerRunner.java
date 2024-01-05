@@ -421,7 +421,7 @@ public class ServerRunner {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     
             JsonObject playlistDetails = new JsonObject();
-            playlistDetails.addProperty("name", currentDate;
+            playlistDetails.addProperty("name", currentDate);
             playlistDetails.addProperty("description", "Created with Spotify API");
             playlistDetails.addProperty("public", false);
             System.out.println("playlistDetails");
