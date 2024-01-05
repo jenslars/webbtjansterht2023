@@ -166,30 +166,24 @@ function toggleFeature(id) {
 
 let selectedTrackIds = [];
 
-function connectToSpotify() {
-    authenticateSpotify();
-
-    // Delay fetch call by 5 seconds (5000 milliseconds)
-    setTimeout(() => {
-        fetch("http://localhost:5000/createPlaylist", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-            return response.text().then(text => text ? JSON.parse(text) : {});
-        })
-        .then((data) => console.log(data))
-        .catch((error) => {
-            console.error("Error:", error);
-        });
-    }, 5000); // 5000 milliseconds = 5 seconds
+function createPlaylist() {
+    fetch("http://localhost:5000/createPlaylist", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.text().then(text => text ? JSON.parse(text) : {});
+    })
+    .then((data) => console.log(data))
+    .catch((error) => {
+        console.error("Error:", error);
+    });
 }
-
 /*
     document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
         const checkbox = trackRow.querySelector('.customCheckbox');
@@ -238,7 +232,14 @@ function authenticateSpotify() {
   if (authWindow) {
     authWindow.focus();
   }
+  window.addEventListener('message', (event) => {
+    if (event.data === 'authenticationComplete') {
+        // Authentication is complete, proceed to create playlist
+        createPlaylist();
+    }
+}, { once: true });
 }
+
 
 
 /* Metod för att skicka spellista-url till backend*/
