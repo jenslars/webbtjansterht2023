@@ -167,8 +167,19 @@ function toggleFeature(id) {
 let selectedTrackIds = [];
 
 function connectToSpotify() {
-  authenticateSpotify();
+  
+    const state = generateRandomString(16);
+    let url = "https://accounts.spotify.com/authorize";
+    url += "?response_type=code";
+    url += "&client_id=" + encodeURIComponent(client_id);
+    url += "&scope=" + encodeURIComponent(scope);
+    url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+    url += "&state=" + encodeURIComponent(state);
 
+    window.location.href = url;
+}
+
+/*
   document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
       const checkbox = trackRow.querySelector('.customCheckbox');
       if (checkbox.classList.contains('active')) {
@@ -203,8 +214,7 @@ function connectToSpotify() {
 
       selectedTrackIds = [];
   }, 10000); // 10000 milliseconds = 10 seconds
-}
-
+  */
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
