@@ -131,46 +131,64 @@ function toggleCheckbox(checkbox) {
 
 /* Metod för att visa rätt feature container*/
 function toggleFeature(id) {
-  var identifySongLink = document.getElementById("featureNavIdSong");
-  var identifySongContainer = document.getElementById("identifySongContainer");
+    var identifySongLink = document.getElementById("featureNavIdSong");
+    var identifySongContainer = document.getElementById("identifySongContainer");
 
-  var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
-  var identifyPlaylistContainer = document.getElementById(
-    "identifyPlaylistContainer"
-  );
+    var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
+    var identifyPlaylistContainer = document.getElementById("identifyPlaylistContainer");
 
-  var convertPlaylistLink = document.getElementById(
-    "featureNavConvertPlaylist"
-  );
-  var convertPlaylistContainer = document.getElementById(
-    "convertPlaylistContainer"
-  );
+    var convertPlaylistLink = document.getElementById("featureNavConvertPlaylist");
+    var convertPlaylistContainer = document.getElementById("convertPlaylistContainer");
+    var serviceContainer = document.getElementById('serviceContainer')
 
-  if (id == "featureNavIdSong") {
-    identifySongLink.classList.add("active");
-    identifySongContainer.classList.add("active");
+    if (id == "featureNavIdSong"){
+        identifySongLink.classList.add("active")
+        identifySongContainer.classList.add("active")
 
-    identifyPlaylistLink.classList.remove("active");
-    identifyPlaylistContainer.classList.remove("active");
-    convertPlaylistLink.classList.remove("active");
-    convertPlaylistContainer.classList.remove("active");
-  } else if (id == "featureNavIdPlaylist") {
-    identifyPlaylistLink.classList.add("active");
-    identifyPlaylistContainer.classList.add("active");
+        identifyPlaylistLink.classList.remove("active")
+        identifyPlaylistContainer.classList.remove("active")
+        convertPlaylistLink.classList.remove("active")
+        convertPlaylistContainer.classList.remove("active")
+        
+        const element = document.getElementById('resultContainerConvert');
+        if (element) { element.classList.add('hide')
+        serviceContainer.classList.remove('active')
+        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
+        expandedConvertPlaylistContainer.classList.remove('active')
+        }
+    }
+    else if (id == "featureNavIdPlaylist"){
+        identifyPlaylistLink.classList.add("active")
+        identifyPlaylistContainer.classList.add("active")
 
-    identifySongLink.classList.remove("active");
-    identifySongContainer.classList.remove("active");
-    convertPlaylistLink.classList.remove("active");
-    convertPlaylistContainer.classList.remove("active");
-  } else if (id == "featureNavConvertPlaylist") {
-    convertPlaylistLink.classList.add("active");
-    convertPlaylistContainer.classList.add("active");
+        identifySongLink.classList.remove("active")
+        identifySongContainer.classList.remove("active")
+        convertPlaylistLink.classList.remove("active")
+        convertPlaylistContainer.classList.remove("active")
 
-    identifyPlaylistLink.classList.remove("active");
-    identifyPlaylistContainer.classList.remove("active");
-    identifySongLink.classList.remove("active");
-    identifySongContainer.classList.remove("active");
-  }
+        const element = document.getElementById('resultContainerConvert');
+        if (element) { element.classList.add('hide')
+        serviceContainer.classList.remove('active')
+        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
+        expandedConvertPlaylistContainer.classList.remove('active')
+        }
+    }
+    else if (id == "featureNavConvertPlaylist"){
+        convertPlaylistLink.classList.add("active")
+        convertPlaylistContainer.classList.add("active")
+        
+        identifyPlaylistLink.classList.remove("active")
+        identifyPlaylistContainer.classList.remove("active")
+        identifySongLink.classList.remove("active")
+        identifySongContainer.classList.remove("active")   
+        var resultContainerConvert = document.getElementById('resultContainerConvert');
+        if (resultContainerConvert) {
+            resultContainerConvert.classList.remove('hide');
+            var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
+            expandedConvertPlaylistContainer.classList.add('active');
+            serviceContainer.classList.add('active')
+        }
+    }
 }
 
 function connectToSpotify() {
@@ -321,20 +339,20 @@ function createPlaylistElements(data) {
     "expandedConvertPlaylistContainer"
   );
 
-  var resultContainer = document.getElementById("resultContainer");
-  if (!resultContainer) {
-    resultContainer = document.createElement("div");
-    resultContainer.id = "resultContainer";
-    expandedConvertPlaylistContainer.appendChild(resultContainer);
+  var resultContainerConvert = document.getElementById("resultContainer");
+  if (!resultContainerConvert) {
+    resultContainerConvert = document.createElement("div");
+    resultContainerConvert.id = "resultContainerConvert";
+    expandedConvertPlaylistContainer.appendChild(resultContainerConvert);
   }
 
   var resultDivider = document.createElement("div");
   resultDivider.className = "resultDivider";
-  resultContainer.appendChild(resultDivider);
+  resultContainerConvert.appendChild(resultDivider);
 
   var resultHeader = document.createElement("div");
   resultHeader.className = "resultHeader";
-  resultContainer.appendChild(resultHeader);
+  resultContainerConvert.appendChild(resultHeader);
 
   var h3Element = document.createElement("h3");
   h3Element.textContent = "Songs identified on Spotify";
@@ -362,7 +380,7 @@ function createPlaylistElements(data) {
 
   var scrollContainer = document.createElement("div");
   scrollContainer.className = "scrollContainer";
-  resultContainer.appendChild(scrollContainer);
+  resultContainerConvert.appendChild(scrollContainer);
 
   var spotifyTable = document.createElement("table");
   spotifyTable.className = "spotifyTable";
