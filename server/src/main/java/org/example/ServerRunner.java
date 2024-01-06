@@ -67,18 +67,15 @@ public class ServerRunner {
                         ctx.status(400).result("Bad Request: trackUris is missing or not an array");
                         return;
                     }
-                    // Convert the JSON array to a Java list
                     List<String> trackUris = new ArrayList<>();
                     for (JsonElement trackUriJson : trackUrisJson) {
                         trackUris.add(trackUriJson.getAsString());
                     }
                     System.out.println(trackUris);
-                    // Pass the track URIs to the createPlaylist method
                     serverRunner.createPlaylist(ctx, trackUris);
                 })
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
- 
 
                     List<TrackInfo> trackInfoList = serverRunner.convertPlaylist(url);
 
@@ -408,7 +405,6 @@ public class ServerRunner {
      * @param ctx
      */
     private void createPlaylist(Context ctx, List<String> trackUris) {
-        // Implementation for getting playlist ID
         System.out.println("här är vi i create");
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -442,8 +438,6 @@ public class ServerRunner {
         }
     }
 
-
-
     /**
      * Metod för att lägga till låten i användarens Spotify-spellista.
      *
@@ -457,18 +451,15 @@ public class ServerRunner {
             HttpPost httpPost = new HttpPost(spotifyApiUrl);
             httpPost.setHeader("Authorization", "Bearer " + accessToken);
             httpPost.setHeader("Content-Type", "application/json");
-    
-            // Convert trackUris list to JSON array
+
             Gson gson = new Gson();
             String jsonTrackUris = gson.toJson(trackUris);
     
-            // Set the request body
             StringEntity requestEntity = new StringEntity("{\"uris\":" + jsonTrackUris + "}", ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
     
             CloseableHttpResponse response = httpClient.execute(httpPost);
     
-            // Print the response for debugging
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             System.out.println("Response from Spotify API: " + responseBody);
     
@@ -494,8 +485,7 @@ public class ServerRunner {
     
             try {
                 response = httpClient.execute(httpPost);
-    
-                // Correct way to obtain the access token from the response
+
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 JsonParser parser = new JsonParser();
                 JsonObject json = parser.parse(responseBody).getAsJsonObject();
