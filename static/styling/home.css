@@ -1,6 +1,5 @@
 
 html{
-    margin: 0px;
     background-color: #1d1c1c;
 }
 
@@ -17,6 +16,7 @@ html{
     color: #ffffff;
     font-family: 'Lexend';
     margin-top: 20px;
+    transition: 1s;
 }
 
 #serviceContainer.active{

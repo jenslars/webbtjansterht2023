@@ -145,7 +145,7 @@ function toggleFeature(id) {
         convertPlaylistLink.classList.remove("active")
         convertPlaylistContainer.classList.remove("active")
         
-        const element = document.getElementById('resultContainer');
+        const element = document.getElementById('resultContainerConvert');
         if (element) { element.classList.add('hide')
         serviceContainer.classList.remove('active')
         var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
@@ -160,7 +160,13 @@ function toggleFeature(id) {
         identifySongContainer.classList.remove("active")
         convertPlaylistLink.classList.remove("active")
         convertPlaylistContainer.classList.remove("active")
+
+        const element = document.getElementById('resultContainerConvert');
+        if (element) { element.classList.add('hide')
+        serviceContainer.classList.remove('active')
+        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
         expandedConvertPlaylistContainer.classList.remove('active')
+        }
     }
     else if (id == "featureNavConvertPlaylist"){
         convertPlaylistLink.classList.add("active")
@@ -170,6 +176,13 @@ function toggleFeature(id) {
         identifyPlaylistContainer.classList.remove("active")
         identifySongLink.classList.remove("active")
         identifySongContainer.classList.remove("active")   
+        var resultContainerConvert = document.getElementById('resultContainerConvert');
+        if (resultContainerConvert) {
+            resultContainerConvert.classList.remove('hide');
+            var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
+            expandedConvertPlaylistContainer.classList.add('active');
+            serviceContainer.classList.add('active')
+        }
     }
 }
 
@@ -193,19 +206,6 @@ function createPlaylist() {
         console.error("Error:", error);
     });
 }
-/*
-    document.querySelectorAll('.tableTrackRow').forEach(trackRow => {
-        const checkbox = trackRow.querySelector('.customCheckbox');
-        if (checkbox.classList.contains('active')) {
-            const trackId = trackRow.querySelector('.trackId').textContent;
-            selectedTrackIds.push(trackId);
-        }
-    })
-    
-    
-        selectedTrackIds = [];
-    }
-    */
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
@@ -252,7 +252,6 @@ function authenticateSpotify() {
 
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
-    console.log('In convert playlist')
     var url = document.getElementById("convertPlaylistInput").value;
     fetch('/convertPlaylist?url=' + encodeURIComponent(url), {
         method: 'GET',
@@ -283,20 +282,20 @@ function createPlaylistElements(data) {
     var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
 
     // Create resultContainer if it doesn't exist
-    var resultContainer = document.getElementById('resultContainer');
-    if (!resultContainer) {
-        resultContainer = document.createElement('div');
-        resultContainer.id = 'resultContainer';
-        expandedConvertPlaylistContainer.appendChild(resultContainer);
+    var resultContainerConvert = document.getElementById('resultContainerConvert');
+    if (!resultContainerConvert) {
+        resultContainerConvert = document.createElement('div');
+        resultContainerConvert.id = 'resultContainerConvert';
+        expandedConvertPlaylistContainer.appendChild(resultContainerConvert);
     }
 
     var resultDivider = document.createElement('div');
     resultDivider.className = 'resultDivider';
-    resultContainer.appendChild(resultDivider);
+    resultContainerConvert.appendChild(resultDivider);
 
     var resultHeader = document.createElement('div');
     resultHeader.className = 'resultHeader';
-    resultContainer.appendChild(resultHeader);
+    resultContainerConvert.appendChild(resultHeader);
 
     var h3Element = document.createElement('h3');
     h3Element.textContent = 'Songs identified on Spotify';
@@ -324,7 +323,7 @@ function createPlaylistElements(data) {
 
     var scrollContainer = document.createElement('div');
     scrollContainer.className = 'scrollContainer';
-    resultContainer.appendChild(scrollContainer);
+    resultContainerConvert.appendChild(scrollContainer);
 
     var spotifyTable = document.createElement('table');
     spotifyTable.className = 'spotifyTable';
