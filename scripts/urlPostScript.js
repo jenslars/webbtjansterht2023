@@ -35,10 +35,16 @@ urlInput_1.addEventListener("input", function () {
   var errorMessage = document.getElementById("error-message1");
   var submitButton = document.getElementById("URLsubmit-btn1");
 
-  if (validateYouTubeVideoTimestampUrl(inputValue)) {
+  if (
+    validateYouTubeVideoTimestampUrl(inputValue) ||
+    validateYouTubeVideoUrl(inputValue)
+  ) {
     console.log("Valid YouTube URL");
     submitButton.classList.add("active");
     errorMessage.innerText = "";
+    submitButton.onclick = function () {
+      convertVideo();
+    };
   } else {
     console.log("Invalid YouTube URL");
     errorMessage.innerText = "Invalid YouTube URL";
@@ -50,6 +56,17 @@ function validateYouTubeVideoTimestampUrl(urlToParse) {
   if (urlToParse) {
     var regExp =
       /^(https?:\/\/)?(www\.)?(youtube\.com\/(.*\/)?|youtu\.be\/)([\w-]{11})(\?.*t=([\dhms]+))?$/;
+    if (urlToParse.match(regExp)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function validateYouTubeVideoUrl(urlToParse) {
+  if (urlToParse) {
+    var regExp =
+      /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})(\?.*)?$/;
     if (urlToParse.match(regExp)) {
       return true;
     }
@@ -74,17 +91,6 @@ urlInput_2.addEventListener("input", function () {
     submitButton.classList.remove("active");
   }
 });
-
-function validateYouTubeVideoUrl(urlToParse) {
-  if (urlToParse) {
-    var regExp =
-      /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-    if (urlToParse.match(regExp)) {
-      return true;
-    }
-  }
-  return false;
-}
 
 var urlInput_3 = document.getElementsByClassName("URLinput")[2];
 
@@ -279,8 +285,37 @@ function convertPlaylist() {
     });
 }
 
+function convertVideo() {
+  console.log("In convert video");
+  var url = document.getElementById("convertVideoInput").value;
+  fetch("/convertVideo?url=" + encodeURIComponent(url), {
+    method: "GET",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Backend response:", data);
+      if (data.tracks && Array.isArray(data.tracks)) {
+        // Extract the URIs from the array and filter out empty ones
+        selectedTrackUris = data.tracks
+          .slice(0, 50)
+          .map((track) => track.uri)
+          .filter((uri) => uri);
 
-//Metod för att skapa containern där sökresultaten visas. 
+        console.log("Extracted URIs:", selectedTrackUris);
+      } else {
+        console.error("Data.tracks is not an array");
+      }
+    })
+    .catch((error) => {
+      console.error("Error sending data to backend:", error);
+    });
+}
+
 function createPlaylistElements(data) {
   var expandedConvertPlaylistContainer = document.getElementById(
     "expandedConvertPlaylistContainer"

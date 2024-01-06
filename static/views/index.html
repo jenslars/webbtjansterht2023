@@ -1,78 +1,122 @@
 <!DOCTYPE html>
 <html lang="sv">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
-        <link href="static/styling/navbar.css" rel="stylesheet" type="text/css">
-        <link href="static/styling/home.css" rel="stylesheet" type="text/css">
-    </head>
-    <body>
-        <main id="main">
-            <nav class="mainNav">
-                <div class="logo">
-                    <img src="images/svg/youtubelogo.svg" alt="Youtube">
-                    <p>-></p>
-                    <img src="images/svg/spotifylogo.svg" alt="Spotify" id="spotifylogo">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="static/styling/navbar.css" rel="stylesheet" type="text/css" />
+    <link href="static/styling/home.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <main id="main">
+      <nav class="mainNav">
+        <div class="logo">
+          <img src="images/svg/youtubelogo.svg" alt="Youtube" />
+          <p>-></p>
+          <img
+            src="images/svg/spotifylogo.svg"
+            alt="Spotify"
+            id="spotifylogo"
+          />
+        </div>
+        <div class="links">
+          <a>Placeholder</a>
+          <a>Placeholder</a>
+          <a>Help</a>
+        </div>
+      </nav>
+      <div id="mainContent">
+        <div id="serviceContainer">
+          <div id="serviceContainerLabel">
+            <h1 id="serviceLabel">Choose Service</h1>
+          </div>
+          <div id="featureContainer">
+            <div id="featureNav">
+              <div id="featureNavLinks">
+                <div id="featureNavIdSong" class="active">
+                  <a onclick="toggleFeature('featureNavIdSong')"
+                    >Identify song</a
+                  >
                 </div>
-                <div class="links">
-                    <a>Placeholder</a>
-                    <a>Placeholder</a>
-                    <a>Help</a>
+                <div id="featureNavIdPlaylist">
+                  <a onclick="toggleFeature('featureNavIdPlaylist')"
+                    >Identify all songs in a video</a
+                  >
                 </div>
-            </nav>
-            <div id="mainContent">
-                <div id="serviceContainer">
-                    <div id="serviceContainerLabel"><h1 id="serviceLabel">Choose Service</h1></div>
-                    <div id="featureContainer">
-                        <div id="featureNav">
-                            <div id="featureNavLinks">
-                                <div id="featureNavIdSong" class="active"><a onclick="toggleFeature('featureNavIdSong')">Identify song</a></div>
-                            <div id="featureNavIdPlaylist"><a onclick="toggleFeature('featureNavIdPlaylist')">Identify all songs in a video</a></div>
-                            <div id="featureNavConvertPlaylist"><a onclick="toggleFeature('featureNavConvertPlaylist')">Convert playlist</a></div>
-                            </div>
-                        </div>
-                        <div class="formContainer">
-                            <div id="identifySongContainer" class="active">
-                                    <form class="urlForm">
-                                        <div class="urlFormInputLabel">
-                                            <p>Please insert a valid YouTube URL with a timestamp for the song you wish to identify</p>
-                                        </div>
-                                        <div class="inputDiv">
-                                            <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23t=1">
-                                            <button id="URLsubmit-btn1" type="button">Submit</button>
-                                        </div>
-                                        <p id="error-message1"></p>
-                                    </form>
-                            </div>
-                            <div id="identifyPlaylistContainer">
-                                <form class="urlForm">
-                                    <div class="urlFormInputLabel">
-                                        <p>Please insert a valid YouTube URL for a video to identify all songs</p>
-                                    </div>
-                                    <div class="inputDiv">
-                                        <input type="text" class="URLinput" placeholder="youtube.com/watch?v=YoU-tuBe_23">
-                                        <button id="URLsubmit-btn2" type="button">Submit</button>
-                                    </div>
-                                    <p id="error-message2"></p>
-                                </form>
-                            </div>
-                            <div id="convertPlaylistContainer">
-                                <div id="expandedConvertPlaylistContainer">
-                                    <form class="urlForm">
-                                        <div class="urlFormInputLabel">
-                                            <p>Please insert a valid YouTube URL for a playlist in order to convert it</p>
-                                        </div>
-                                        <div class="inputDiv">
-                                            <input type="text" id="convertPlaylistInput" class="URLinput" placeholder="youtube.com/playlist?list=YoU-tuBe_23">
-                                            <button type="button" id="URLsubmit-btn3">Submit</button>
-                                        </div>
-                                        <p id="error-message3"></p>
-                                    </form>
-                                    <!--This is a comment. Comments are not displayed in the browser
+                <div id="featureNavConvertPlaylist">
+                  <a onclick="toggleFeature('featureNavConvertPlaylist')"
+                    >Convert playlist</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="formContainer">
+              <div id="identifySongContainer" class="active">
+                <form class="urlForm">
+                  <div class="urlFormInputLabel">
+                    <p>
+                      Please insert a valid YouTube URL with a timestamp for the
+                      song you wish to identify
+                    </p>
+                  </div>
+                  <div class="inputDiv">
+                    <input
+                      type="text"
+                      class="URLinput"
+                      id="convertVideoInput"
+                      placeholder="youtube.com/watch?v=YoU-tuBe_23t=1"
+                    />
+                    <button id="URLsubmit-btn1" type="button">Submit</button>
+                  </div>
+                  <p id="error-message1"></p>
+                </form>
+              </div>
+              <div id="identifyPlaylistContainer">
+                <form class="urlForm">
+                  <div class="urlFormInputLabel">
+                    <p>
+                      Please insert a valid YouTube URL for a video to identify
+                      all songs
+                    </p>
+                  </div>
+                  <div class="inputDiv">
+                    <input
+                      type="text"
+                      class="URLinput"
+                      placeholder="youtube.com/watch?v=YoU-tuBe_23"
+                    />
+                    <button id="URLsubmit-btn2" type="button">Submit</button>
+                  </div>
+                  <p id="error-message2"></p>
+                </form>
+              </div>
+              <div id="convertPlaylistContainer">
+                <div id="expandedConvertPlaylistContainer">
+                  <form class="urlForm">
+                    <div class="urlFormInputLabel">
+                      <p>
+                        Please insert a valid YouTube URL for a playlist in
+                        order to convert it
+                      </p>
+                    </div>
+                    <div class="inputDiv">
+                      <input
+                        type="text"
+                        id="convertPlaylistInput"
+                        class="URLinput"
+                        placeholder="youtube.com/playlist?list=YoU-tuBe_23"
+                      />
+                      <button type="button" id="URLsubmit-btn3">Submit</button>
+                    </div>
+                    <p id="error-message3"></p>
+                  </form>
+                  <!--This is a comment. Comments are not displayed in the browser
                                     <div id="resultContainer">
                                         <div class="resultDivider"></div>
                                         <div class="resultHeader">
@@ -111,30 +155,50 @@
                                         </div>
                                     </div>
                                 -->
-                                </div>
-                            </div>
-                        </div>  
-                    </div>
                 </div>
-                <div id="descriptionContainer">
-                    <h1>About Youtube to Spotify</h1>
-                </div>
-            </div> 
-        </main>
-        <div id="spotifyPopupCreate">
-            <img src="images/svg/spotifylogo.svg" alt="Spotify" class="spotifyPopupLogo">
-            <h3>Creating playlist</h3>
-            <p>In order to create a playlist you need to connect to Spotify</p>
-            <button id="login-btn" onclick="connectToSpotify()">Connect</button>
-            <button id="cancelSpotifyPopup" onclick="cancelSpotifyPopup('createPlaylist')">Cancel</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="spotifyPopupAdd">
-            <img src="images/svg/spotifylogo.svg" alt="Spotify" class="spotifyPopupLogo">
-            <h3>Adding to playlist</h3>
-            <p>In order to add these songs to a playlist you need to connect to Spotify</p>
-            <button id="login-btn">Connect</button>
-            <button id="cancelSpotifyPopup" onclick="cancelSpotifyPopup('addToPlaylist')">Cancel</button>
+        <div id="descriptionContainer">
+          <h1>About Youtube to Spotify</h1>
         </div>
-    </body>
-    <script src="scripts/urlPostScript.js"></script>
+      </div>
+    </main>
+    <div id="spotifyPopupCreate">
+      <img
+        src="images/svg/spotifylogo.svg"
+        alt="Spotify"
+        class="spotifyPopupLogo"
+      />
+      <h3>Creating playlist</h3>
+      <p>In order to create a playlist you need to connect to Spotify</p>
+      <button id="login-btn" onclick="connectToSpotify()">Connect</button>
+      <button
+        id="cancelSpotifyPopup"
+        onclick="cancelSpotifyPopup('createPlaylist')"
+      >
+        Cancel
+      </button>
+    </div>
+    <div id="spotifyPopupAdd">
+      <img
+        src="images/svg/spotifylogo.svg"
+        alt="Spotify"
+        class="spotifyPopupLogo"
+      />
+      <h3>Adding to playlist</h3>
+      <p>
+        In order to add these songs to a playlist you need to connect to Spotify
+      </p>
+      <button id="login-btn">Connect</button>
+      <button
+        id="cancelSpotifyPopup"
+        onclick="cancelSpotifyPopup('addToPlaylist')"
+      >
+        Cancel
+      </button>
+    </div>
+  </body>
+  <script src="scripts/urlPostScript.js"></script>
 </html>
