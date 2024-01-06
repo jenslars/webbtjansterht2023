@@ -346,6 +346,11 @@ html{
     max-height: 420px;
 }
 
+#resultContainer.hide{
+    visibility: hidden;
+    position: absolute;
+}
+
 .scrollContainer {
     max-height: 320px;
     overflow-y: auto;

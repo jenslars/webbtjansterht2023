@@ -134,6 +134,7 @@ function toggleFeature(id) {
 
     var convertPlaylistLink = document.getElementById("featureNavConvertPlaylist");
     var convertPlaylistContainer = document.getElementById("convertPlaylistContainer");
+    var serviceContainer = document.getElementById('serviceContainer')
 
     if (id == "featureNavIdSong"){
         identifySongLink.classList.add("active")
@@ -143,6 +144,13 @@ function toggleFeature(id) {
         identifyPlaylistContainer.classList.remove("active")
         convertPlaylistLink.classList.remove("active")
         convertPlaylistContainer.classList.remove("active")
+        
+        const element = document.getElementById('resultContainer');
+        if (element) { element.classList.add('hide')
+        serviceContainer.classList.remove('active')
+        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
+        expandedConvertPlaylistContainer.classList.remove('active')
+        }
     }
     else if (id == "featureNavIdPlaylist"){
         identifyPlaylistLink.classList.add("active")
@@ -152,6 +160,7 @@ function toggleFeature(id) {
         identifySongContainer.classList.remove("active")
         convertPlaylistLink.classList.remove("active")
         convertPlaylistContainer.classList.remove("active")
+        expandedConvertPlaylistContainer.classList.remove('active')
     }
     else if (id == "featureNavConvertPlaylist"){
         convertPlaylistLink.classList.add("active")
@@ -239,7 +248,6 @@ function authenticateSpotify() {
     }
 }, { once: true });
 }
-
 
 
 /* Metod för att skicka spellista-url till backend*/
@@ -402,6 +410,8 @@ function createPlaylistElements(data) {
         tdAlbum.className = 'titleAlbum';
         tdAlbum.textContent = track.album;
         trTrack.appendChild(tdAlbum);
+
+
     }
 }
 
