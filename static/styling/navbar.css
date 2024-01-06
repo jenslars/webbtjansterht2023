@@ -6,7 +6,7 @@
     display: flex;
     justify-content: space-between;
     font-family: 'Lexend';
-    height: 100px;
+    height: 120px;
     align-items: center;
 }
 
@@ -20,13 +20,10 @@
     align-items: center;
 }
 
-.logo img{
-    height: 40px;
+#ylogo{
+    height: 180px;
 }
 
-#spotifylogo{
-    margin-left: 20px;
-}
 
 .links{
     justify-content: space-between;
