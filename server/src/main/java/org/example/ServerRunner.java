@@ -273,8 +273,10 @@ public class ServerRunner {
         for (String title : titles) {
             try {
                 String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
-                String searchUrl = String.format("%s?q=%s&type=track", spotifyApiUrl, encodedTitle);
-    
+                String searchUrl = String.format("%s?q=%s&type=track&limit=3", spotifyApiUrl, encodedTitle);
+
+
+
                 HttpGet httpGet = new HttpGet(searchUrl);
                 httpGet.setHeader("Authorization", "Bearer " + accessToken);
                 CloseableHttpResponse response = httpClient.execute(httpGet);
@@ -305,7 +307,6 @@ public class ServerRunner {
                         if (!isDuplicate(trackInfoList, newTrack)) {
 
                             trackInfoList.add(newTrack);
-                            break;
                         }
                     }
                 }
