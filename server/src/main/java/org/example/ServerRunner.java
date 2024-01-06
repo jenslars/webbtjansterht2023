@@ -184,16 +184,19 @@ public class ServerRunner {
             Gson gson = new Gson();
             JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
             if (responseJson.has("items")) {
+                JsonArray itemsArray = responseJson.getAsJsonArray("items");
 
                 List<String> videoTitles = new ArrayList<>();
 
                 // Extract video details from the response
-                String title = responseJson.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsJsonObject().get("title").getAsString();
-                String description = responseJson.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsJsonObject().get("description").getAsString();
-                String videoTitle = title;
+                for (JsonElement item : itemsArray) {
+                JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
+                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
                 System.out.println("Video Title: " + videoTitle);
                 videoTitles.add(videoTitle);
+            }
                 return searchSongsOnSpotify(videoTitles);
+                
             } else {
                 System.out.println("No videos found");
             }

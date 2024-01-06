@@ -55,24 +55,26 @@
             </div>
             <div class="formContainer">
               <div id="identifySongContainer" class="active">
-                <form class="urlForm">
-                  <div class="urlFormInputLabel">
-                    <p>
-                      Please insert a valid YouTube URL with a timestamp for the
-                      song you wish to identify
-                    </p>
-                  </div>
-                  <div class="inputDiv">
-                    <input
-                      type="text"
-                      class="URLinput"
-                      id="convertVideoInput"
-                      placeholder="youtube.com/watch?v=YoU-tuBe_23t=1"
-                    />
-                    <button id="URLsubmit-btn1" type="button">Submit</button>
-                  </div>
-                  <p id="error-message1"></p>
-                </form>
+                <div id="expandedConvertPlaylistContainer">
+                  <form class="urlForm">
+                    <div class="urlFormInputLabel">
+                      <p>
+                        Please insert a valid YouTube URL with a timestamp for the
+                        song you wish to identify
+                      </p>
+                    </div>
+                    <div class="inputDiv">
+                      <input
+                        type="text"
+                        class="URLinput"
+                        id="convertVideoInput"
+                        placeholder="youtube.com/watch?v=YoU-tuBe_23t=1"
+                      />
+                      <button id="URLsubmit-btn1" type="button">Submit</button>
+                    </div>
+                    <p id="error-message1"></p>
+                  </form>
+                </div>
               </div>
               <div id="identifyPlaylistContainer">
                 <form class="urlForm">

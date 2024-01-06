@@ -255,7 +255,8 @@ html {
   margin-right: 40px;
 }
 
-#resultContainerConvert th {
+#resultContainerConvert,
+#resultContainerIdentifySong th {
   font-weight: 300;
   font-size: 12px;
   color: #a5a5a5;
