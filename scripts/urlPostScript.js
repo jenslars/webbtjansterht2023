@@ -239,7 +239,6 @@ function authenticateSpotify() {
     "width=600,height=600"
   );
 
-  // Optional: You can focus on the new window
   if (authWindow) {
     authWindow.focus();
   }
@@ -318,11 +317,10 @@ function convertVideo() {
 }
 
 function createPlaylistElements(data) {
-  // Get the expandedConvertPlaylistContainer
   var expandedConvertPlaylistContainer = document.getElementById(
     "expandedConvertPlaylistContainer"
   );
-  // Create resultContainer if it doesn't exist
+
   var resultContainer = document.getElementById("resultContainer");
   if (!resultContainer) {
     resultContainer = document.createElement("div");
@@ -420,11 +418,10 @@ function createPlaylistElements(data) {
     divTitleRow.className = "titleRow";
     tdTitle.appendChild(divTitleRow);
 
-    // Add a hidden element to store the track ID
     var spanTrackId = document.createElement("span");
     spanTrackId.className = "trackUri";
-    spanTrackId.textContent = track.id; // Replace 'id' with the actual property name in your TrackInfo class
-    spanTrackId.style.display = "none"; // Hide the element
+    spanTrackId.textContent = track.id;
+    spanTrackId.style.display = "none";
     divTitleRow.appendChild(spanTrackId);
 
     var imgTitle = document.createElement("img");
