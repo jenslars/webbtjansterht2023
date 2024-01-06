@@ -191,6 +191,32 @@ function toggleFeature(id) {
     }
 }
 
+function createPlaylist() {
+    console.log("selected URIS:", selectedTrackUris);
+    fetch("http://localhost:5000/createPlaylist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ trackUris: selectedTrackUris }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            "Network response was not ok: " + response.statusText
+          );
+        }
+        return response.text().then((text) => (text ? JSON.parse(text) : {}));
+      })
+      .then((data) => {
+        console.log(data);
+        selectedTrackUris = [];
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+/*
 function connectToSpotify() {
   authenticateSpotify();
   // Delay fetch call by 5 seconds (5000 milliseconds)
@@ -222,6 +248,7 @@ function connectToSpotify() {
       });
   }, 5000); // 5000 milliseconds = 5 seconds
 }
+*/
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";

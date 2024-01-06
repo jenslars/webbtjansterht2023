@@ -36,10 +36,13 @@
   </div>
 
   <script>
-    // Close the window after 3 seconds (adjust as needed)
     setTimeout(() => {
       window.close();
     }, 3000);
+  </script>
+  <script>
+    window.opener.postMessage('authenticationComplete', '*');
+    window.close();
   </script>
 </body>
 </html>
