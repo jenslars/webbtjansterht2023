@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.nio.file.Files;
@@ -88,6 +89,17 @@ public class ServerRunner {
                     jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
                     ctx.json(jsonResponse.toString());
                 })
+                .get("/convertVideo", ctx -> {
+                    String url = ctx.queryParam("url");
+                    System.out.println("url: " + url);
+                    List<TrackInfo> trackInfoList = serverRunner.convertVideo(url);
+
+                    JsonObject jsonResponse = new JsonObject();
+                    jsonResponse.addProperty("status", "success");
+                    jsonResponse.addProperty("message", "Video converted successfully");
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    ctx.json(jsonResponse.toString());
+                })
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
@@ -144,6 +156,54 @@ public class ServerRunner {
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
+    private List<TrackInfo> convertVideo(String url) {
+    System.out.println("Received URL: " + url);
+    String videoId = extractVideoId(url);
+
+    if (videoId != null) {
+        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
+        String youtubeApiParams = String.format("part=snippet&id=%s&key=%s", videoId, apiKey);
+        
+        httpGet = new HttpGet(youtubeApiUrl +"?" + youtubeApiParams);
+        try {
+            response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            System.out.println(responseBody);
+            Gson gson = new Gson();
+            JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+            if (responseJson.has("items")) {
+
+                List<String> videoTitles = new ArrayList<>();
+
+                // Extract video details from the response
+                String title = responseJson.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsJsonObject().get("title").getAsString();
+                String description = responseJson.get("items").getAsJsonArray().get(0).getAsJsonObject().get("snippet").getAsJsonObject().get("description").getAsString();
+                String videoTitle = title;
+                System.out.println("Video Title: " + videoTitle);
+                videoTitles.add(videoTitle);
+                return searchSongsOnSpotify(videoTitles);
+            } else {
+                System.out.println("No videos found");
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching YouTube video: " + e);
+        }
+    }
+            return new ArrayList<>();
+}
+    /**
+     * Extract video ID
+     * @param url
+     * @return
+     */
+    private String extractVideoId(String url) {
+        String regex = "(?<=watch\\?v=|/videos/|embed/|youtu.be/|/v/|/e/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%2F|youtu.be%2F|%2Fv%2F)[^#&?\\n]*";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+        java.util.regex.Matcher matcher = pattern.matcher(url);
+        return matcher.find() ? matcher.group() : null;
+    }
+
     private List<TrackInfo> convertPlaylist(String url) {
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
@@ -494,13 +554,13 @@ public class ServerRunner {
     
             try {
                 response = httpClient.execute(httpPost);
-    
+
                 // Correct way to obtain the access token from the response
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 JsonParser parser = new JsonParser();
                 JsonObject json = parser.parse(responseBody).getAsJsonObject();
                 accessToken = json.get("access_token").getAsString();
-    
+
                 // Print the access token for debugging
                 System.out.println("Access Token: " + accessToken);
             } catch (Exception e) {
