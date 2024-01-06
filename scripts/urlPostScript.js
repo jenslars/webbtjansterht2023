@@ -242,24 +242,27 @@ function generateRandomString(length) {
 const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
-function authenticateSpotify() {
-  const state = generateRandomString(16);
-  let url = "https://accounts.spotify.com/authorize";
-  url += "?response_type=code";
-  url += "&client_id=" + encodeURIComponent(client_id);
-  url += "&scope=" + encodeURIComponent(scope);
-  url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
-  url += "&state=" + encodeURIComponent(state);
+  function authenticateSpotify() {
+    const state = generateRandomString(16);
+    let url = "https://accounts.spotify.com/authorize";
+    url += "?response_type=code";
+    url += "&client_id=" + encodeURIComponent(client_id);
+    url += "&scope=" + encodeURIComponent(scope);
+    url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+    url += "&state=" + encodeURIComponent(state);
+  
+    const authWindow = window.open(url, "SpotifyAuthenticationWindow", "width=600,height=600");
 
-  const authWindow = window.open(
-    url,
-    "SpotifyAuthenticationWindow",
-    "width=600,height=600"
-  );
-
+  // Optional: You can focus on the new window
   if (authWindow) {
     authWindow.focus();
   }
+  window.addEventListener('message', (event) => {
+    if (event.data === 'authenticationComplete') {
+        // Authentication is complete, proceed to create playlist
+        createPlaylist();
+    }
+}, { once: true });
 }
 
 /* Metod för att skicka spellista-url till backend*/
