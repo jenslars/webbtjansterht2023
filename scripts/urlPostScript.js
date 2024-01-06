@@ -131,91 +131,103 @@ function toggleCheckbox(checkbox) {
 
 /* Metod för att visa rätt feature container*/
 function toggleFeature(id) {
-    var identifySongLink = document.getElementById("featureNavIdSong");
-    var identifySongContainer = document.getElementById("identifySongContainer");
+  var identifySongLink = document.getElementById("featureNavIdSong");
+  var identifySongContainer = document.getElementById("identifySongContainer");
 
-    var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
-    var identifyPlaylistContainer = document.getElementById("identifyPlaylistContainer");
+  var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
+  var identifyPlaylistContainer = document.getElementById(
+    "identifyPlaylistContainer"
+  );
 
-    var convertPlaylistLink = document.getElementById("featureNavConvertPlaylist");
-    var convertPlaylistContainer = document.getElementById("convertPlaylistContainer");
-    var serviceContainer = document.getElementById('serviceContainer')
+  var convertPlaylistLink = document.getElementById(
+    "featureNavConvertPlaylist"
+  );
+  var convertPlaylistContainer = document.getElementById(
+    "convertPlaylistContainer"
+  );
+  var serviceContainer = document.getElementById("serviceContainer");
 
-    if (id == "featureNavIdSong"){
-        identifySongLink.classList.add("active")
-        identifySongContainer.classList.add("active")
+  if (id == "featureNavIdSong") {
+    identifySongLink.classList.add("active");
+    identifySongContainer.classList.add("active");
 
-        identifyPlaylistLink.classList.remove("active")
-        identifyPlaylistContainer.classList.remove("active")
-        convertPlaylistLink.classList.remove("active")
-        convertPlaylistContainer.classList.remove("active")
-        
-        const element = document.getElementById('resultContainerConvert');
-        if (element) { element.classList.add('hide')
-        serviceContainer.classList.remove('active')
-        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
-        expandedConvertPlaylistContainer.classList.remove('active')
-        }
+    identifyPlaylistLink.classList.remove("active");
+    identifyPlaylistContainer.classList.remove("active");
+    convertPlaylistLink.classList.remove("active");
+    convertPlaylistContainer.classList.remove("active");
+
+    const element = document.getElementById("resultContainerConvert");
+    if (element) {
+      element.classList.add("hide");
+      serviceContainer.classList.remove("active");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
+      expandedConvertPlaylistContainer.classList.remove("active");
     }
-    else if (id == "featureNavIdPlaylist"){
-        identifyPlaylistLink.classList.add("active")
-        identifyPlaylistContainer.classList.add("active")
+  } else if (id == "featureNavIdPlaylist") {
+    identifyPlaylistLink.classList.add("active");
+    identifyPlaylistContainer.classList.add("active");
 
-        identifySongLink.classList.remove("active")
-        identifySongContainer.classList.remove("active")
-        convertPlaylistLink.classList.remove("active")
-        convertPlaylistContainer.classList.remove("active")
+    identifySongLink.classList.remove("active");
+    identifySongContainer.classList.remove("active");
+    convertPlaylistLink.classList.remove("active");
+    convertPlaylistContainer.classList.remove("active");
 
-        const element = document.getElementById('resultContainerConvert');
-        if (element) { element.classList.add('hide')
-        serviceContainer.classList.remove('active')
-        var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer')
-        expandedConvertPlaylistContainer.classList.remove('active')
-        }
+    const element = document.getElementById("resultContainerConvert");
+    if (element) {
+      element.classList.add("hide");
+      serviceContainer.classList.remove("active");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
+      expandedConvertPlaylistContainer.classList.remove("active");
     }
-    else if (id == "featureNavConvertPlaylist"){
-        convertPlaylistLink.classList.add("active")
-        convertPlaylistContainer.classList.add("active")
-        
-        identifyPlaylistLink.classList.remove("active")
-        identifyPlaylistContainer.classList.remove("active")
-        identifySongLink.classList.remove("active")
-        identifySongContainer.classList.remove("active")   
-        var resultContainerConvert = document.getElementById('resultContainerConvert');
-        if (resultContainerConvert) {
-            resultContainerConvert.classList.remove('hide');
-            var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
-            expandedConvertPlaylistContainer.classList.add('active');
-            serviceContainer.classList.add('active')
-        }
+  } else if (id == "featureNavConvertPlaylist") {
+    convertPlaylistLink.classList.add("active");
+    convertPlaylistContainer.classList.add("active");
+
+    identifyPlaylistLink.classList.remove("active");
+    identifyPlaylistContainer.classList.remove("active");
+    identifySongLink.classList.remove("active");
+    identifySongContainer.classList.remove("active");
+    var resultContainerConvert = document.getElementById(
+      "resultContainerConvert"
+    );
+    if (resultContainerConvert) {
+      resultContainerConvert.classList.remove("hide");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
+      expandedConvertPlaylistContainer.classList.add("active");
+      serviceContainer.classList.add("active");
     }
+  }
 }
 
 function createPlaylist() {
-    console.log("selected URIS:", selectedTrackUris);
-    fetch("http://localhost:5000/createPlaylist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ trackUris: selectedTrackUris }),
+  console.log("selected URIS:", selectedTrackUris);
+  fetch("http://localhost:5000/createPlaylist", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ trackUris: selectedTrackUris }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok: " + response.statusText);
+      }
+      return response.text().then((text) => (text ? JSON.parse(text) : {}));
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            "Network response was not ok: " + response.statusText
-          );
-        }
-        return response.text().then((text) => (text ? JSON.parse(text) : {}));
-      })
-      .then((data) => {
-        console.log(data);
-        selectedTrackUris = [];
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }
+    .then((data) => {
+      console.log(data);
+      selectedTrackUris = [];
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
 /*
 function connectToSpotify() {
   authenticateSpotify();
@@ -269,27 +281,35 @@ function generateRandomString(length) {
 const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
-  function authenticateSpotify() {
-    const state = generateRandomString(16);
-    let url = "https://accounts.spotify.com/authorize";
-    url += "?response_type=code";
-    url += "&client_id=" + encodeURIComponent(client_id);
-    url += "&scope=" + encodeURIComponent(scope);
-    url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
-    url += "&state=" + encodeURIComponent(state);
-  
-    const authWindow = window.open(url, "SpotifyAuthenticationWindow", "width=600,height=600");
+function authenticateSpotify() {
+  const state = generateRandomString(16);
+  let url = "https://accounts.spotify.com/authorize";
+  url += "?response_type=code";
+  url += "&client_id=" + encodeURIComponent(client_id);
+  url += "&scope=" + encodeURIComponent(scope);
+  url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+  url += "&state=" + encodeURIComponent(state);
+
+  const authWindow = window.open(
+    url,
+    "SpotifyAuthenticationWindow",
+    "width=600,height=600"
+  );
 
   // Optional: You can focus on the new window
   if (authWindow) {
     authWindow.focus();
   }
-  window.addEventListener('message', (event) => {
-    if (event.data === 'authenticationComplete') {
+  window.addEventListener(
+    "message",
+    (event) => {
+      if (event.data === "authenticationComplete") {
         // Authentication is complete, proceed to create playlist
         createPlaylist();
-    }
-}, { once: true });
+      }
+    },
+    { once: true }
+  );
 }
 
 /* Metod för att skicka spellista-url till backend*/
@@ -350,7 +370,7 @@ function convertVideo() {
       if (data.tracks && Array.isArray(data.tracks)) {
         // Extract the URIs from the array and filter out empty ones
         selectedTrackUris = data.tracks
-          .slice(0, 50)
+          .slice(0, 100)
           .map((track) => track.uri)
           .filter((uri) => uri);
 

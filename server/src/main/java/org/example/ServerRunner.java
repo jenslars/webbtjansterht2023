@@ -204,35 +204,36 @@ public class ServerRunner {
     private List<TrackInfo> convertPlaylist(String url) {
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
-
+    
         if (playlistId != null) {
-            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";  // Replace with your YouTube API key
             String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
             String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s", playlistId, apiKey);
-
+    
             httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
-
+    
             try {
                 response = httpClient.execute(httpGet);
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
+    
                 Gson gson = new Gson();
                 JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
-
+    
                 if (responseJson.has("items")) {
                     JsonArray itemsArray = responseJson.getAsJsonArray("items");
-
+    
                     List<String> videoTitles = new ArrayList<>();
-
+    
                     for (JsonElement item : itemsArray) {
                         JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                         String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
-
+    
                         System.out.println("Video Title: " + videoTitle);
-
+    
                         videoTitles.add(videoTitle);
                     }
-
+    
+                    // Perform a single Spotify search for all video titles
                     return searchSongsOnSpotify(videoTitles);
                 } else {
                     System.out.println("No videos found in the playlist");
@@ -243,7 +244,7 @@ public class ServerRunner {
         } else {
             System.out.println("Invalid YouTube playlist URL");
         }
-
+    
         return new ArrayList<>();
     }
 
@@ -259,8 +260,7 @@ public class ServerRunner {
      * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
     */
 
-    private List<TrackInfo> searchSongsOnSpotify(List<String> titles) {
-        
+    private List<TrackInfo> searchSongsOnSpotify(List<String> youtubeTitles) {
         List<TrackInfo> trackInfoList = new ArrayList<>();
     
         if (accessToken == null) {
@@ -270,44 +270,45 @@ public class ServerRunner {
     
         String spotifyApiUrl = "https://api.spotify.com/v1/search";
     
-        for (String title : titles) {
+        for (String youtubeTitle : youtubeTitles) {
             try {
-                String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
-                String searchUrl = String.format("%s?q=%s&type=track", spotifyApiUrl, encodedTitle);
+                String[] titleParts = parseTitle(youtubeTitle);
+                if (titleParts.length == 2) {
+                    String artist = titleParts[0];
+                    String song = titleParts[1];
     
-                HttpGet httpGet = new HttpGet(searchUrl);
-                httpGet.setHeader("Authorization", "Bearer " + accessToken);
-                CloseableHttpResponse response = httpClient.execute(httpGet);
+                    // Encode artist and track separately
+                    String encodedArtist = URLEncoder.encode(artist, StandardCharsets.UTF_8.toString());
+                    String encodedSong = URLEncoder.encode(song, StandardCharsets.UTF_8.toString());
     
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    // Construct the Spotify API search URL with encoded parameters
+                    String searchUrl = String.format("%s?q=artist:%s%%20track:%s&type=track", spotifyApiUrl, encodedArtist, encodedSong);
+                    System.out.println(searchUrl);
+                    // Perform the Spotify API search
+                    HttpGet httpGet = new HttpGet(searchUrl);
+                    httpGet.setHeader("Authorization", "Bearer " + accessToken);
+                    CloseableHttpResponse response = httpClient.execute(httpGet);
     
-                Gson gson = new Gson();
-                JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
     
-                if (responseJson.has("tracks")) {
-                    JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
+                    JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
     
-                    for (JsonElement track : tracksArray) {
-                        JsonObject trackInfoJson = new JsonObject();
-                        trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
-                        trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
-                        trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
-                        trackInfoJson.addProperty("album", track.getAsJsonObject().getAsJsonObject("album").getAsJsonPrimitive("name").getAsString());
-
-                        // Get the track ID and construct the URI
-                        String trackId = track.getAsJsonObject().getAsJsonPrimitive("id").getAsString();
-                        String trackUri = "spotify:track:" + trackId;
-                        trackInfoJson.addProperty("uri", trackUri);
+                    if (responseJson.has("tracks")) {
+                        JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
     
-                        TrackInfo newTrack = gson.fromJson(trackInfoJson, TrackInfo.class);
-    
-                        // Check for duplicates before adding to the list
-                        if (!isDuplicate(trackInfoList, newTrack)) {
-                            trackInfoList.add(newTrack);
+                        for (JsonElement track : tracksArray) {
+                            // Extract track information and add to the result list
+                            TrackInfo newTrack = extractTrackInfo(track);
+                            if (!isDuplicate(trackInfoList, newTrack)) {
+                                trackInfoList.add(newTrack);
+                            }
                         }
                     }
+                    response.close();
+                } else {
+                    // Handle cases where parsing did not result in expected parts
+                    System.out.println("Error parsing YouTube title: " + youtubeTitle);
                 }
-                response.close();
             } catch (Exception e) {
                 System.out.println("Error searching on Spotify: " + e);
             }
@@ -316,11 +317,44 @@ public class ServerRunner {
         return trackInfoList;
     }
     
+
+    private String[] parseTitle(String title) {
+        // Remove anything inside parentheses
+        title = title.replaceAll("\\([^)]*\\)", "");
+    
+        // Split by "feat." or "-"
+        String[] parts = title.split("( feat\\.| - )");
+    
+        if (parts.length == 2) {
+            // Trim leading and trailing whitespaces
+            parts[0] = parts[0].trim();
+            parts[1] = parts[1].trim();
+            return parts;
+        } else {
+            // Return the entire title as track name if parsing is unsuccessful
+            return new String[]{title.trim()};
+        }
+    }
+
+    private TrackInfo extractTrackInfo(JsonElement track) {
+        JsonObject trackInfoJson = new JsonObject();
+        trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
+        trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
+        trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
+        trackInfoJson.addProperty("album", track.getAsJsonObject().getAsJsonObject("album").getAsJsonPrimitive("name").getAsString());
+
+        String trackId = track.getAsJsonObject().getAsJsonPrimitive("id").getAsString();
+        String trackUri = "spotify:track:" + trackId;
+        trackInfoJson.addProperty("uri", trackUri);
+
+        return gson.fromJson(trackInfoJson, TrackInfo.class);
+    }
+    
     
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equals(newTrack.getTitle()) &&
-                existingTrack.getArtist().equals(newTrack.getArtist())) {
+            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
+                existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
                 return true;
             }
         }
