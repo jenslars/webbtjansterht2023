@@ -19,13 +19,11 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.ContentType;
 
 
+import javax.sound.midi.Track;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -227,10 +225,12 @@ public class ServerRunner {
                     for (JsonElement item : itemsArray) {
                         JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                         String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                        String channelName = snippet.getAsJsonPrimitive("videoOwnerChannelTitle").getAsString();
+                        channelName = channelName.replace(" - Topic", "");
 
                         System.out.println("Video Title: " + videoTitle);
 
-                        videoTitles.add(videoTitle);
+                        videoTitles.add(videoTitle+ " "+channelName);
                     }
 
                     return searchSongsOnSpotify(videoTitles);
@@ -303,7 +303,9 @@ public class ServerRunner {
     
                         // Check for duplicates before adding to the list
                         if (!isDuplicate(trackInfoList, newTrack)) {
+
                             trackInfoList.add(newTrack);
+                            break;
                         }
                     }
                 }
@@ -312,10 +314,13 @@ public class ServerRunner {
                 System.out.println("Error searching on Spotify: " + e);
             }
         }
+
+        System.out.println("Tracks: " +trackInfoList.size());
     
         return trackInfoList;
     }
-    
+
+
     
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         for (TrackInfo existingTrack : trackInfoList) {
@@ -358,6 +363,19 @@ public class ServerRunner {
     
         public String getUri() {
             return uri;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            TrackInfo trackInfo = (TrackInfo) obj;
+            return Objects.equals(title, trackInfo.title) && Objects.equals(artist, trackInfo.artist);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, artist);
         }
     }
     
