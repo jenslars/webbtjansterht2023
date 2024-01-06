@@ -433,7 +433,7 @@ function createPlaylistElementsIdentifySong(data) {
 
   var resultDivider = document.createElement("div");
   resultDivider.className = "resultDivider";
-  resultContainerConvert.appendChild(resultDivider);
+  resultContainerIdentifySong.appendChild(resultDivider);
 
   var resultHeader = document.createElement("div");
   resultHeader.className = "resultHeader";

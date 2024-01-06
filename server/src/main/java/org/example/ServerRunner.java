@@ -100,6 +100,17 @@ public class ServerRunner {
                     ctx.json(jsonResponse.toString());
                     */
                 })
+                .get("/convertVideo", ctx -> {
+                    String url = ctx.queryParam("url");
+                    System.out.println("url: " + url);
+                    List<TrackInfo> trackInfoList = serverRunner.convertVideo(url);
+
+                    JsonObject jsonResponse = new JsonObject();
+                    jsonResponse.addProperty("status", "success");
+                    jsonResponse.addProperty("message", "Video converted successfully");
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    ctx.json(jsonResponse.toString());
+                })
                 .get("/callback", ctx -> {
                     String code = ctx.queryParam("code");
                     serverRunner.exchangeCodeForAccessToken(code);
