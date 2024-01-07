@@ -567,9 +567,18 @@ function createPlaylistElementsIdentifySong(data) {
     "expandedIdentifySongContainer"
   );
 
-  var resultContainerIdentifySong = document.getElementById(
-    "resultContainerIdentifySong"
-  );
+  // Check if the resultContainerIdentifySong element exists
+  var resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
+  if (resultContainerIdentifySong) {
+    // Remove the existing resultContainerIdentifySong and its children
+    resultContainerIdentifySong.parentNode.removeChild(resultContainerIdentifySong);
+  }
+
+  // Create a new resultContainerIdentifySong element
+  resultContainerIdentifySong = document.createElement("div");
+  resultContainerIdentifySong.id = "resultContainerIdentifySong";
+  expandedIdentifySongContainer.appendChild(resultContainerIdentifySong);
+
   if (!resultContainerIdentifySong) {
     resultContainerIdentifySong = document.createElement("div");
     resultContainerIdentifySong.id = "resultContainerIdentifySong";
@@ -703,12 +712,17 @@ function createPlaylistElements(data) {
     "expandedConvertPlaylistContainer"
   );
 
-  var resultContainerConvert = document.getElementById("resultContainer");
-  if (!resultContainerConvert) {
-    resultContainerConvert = document.createElement("div");
-    resultContainerConvert.id = "resultContainerConvert";
-    expandedConvertPlaylistContainer.appendChild(resultContainerConvert);
+  // Check if the resultContainerConvert element exists
+  var resultContainerConvert = document.getElementById("resultContainerConvert");
+  if (resultContainerConvert) {
+    // Remove the existing resultContainerConvert and its children
+    resultContainerConvert.parentNode.removeChild(resultContainerConvert);
   }
+
+  // Create a new resultContainerConvert element
+  resultContainerConvert = document.createElement("div");
+  resultContainerConvert.id = "resultContainerConvert";
+  expandedConvertPlaylistContainer.appendChild(resultContainerConvert);
 
   var resultDivider = document.createElement("div");
   resultDivider.className = "resultDivider";
