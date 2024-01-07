@@ -61,17 +61,21 @@ var urlInput_2 = document.getElementsByClassName("URLinput")[1];
 
 urlInput_2.addEventListener("input", function () {
   var inputValue = this.value;
-  var errorMessage = document.getElementById("error-message2");
-  var submitButton = document.getElementById("URLsubmit-btn2");
+  var errorMessage2 = document.getElementById("error-message2");
+  var submitButton2 = document.getElementById("URLsubmit-btn2");
 
   if (validateYouTubeVideoUrl(inputValue)) {
     console.log("Valid YouTube URL");
-    submitButton.classList.add("active");
-    errorMessage.innerText = "";
+    submitButton2.classList.add("active");
+    errorMessage2.innerText = "";
+    submitButton2.onclick = function () {
+      identifyAllSongsInVideo();
+    }
   } else {
     console.log("Invalid YouTube URL");
-    errorMessage.innerText = "Invalid YouTube URL";
-    submitButton.classList.remove("active");
+    errorMessage2.innerText = "Invalid YouTube URL";
+    submitButton2.classList.remove("active");
+    submitButton2.onclick = null;
   }
 });
 
@@ -237,6 +241,27 @@ function authenticateSpotify() {
   if (authWindow) {
     authWindow.focus();
   }
+}
+
+/* Metod för att skicka video-url till backend */
+function identifyAllSongsInVideo() {
+  console.log("In identify all songs");
+
+  var url = document.getElementById("identifySongsInVideo").value;
+  console.log(url);
+  fetch("/convertVideo?url=" + encodeURIComponent(url), {
+    method: "GET", 
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Backend response: ", data);
+      
+    })
 }
 
 /* Metod för att skicka spellista-url till backend*/
