@@ -159,15 +159,20 @@ function toggleFeature(id) {
     convertPlaylistLink.classList.remove("active");
     convertPlaylistContainer.classList.remove("active");
 
-    const element = document.getElementById("resultContainerConvert");
-    if (element) {
-      element.classList.add("hide");
+    const resultContainerConvert = document.getElementById("resultContainerConvert");
+    if (resultContainerConvert) {
+      resultContainerConvert.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedConvertPlaylistContainer = document.getElementById(
-        "expandedConvertPlaylistContainer"
-      );
+      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
+    var resultContainerIdentifySong = document.getElementById('resultContainerIdentifySong');
+        if (resultContainerIdentifySong) {
+            resultContainerIdentifySong.classList.remove('hide');
+            var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
+            expandedConvertPlaylistContainer.classList.add('active');
+            serviceContainer.classList.add('active')
+        }
   } else if (id == "featureNavIdPlaylist") {
     identifyPlaylistLink.classList.add("active");
     identifyPlaylistContainer.classList.add("active");
@@ -177,13 +182,11 @@ function toggleFeature(id) {
     convertPlaylistLink.classList.remove("active");
     convertPlaylistContainer.classList.remove("active");
 
-    const element = document.getElementById("resultContainerConvert");
-    if (element) {
-      element.classList.add("hide");
+    const resultContainerConvert = document.getElementById("resultContainerConvert");
+    if (resultContainerConvert) {
+      resultContainerConvert.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedConvertPlaylistContainer = document.getElementById(
-        "expandedConvertPlaylistContainer"
-      );
+      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
   } else if (id == "featureNavConvertPlaylist") {
@@ -194,14 +197,17 @@ function toggleFeature(id) {
     identifyPlaylistContainer.classList.remove("active");
     identifySongLink.classList.remove("active");
     identifySongContainer.classList.remove("active");
-    var resultContainerConvert = document.getElementById(
-      "resultContainerConvert"
-    );
+    const resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
+    if (resultContainerIdentifySong) {
+      resultContainerIdentifySong.classList.add("hide");
+      serviceContainer.classList.remove("active");
+      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
+      expandedConvertPlaylistContainer.classList.remove("active");
+    }
+    var resultContainerConvert = document.getElementById("resultContainerConvert");
     if (resultContainerConvert) {
       resultContainerConvert.classList.remove("hide");
-      var expandedConvertPlaylistContainer = document.getElementById(
-        "expandedConvertPlaylistContainer"
-      );
+      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.add("active");
       serviceContainer.classList.add("active");
     }
@@ -419,11 +425,11 @@ function convertVideo() {
 
         console.log("Extracted URIs:", selectedTrackUris);
         var serviceContainer = document.getElementById("serviceContainer");
-        var expandedConvertPlaylistContainer = document.getElementById(
-          "expandedConvertPlaylistContainer"
+        var expandedIdentifySongContainer = document.getElementById(
+          "expandedIdentifySongContainer"
         );
 
-        expandedConvertPlaylistContainer.classList.add("active");
+        expandedIdentifySongContainer.classList.add("active");
         serviceContainer.classList.add("active");
         createPlaylistElementsIdentifySong(data);
       } else {
@@ -436,8 +442,8 @@ function convertVideo() {
 }
 
 function createPlaylistElementsIdentifySong(data) {
-  var expandedConvertPlaylistContainer = document.getElementById(
-    "expandedConvertPlaylistContainer"
+  var expandedIdentifySongContainer = document.getElementById(
+    "expandedIdentifySongContainer"
   );
 
   var resultContainerIdentifySong = document.getElementById(
@@ -446,7 +452,7 @@ function createPlaylistElementsIdentifySong(data) {
   if (!resultContainerIdentifySong) {
     resultContainerIdentifySong = document.createElement("div");
     resultContainerIdentifySong.id = "resultContainerIdentifySong";
-    expandedConvertPlaylistContainer.appendChild(resultContainerIdentifySong);
+    expandedIdentifySongContainer.appendChild(resultContainerIdentifySong);
   }
 
   var resultDivider = document.createElement("div");

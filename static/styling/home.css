@@ -196,12 +196,12 @@ html {
   display: none;
 }
 
-#expandedConvertPlaylistContainer {
+#expandedConvertPlaylistContainer, #expandedIdentifySongContainer{
   height: 300px;
   overflow: hidden;
 }
 
-#expandedConvertPlaylistContainer.active {
+#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active {
   height: 520px;
   background-color: #3b3b3d;
   border-bottom-left-radius: 20px;
@@ -352,7 +352,7 @@ html {
   padding-left: 20px;
 }
 
-#resultContainerConvert {
+#resultContainerConvert, #resultContainerIdentifySong {
   max-height: 420px;
 }
 
