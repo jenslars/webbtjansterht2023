@@ -248,6 +248,40 @@ function createPlaylist() {
     });
 }
 
+function addLoaderToButton(buttonId) {
+  var button = document.getElementById(buttonId);
+  if (!button) {
+      console.error('Button not found:', buttonId);
+      return;
+  }
+
+  var loaderDiv = document.createElement('div');
+  loaderDiv.className = 'lds-ring2';
+
+  for (var i = 0; i < 4; i++) {
+      var childDiv = document.createElement('div');
+      loaderDiv.appendChild(childDiv);
+  }
+
+  button.appendChild(loaderDiv);
+}
+
+function removeLoaderFromButton(buttonId) {
+  var button = document.getElementById(buttonId);
+  if (!button) {
+      console.error('Button not found:', buttonId);
+      return;
+  }
+
+  // Find the loader div inside the button
+  var loaderDiv = button.querySelector('.lds-ring2');
+  if (loaderDiv) {
+      button.removeChild(loaderDiv);
+  } else {
+      console.error('Loader not found in button:', buttonId);
+  }
+}
+
 function createPlaylistUrlElements(playlistUrl) {
   var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
   var containerDiv = document.querySelector('.lds-ring-container');
@@ -405,6 +439,7 @@ function authenticateSpotify() {
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
   console.log("In convert playlist");
+  addLoaderToButton('URLsubmit-btn3')
   var url = document.getElementById("convertPlaylistInput").value;
   fetch("/convertPlaylist?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -423,19 +458,19 @@ function convertPlaylist() {
           .slice(0, 50)
           .map((track) => track.uri)
           .filter((uri) => uri);
-
+          var serviceContainer = document.getElementById("serviceContainer");
+          var expandedConvertPlaylistContainer = document.getElementById(
+            "expandedConvertPlaylistContainer"
+          );
+    
+          expandedConvertPlaylistContainer.classList.add("active");
+          serviceContainer.classList.add("active");
+          removeLoaderFromButton('URLsubmit-btn3')
         console.log("Extracted URIs:", selectedTrackUris);
       } else {
         console.error("Data.tracks is not an array");
       }
 
-      var serviceContainer = document.getElementById("serviceContainer");
-      var expandedConvertPlaylistContainer = document.getElementById(
-        "expandedConvertPlaylistContainer"
-      );
-
-      expandedConvertPlaylistContainer.classList.add("active");
-      serviceContainer.classList.add("active");
       createPlaylistElements(data);
     })
     .catch((error) => {
@@ -445,6 +480,7 @@ function convertPlaylist() {
 
 function identifyAllSongs() {
   console.log("In identifyAllSongs");
+  addLoaderToButton('URLsubmit-btn1')
   var url = document.getElementById("convertPlaylistInput").value;
   fetch("/identifyAllSongs?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -463,20 +499,21 @@ function identifyAllSongs() {
           .slice(0, 50)
           .map((track) => track.uri)
           .filter((uri) => uri);
-
+          var serviceContainer = document.getElementById("serviceContainer");
+          var expandedConvertPlaylistContainer = document.getElementById(
+            "expandedConvertPlaylistContainer"
+          );
+    
+          expandedConvertPlaylistContainer.classList.add("active");
+          serviceContainer.classList.add("active");
+          createPlaylistElements(data);
+          removeLoaderFromButton('URLsubmit-btn2')
         console.log("Extracted URIs:", selectedTrackUris);
       } else {
         console.error("Data.tracks is not an array");
       }
 
-      var serviceContainer = document.getElementById("serviceContainer");
-      var expandedConvertPlaylistContainer = document.getElementById(
-        "expandedConvertPlaylistContainer"
-      );
 
-      expandedConvertPlaylistContainer.classList.add("active");
-      serviceContainer.classList.add("active");
-      createPlaylistElements(data);
     })
     .catch((error) => {
       console.error("Error sending data to backend:", error);
@@ -485,6 +522,8 @@ function identifyAllSongs() {
 
 function convertVideo() {
   console.log("In convert video");
+
+  addLoaderToButton('URLsubmit-btn1')
   var url = document.getElementById("convertVideoInput").value;
   fetch("/convertVideo?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -513,6 +552,7 @@ function convertVideo() {
         expandedIdentifySongContainer.classList.add("active");
         serviceContainer.classList.add("active");
         createPlaylistElementsIdentifySong(data);
+        removeLoaderFromButton('URLsubmit-btn1')
       } else {
         console.error("Data.tracks is not an array");
       }
