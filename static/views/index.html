@@ -169,7 +169,7 @@
         <h3>Creating playlist</h3>
         <p>In order to create a playlist you need to connect to Spotify</p>
         <div class="loadingElements">
-          <button class="login-btn" onclick="authenticateSpotify()">Connect</button>
+          <button class="login-btn" onclick="authenticateSpotify('createPlaylist')">Connect</button>
           <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('createPlaylist')">Cancel</button>
         </div>
     </div>
@@ -178,7 +178,7 @@
         <h3>Adding to playlist</h3>
         <div class="loadingElements">
           <p>In order to add these songs to a playlist you need to connect to Spotify</p>
-          <button class="login-btn">Connect</button>
+          <button class="login-btn" onclick="authenticateSpotify('addToPlaylist')">Connect</button>
           <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('addToPlaylist')">Cancel</button>
         </div>
     </div>

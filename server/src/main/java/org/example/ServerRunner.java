@@ -87,6 +87,9 @@ public class ServerRunner {
                     // Send the JSON response
                     ctx.result(response.toString());
                 })
+                .get("/getUserPlaylists", ctx -> {
+                    //behöver implementeras
+                })
                 
                 
                 .get("/convertPlaylist", ctx -> {
@@ -177,6 +180,7 @@ public class ServerRunner {
         }
         ctx.json(response);
     }
+
 
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.

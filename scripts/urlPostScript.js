@@ -248,6 +248,15 @@ function createPlaylist() {
     });
 }
 
+function getUserPlaylists() {
+  //Ska hämta användarens spellistor och sedan skapa element i popupen likt hur det fungerar med resultatContainern
+  fetch("http://localhost:5000/addToPlaylist", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"}
+    })}
+
+
 function addLoaderToButton(buttonId) {
   var button = document.getElementById(buttonId);
   if (!button) {
@@ -316,9 +325,16 @@ function createPlaylistUrlElements(playlistUrl) {
 }
 
 
-function spotifyAuthenticateLoadingAnimation() {
-  var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
-  var loadingElements = document.getElementsByClassName('loadingElements')[0];
+function spotifyAuthenticateLoadingAnimation(type) {
+  if (type == 'createPlaylist') {
+    var chosenPopup = document.getElementById('spotifyPopupCreate');
+    var loadingElements = document.getElementsByClassName('loadingElements')[0];
+  } else if (type == 'addToPlaylist') {
+    var chosenPopup = document.getElementById('spotifyPopupAdd');
+    var loadingElements = document.getElementsByClassName('loadingElements')[1];
+  }
+  
+  
   loadingElements.classList.add('hide');
   
   const containerDiv = document.createElement('div');
@@ -334,7 +350,7 @@ function spotifyAuthenticateLoadingAnimation() {
 
   containerDiv.appendChild(parentDiv);
 
-  spotifyPopupCreate.appendChild(containerDiv);
+  chosenPopup.appendChild(containerDiv);
 }
 
 function resetSpotifyPopup() {
@@ -406,8 +422,13 @@ function generateRandomString(length) {
 const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
-function authenticateSpotify() {
-  spotifyAuthenticateLoadingAnimation()
+function authenticateSpotify(type) {
+  if (type == 'createPlaylist'){
+    spotifyAuthenticateLoadingAnimation('createPlaylist')
+  } else if (type == 'addToPlaylist') {
+    spotifyAuthenticateLoadingAnimation('addToPlaylist');
+  }
+  
   const state = generateRandomString(16);
   let url = "https://accounts.spotify.com/authorize";
   url += "?response_type=code";
@@ -429,7 +450,11 @@ function authenticateSpotify() {
     "message",
     (event) => {
       if (event.data === "authenticationComplete") {
-        createPlaylist();
+        if (type == 'createPlaylist'){
+          createPlaylist();
+        } else if (type == 'addToPlaylist'){
+          getUserPlaylists();
+        } 
       }
     },
     { once: true }
