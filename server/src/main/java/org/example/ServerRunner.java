@@ -68,13 +68,27 @@ public class ServerRunner {
                         ctx.status(400).result("Bad Request: trackUris is missing or not an array");
                         return;
                     }
+                    
                     List<String> trackUris = new ArrayList<>();
                     for (JsonElement trackUriJson : trackUrisJson) {
                         trackUris.add(trackUriJson.getAsString());
                     }
+                    
                     System.out.println(trackUris);
-                    serverRunner.createPlaylist(ctx, trackUris);
+                    String playlistId = serverRunner.createPlaylist(ctx, trackUris);
+                
+                    // Create a JSON response object with the playlistId
+                    JsonObject response = new JsonObject();
+                    response.addProperty("playlistId", playlistId);
+                
+                    // Set the response content type to JSON
+                    ctx.contentType("application/json");
+                
+                    // Send the JSON response
+                    ctx.result(response.toString());
                 })
+                
+                
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
 
@@ -481,39 +495,39 @@ public class ServerRunner {
      *
      * @param ctx
      */
-    private void createPlaylist(Context ctx, List<String> trackUris) {
-        System.out.println("här är vi i create");
+    private String createPlaylist(Context ctx, List<String> trackUris) {
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
             String userId = getUserId(accessToken);
             HttpPost httpPost = new HttpPost("https://api.spotify.com/v1/users/" + userId + "/playlists");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-
-            // hämtar datum och använder den som namn på listan, kanske kan passa bättre med titel på video?
+    
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     
             JsonObject playlistDetails = new JsonObject();
             playlistDetails.addProperty("name", currentDate);
             playlistDetails.addProperty("description", "Created with Spotify API");
             playlistDetails.addProperty("public", false);
-            System.out.println("playlistDetails");
             StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
     
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
+    
             JsonObject responseJson = new JsonParser().parse(responseBody).getAsJsonObject();
             String playlistId = responseJson.get("id").getAsString();
-            System.out.println(playlistId);
     
-            // Add tracks to the playlist
             addTracksToPlaylist(playlistId, trackUris);
+    
+            return playlistId;
+    
         } catch (Exception e) {
             System.out.println(e);
+            return null;
         }
     }
+    
 
     /**
      * Metod för att lägga till låten i användarens Spotify-spellista.

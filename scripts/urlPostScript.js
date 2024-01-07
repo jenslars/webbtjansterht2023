@@ -19,6 +19,12 @@ function cancelSpotifyPopup(type) {
     var mainContainer = document.getElementById("main");
     spotifyPopupDiv.classList.remove("active");
     mainContainer.classList.remove("blur");
+  } else if (type == "createPlaylistFinished") {
+    var spotifyPopupDiv = document.getElementById("spotifyPopupCreate");
+    var mainContainer = document.getElementById("main");
+    spotifyPopupDiv.classList.remove("active");
+    mainContainer.classList.remove("blur");
+    resetSpotifyPopup()
   } else if (type == "addToPlaylist") {
     var spotifyPopupDiv = document.getElementById("spotifyPopupAdd");
     var mainContainer = document.getElementById("main");
@@ -227,49 +233,125 @@ function createPlaylist() {
       if (!response.ok) {
         throw new Error("Network response was not ok: " + response.statusText);
       }
-      return response.text().then((text) => (text ? JSON.parse(text) : {}));
+      return response.json();
     })
     .then((data) => {
-      console.log(data);
+      console.log("Playlist ID:", data.playlistId);
       selectedTrackUris = [];
+
+      const spotifyPlaylistUrl = `https://open.spotify.com/playlist/${data.playlistId}`;
+      console.log("Spotify Playlist URL:", spotifyPlaylistUrl);
+      createPlaylistUrlElements(spotifyPlaylistUrl)
     })
     .catch((error) => {
       console.error("Error:", error);
     });
 }
-/*
-function connectToSpotify() {
-  authenticateSpotify();
-  // Delay fetch call by 5 seconds (5000 milliseconds)
 
-  setTimeout(() => {
-    //addSongToSpotify();
-    console.log("selected URIS:", selectedTrackUris);
-    fetch("http://localhost:5000/createPlaylist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ trackUris: selectedTrackUris }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            "Network response was not ok: " + response.statusText
-          );
-        }
-        return response.text().then((text) => (text ? JSON.parse(text) : {}));
-      })
-      .then((data) => {
-        console.log(data);
-        selectedTrackUris = [];
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }, 5000); // 5000 milliseconds = 5 seconds
+function createPlaylistUrlElements(playlistUrl) {
+  var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
+  var containerDiv = document.querySelector('.lds-ring-container');
+
+  if (containerDiv) {
+    containerDiv.remove();
+  }
+
+  var h3Element = spotifyPopupCreate.querySelector('h3');
+  h3Element.textContent = 'Playlist created';
+
+  var pElement = spotifyPopupCreate.querySelector('p');
+  pElement.textContent = 'Visit playlist here:';
+
+  var linkElement = document.createElement('a');
+  linkElement.textContent = playlistUrl;
+  linkElement.href = playlistUrl;
+  spotifyPopupCreate.appendChild(linkElement);
+
+  // Create a button to reset the popup
+  var resetButton = document.createElement('button');
+  resetButton.classList.add('cancelSpotifyPopup');
+  resetButton.textContent = 'Close';
+  resetButton.setAttribute('id', 'resetButton');
+
+  resetButton.onclick = function() {
+  cancelSpotifyPopup('createPlaylistFinished');
+};
+
+  
+  spotifyPopupCreate.appendChild(resetButton);
 }
-*/
+
+
+function spotifyAuthenticateLoadingAnimation() {
+  var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
+  var loadingElements = document.getElementsByClassName('loadingElements')[0];
+  loadingElements.classList.add('hide');
+  
+  const containerDiv = document.createElement('div');
+  containerDiv.classList.add('lds-ring-container');
+
+  const parentDiv = document.createElement('div');
+  parentDiv.classList.add('lds-ring');
+
+  for (let i = 0; i < 4; i++) {
+    const childDiv = document.createElement('div');
+    parentDiv.appendChild(childDiv);
+  }
+
+  containerDiv.appendChild(parentDiv);
+
+  spotifyPopupCreate.appendChild(containerDiv);
+}
+
+function resetSpotifyPopup() {
+  var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
+  var containerDiv = document.querySelector('.lds-ring-container');
+
+  if (containerDiv) {
+    containerDiv.remove();
+  }
+
+  var h3Element = spotifyPopupCreate.querySelector('h3');
+  h3Element.textContent = 'Creating playlist';
+
+  var pElement = spotifyPopupCreate.querySelector('p');
+  pElement.textContent = 'In order to create a playlist you need to connect to Spotify';
+
+  var linkElement = spotifyPopupCreate.querySelector('a');
+  if (linkElement) {
+    linkElement.remove();
+  }
+
+  var resetButton = document.getElementById('resetButton');
+if (resetButton) {
+  resetButton.remove();
+}
+
+  var loadingElements = document.createElement('div');
+  loadingElements.classList.add('loadingElements');
+
+  var connectButton = document.createElement('button');
+  connectButton.classList.add('login-btn');
+  connectButton.textContent = 'Connect';
+  connectButton.onclick = authenticateSpotify;
+
+  var cancelButton = document.createElement('button');
+  cancelButton.classList.add('cancelSpotifyPopup');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.onclick = function() {
+    cancelSpotifyPopup('createPlaylist');
+  };
+
+  loadingElements.appendChild(connectButton);
+  loadingElements.appendChild(cancelButton);
+
+  // Replace the loadingElements div with the restored buttons
+  var existingLoadingElements = spotifyPopupCreate.querySelector('.loadingElements');
+  if (existingLoadingElements) {
+    existingLoadingElements.replaceWith(loadingElements);
+  }
+}
+
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
@@ -291,6 +373,7 @@ const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
 function authenticateSpotify() {
+  spotifyAuthenticateLoadingAnimation()
   const state = generateRandomString(16);
   let url = "https://accounts.spotify.com/authorize";
   url += "?response_type=code";
@@ -305,7 +388,6 @@ function authenticateSpotify() {
     "width=600,height=600"
   );
 
-  // Optional: You can focus on the new window
   if (authWindow) {
     authWindow.focus();
   }
@@ -313,7 +395,6 @@ function authenticateSpotify() {
     "message",
     (event) => {
       if (event.data === "authenticationComplete") {
-        // Authentication is complete, proceed to create playlist
         createPlaylist();
       }
     },
