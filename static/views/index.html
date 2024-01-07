@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/png/logo.png">
     <link
       href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;700&display=swap"
       rel="stylesheet"
@@ -54,24 +55,26 @@
             </div>
             <div class="formContainer">
               <div id="identifySongContainer" class="active">
-                <form class="urlForm">
-                  <div class="urlFormInputLabel">
-                    <p>
-                      Please insert a valid YouTube URL with a timestamp for the
-                      song you wish to identify
-                    </p>
-                  </div>
-                  <div class="inputDiv">
-                    <input
-                      type="text"
-                      class="URLinput"
-                      id="convertVideoInput"
-                      placeholder="youtube.com/watch?v=YoU-tuBe_23t=1"
-                    />
-                    <button id="URLsubmit-btn1" type="button">Submit</button>
-                  </div>
-                  <p id="error-message1"></p>
-                </form>
+                <div id="expandedIdentifySongContainer">
+                  <form class="urlForm">
+                    <div class="urlFormInputLabel">
+                      <p>
+                        Please insert a valid YouTube URL with a timestamp for the
+                        song you wish to identify
+                      </p>
+                    </div>
+                    <div class="inputDiv">
+                      <input
+                        type="text"
+                        class="URLinput"
+                        id="convertVideoInput"
+                        placeholder="youtube.com/watch?v=YoU-tuBe_23t=1"
+                      />
+                      <button id="URLsubmit-btn1" type="button">Submit</button>
+                    </div>
+                    <p id="error-message1"></p>
+                  </form>
+                </div>
               </div>
               <div id="identifyPlaylistContainer">
                 <form class="urlForm">
@@ -108,7 +111,7 @@
                         class="URLinput"
                         placeholder="youtube.com/playlist?list=YoU-tuBe_23"
                       />
-                      <button type="button" id="URLsubmit-btn3">Submit</button>
+                      <button type="button" id="URLsubmit-btn3" class="button-with-loader">Submit</button>
                     </div>
                     <p id="error-message3"></p>
                   </form>
@@ -161,19 +164,23 @@
         </div>
       </div>
     </main>
-      <div id="spotifyPopupCreate">
+    <div id="spotifyPopupCreate">
         <img src="images/svg/spotifylogo.svg" alt="Spotify" class="spotifyPopupLogo">
         <h3>Creating playlist</h3>
         <p>In order to create a playlist you need to connect to Spotify</p>
-        <button id="login-btn" onclick="authenticateSpotify()">Connect</button>
-        <button id="cancelSpotifyPopup" onclick="cancelSpotifyPopup('createPlaylist')">Cancel</button>
+        <div class="loadingElements">
+          <button class="login-btn" onclick="authenticateSpotify()">Connect</button>
+          <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('createPlaylist')">Cancel</button>
+        </div>
     </div>
     <div id="spotifyPopupAdd">
         <img src="images/svg/spotifylogo.svg" alt="Spotify" class="spotifyPopupLogo">
         <h3>Adding to playlist</h3>
-        <p>In order to add these songs to a playlist you need to connect to Spotify</p>
-        <button id="login-btn">Connect</button>
-        <button id="cancelSpotifyPopup" onclick="cancelSpotifyPopup('addToPlaylist')">Cancel</button>
+        <div class="loadingElements">
+          <p>In order to add these songs to a playlist you need to connect to Spotify</p>
+          <button class="login-btn">Connect</button>
+          <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('addToPlaylist')">Cancel</button>
+        </div>
     </div>
     </div>
   </body>

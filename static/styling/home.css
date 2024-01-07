@@ -148,6 +148,47 @@ html {
   height: 30px;
   margin-left: 20px;
   transition: 0.5s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lds-ring2 {
+  display: inline-block;
+  position: relative;
+  width: 15px; 
+  height: 15px; 
+  margin-left: 10px;
+}
+
+.lds-ring2 div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #fff transparent transparent transparent;
+}
+
+.lds-ring2 div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring2 div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring2 div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #URLsubmit-btn1 p,
@@ -196,17 +237,17 @@ html {
   display: none;
 }
 
-#expandedConvertPlaylistContainer {
+#expandedConvertPlaylistContainer, #expandedIdentifySongContainer{
   height: 300px;
   overflow: hidden;
 }
 
-#expandedConvertPlaylistContainer.active {
+#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active {
   height: 520px;
   background-color: #3b3b3d;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
-  transition: 0.2s;
+  transition: 0.5s;
   overflow: visible;
 }
 
@@ -255,7 +296,8 @@ html {
   margin-right: 40px;
 }
 
-#resultContainerConvert th {
+#resultContainerConvert,
+#resultContainerIdentifySong th {
   font-weight: 300;
   font-size: 12px;
   color: #a5a5a5;
@@ -300,7 +342,7 @@ html {
   border: none;
   width: 35px;
   height: 35px;
-  transition: 0.33s;
+  transition: 0.15s;
   cursor: pointer;
 }
 
@@ -315,7 +357,7 @@ html {
   border-radius: 100px;
   width: 35px;
   height: 35px;
-  transition: 0.33s;
+  transition: 0.15s;
   cursor: pointer;
 }
 
@@ -351,7 +393,7 @@ html {
   padding-left: 20px;
 }
 
-#resultContainerConvert {
+#resultContainerConvert, #resultContainerIdentifySong {
   max-height: 420px;
 }
 
@@ -422,8 +464,8 @@ html {
   transition: 1s;
 }
 
-#login-btn,
-#cancelSpotifyPopup {
+.login-btn,
+.cancelSpotifyPopup {
   font-size: 18px;
   border: none;
   font-family: "Albert Sans";
@@ -441,22 +483,34 @@ html {
   cursor: pointer;
 }
 
-#login-btn {
+.spotifyPopupCreate a{
+  border: 1px solid #a5a5a5;
+  background-color: #444447;
+  height: 30px;
+  width: 400px;
+  margin-left: 40px;
+  border-radius: 50px;
+  color: #ffffff;
+  padding-left: 20px;
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
+}
+
+.login-btn {
   background-color: #1ed760;
 }
 
-#login-btn:hover {
+.login-btn:hover {
   box-shadow: 0px 5px 30px rgba(0, 0, 0, 0.3);
   transform: scale(1.02);
 }
 
-#cancelSpotifyPopup {
+.cancelSpotifyPopup {
   border: 1px solid #a5a5a5;
   color: #ffffff;
   background-color: #262628;
 }
 
-#cancelSpotifyPopup:hover {
+.cancelSpotifyPopup:hover {
   box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
   border: 1px solid #ffffff;
   transition-duration: 33ms;
@@ -466,3 +520,54 @@ html {
 .spotifyPopupLogo {
   height: 60px;
 }
+
+.loadingElements {
+  display: unset;
+}
+
+.loadingElements.hide {
+  display: none;
+}
+
+.lds-ring-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  margin: 8px;
+  border: 12px solid #fff;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #fff transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
