@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -365,6 +366,7 @@ public class ServerRunner {
             httpGet = new HttpGet(youtubeApiUrl + youtubeApiParams);
 
             try {
+                System.out.println("Hej :^)");
                 response = httpClient.execute(httpGet);
                 String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
@@ -390,7 +392,7 @@ public class ServerRunner {
                     System.out.println(matchedLine);
                     trackList.add(matchedLine);
                 }
-
+                
                 return searchSongsOnSpotify(trackList);
             } catch (Exception e) {
                 System.out.println(e);

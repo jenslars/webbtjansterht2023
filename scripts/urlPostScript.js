@@ -117,11 +117,11 @@ var urlInput_2 = document.getElementsByClassName("URLinput")[1];
 urlInput_2.addEventListener("input", function () {
   var inputValue = this.value;
   var errorMessage = document.getElementById("error-message2");
-  var submitButton = document.getElementById("URLsubmit-btn2");
+  var submitButton2 = document.getElementById("URLsubmit-btn2");
 
   if (validateYouTubeVideoUrl(inputValue)) {
     console.log("Valid YouTube URL");
-    submitButton.classList.add("active");
+    submitButton2.classList.add("active");
     errorMessage.innerText = "";
     submitButton2.onclick = function () {
       identifyAllSongs();
@@ -129,7 +129,7 @@ urlInput_2.addEventListener("input", function () {
   } else {
     console.log("Invalid YouTube URL");
     errorMessage.innerText = "Invalid YouTube URL";
-    submitButton.classList.remove("active");
+    submitButton2.classList.remove("active");
   }
 });
 
@@ -686,7 +686,7 @@ function convertPlaylist() {
 
 function identifyAllSongs() {
   console.log("In identifyAllSongs");
-  addLoaderToButton('URLsubmit-btn1')
+  addLoaderToButton('URLsubmit-btn2')
   var url = document.getElementById("convertPlaylistInput").value;
   fetch("/identifyAllSongsInVideo?url=" + encodeURIComponent(url), {
     method: "GET",
