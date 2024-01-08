@@ -89,6 +89,25 @@ html {
   font-size: 25px;
 }
 
+#descriptionContainer h2 {
+  font-weight: 100;
+  margin-left: 20px;
+  margin-bottom: 40px;
+  font-size: 20px;
+}
+
+#descriptionContainer h3 {
+  font-weight: 100;
+  margin-left: 20px;
+  font-size: 20px;
+}
+
+#descriptionContainer h4 {
+  font-weight: 100;
+  margin-left: 20px;
+  font-size: 18px;
+}
+
 #featureContainer {
   background-color: #3b3b3d;
   height: 70%;
