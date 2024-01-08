@@ -684,13 +684,11 @@ function convertPlaylist() {
     });
 }
 
-
-
 function identifyAllSongs() {
   console.log("In identifyAllSongs");
   addLoaderToButton('URLsubmit-btn1')
   var url = document.getElementById("convertPlaylistInput").value;
-  fetch("//convertVideo?url=" + encodeURIComponent(url), {
+  fetch("/identifyAllSongs?url=" + encodeURIComponent(url), {
     method: "GET",
   })
     .then((response) => {
