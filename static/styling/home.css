@@ -38,11 +38,22 @@ html {
 }
 
 #featureNav {
-  background-color: #4a4a4d;
+  background-color: #343436;
   display: flex;
   margin: auto;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+}
+
+#featureNavLinks {
+  display: flex;
+  width: 80%;
+  cursor: pointer;
+}
+
+#featureNavIdSong:hover, #featureNavIdPlaylist:hover, #featureNavConvertPlaylist:hover {
+  background-color: #3b3b3d;
+  transition: 0.15s;
 }
 
 #featureNavLinks {
@@ -64,11 +75,11 @@ html {
 
 #featureNavIdSong {
   border-top-left-radius: 10px;
-  background-color: #4a4a4d;
+  background-color: #343436;
 }
 
 #featureNavIdPlaylist {
-  background-color: #4a4a4d;
+  background-color: #343436;
 }
 
 #descriptionContainer {
