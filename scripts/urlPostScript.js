@@ -771,10 +771,10 @@ function createPlaylistElements(data, feature) {
 
   if (feature == 'identifySong'){
     var expandedContainer = document.getElementById("expandedIdentifySongContainer");
-    var resultContainer = document.getElementById("resultContainerConvert");
+    var resultContainer = document.getElementById("resultContainerIdentifySong");
   } else if (feature == 'convertPlaylist') {
     var expandedContainer = document.getElementById("expandedConvertPlaylistContainer");
-    var resultContainer = document.getElementById("resultContainerIdentifySong");
+    var resultContainer = document.getElementById("resultContainerConvert");
   } else if (feature == 'identifyAllSongs') {
     var expandedContainer = document.getElementById("expandedIdentifyAllSongsContainer");
     var resultContainer = document.getElementById("resultIdentifyAllSongsContainer");

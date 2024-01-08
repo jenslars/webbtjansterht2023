@@ -237,7 +237,7 @@ html {
   display: none;
 }
 
-#expandedConvertPlaylistContainer, #expandedIdentifySongContainer{
+#convertPlaylistContainer, #expandedIdentifySongContainer{
   height: 300px;
   overflow: hidden;
 }
@@ -296,8 +296,7 @@ html {
   margin-right: 40px;
 }
 
-#resultContainerConvert,
-#resultContainerIdentifySong th {
+#resultContainerConvert th, #resultContainerIdentifyAllSongs th, #resultContainerIdentifySong th{
   font-weight: 300;
   font-size: 12px;
   color: #a5a5a5;
@@ -393,7 +392,7 @@ html {
   padding-left: 20px;
 }
 
-#resultContainerConvert, #resultContainerIdentifySong {
+#resultContainerConvert, #resultContainerIdentifySong, #resultContainerIdentifyAllSongs {
   max-height: 420px;
 }
 
