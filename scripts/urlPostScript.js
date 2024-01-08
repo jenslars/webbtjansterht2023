@@ -32,7 +32,7 @@ function spotifyPopup(type, feature) {
   } else if (feature == 'identifySong'){
     connectButton.onclick = function() {
       authenticateSpotify('addToPlaylist', 'resultContainerIdentifySong');}
-  } else if (feauture == 'identifyAllSongs'){
+  } else if (feature == 'identifyAllSongs'){
     connectButton.onclick = function() {
       authenticateSpotify('addToPlaylist', 'resultIdentifyAllSongsContainer');};
   }
@@ -227,14 +227,16 @@ function toggleFeature(id) {
       var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
+    
   } else if (id == "featureNavConvertPlaylist") {
+    
     convertPlaylistLink.classList.add("active");
     convertPlaylistContainer.classList.add("active");
-
     identifyPlaylistLink.classList.remove("active");
     identifyPlaylistContainer.classList.remove("active");
     identifySongLink.classList.remove("active");
     identifySongContainer.classList.remove("active");
+
     const resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
     if (resultContainerIdentifySong) {
       resultContainerIdentifySong.classList.add("hide");
@@ -242,6 +244,7 @@ function toggleFeature(id) {
       var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
+
     var resultContainerConvert = document.getElementById("resultContainerConvert");
     if (resultContainerConvert) {
       resultContainerConvert.classList.remove("hide");
@@ -532,7 +535,7 @@ function resetSpotifyPopup(type) {
   }
 
   var h3Element = spotifyPopup.querySelector('h3');
-  var pElement = spotifyPopupCreate.querySelector('p');
+  var pElement = spotifyPopup.querySelector('p');
 
   if (type == 'createPlaylistFinished'){
   h3Element.textContent = 'Creating playlist';
@@ -541,7 +544,7 @@ function resetSpotifyPopup(type) {
   { h3Element.textContent = 'Adding to playlist';
     pElement.textContent = 'In order to add these songs to a playlist you need to connect to Spotify'}
 
-  var linkElement = spotifyPopupCreate.querySelector('a');
+  var linkElement = spotifyPopup.querySelector('a');
   if (linkElement) {
     linkElement.remove();
   }
@@ -551,36 +554,13 @@ if (resetButton) {
   resetButton.remove();
 }
 
-  var loadingElements = document.createElement('div');
-  loadingElements.classList.add('loadingElements');
-
-  var connectButton = document.createElement('button');
-  connectButton.classList.add('login-btn');
-  connectButton.textContent = 'Connect';
-  connectButton.onclick = authenticateSpotify;
-
-  var cancelButton = document.createElement('button');
-  cancelButton.classList.add('cancelSpotifyPopup');
-  cancelButton.textContent = 'Cancel';
-  if (type == 'createPlaylistFinished'){
-    cancelButton.onclick = function() {
-      cancelSpotifyPopup('createPlaylist');
-    };
-    } else if (type == 'addToPlaylistFinished') 
-    { cancelButton.onclick = function() {
-      cancelSpotifyPopup('addToPlaylist');
-    };
-  
-
-  loadingElements.appendChild(connectButton);
-  loadingElements.appendChild(cancelButton);
-
-  // Replace the loadingElements div with the restored buttons
-  var existingLoadingElements = spotifyPopupCreate.querySelector('.loadingElements');
-  if (existingLoadingElements) {
-    existingLoadingElements.replaceWith(loadingElements);
-  }
+if (type == 'createPlaylistFinished'){
+  var loadingElements = document.getElementsByClassName('loadingElements')[0];
+  } else if (type == 'addToPlaylistFinished') {
+  var loadingElements = document.getElementsByClassName('loadingElements')[1];
 }
+  loadingElements.classList.remove('hide');
+
 }
 
 
@@ -837,15 +817,15 @@ function createPlaylistElements(data, feature) {
   createPlaylistBtn.className = "createPlaylist-btn";
   createPlaylistBtn.textContent = "Create new playlist";
   if (feature == 'identifySong'){
-    addToPlaylistBtn.onclick = function () {
+    createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "convertVideo");
     };
   } else if (feature == 'convertPlaylist') {
-    addToPlaylistBtn.onclick = function () {
+    createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "convertPlaylist");
     };
   } else if (feature == 'identifyAllSongs') {
-    addToPlaylistBtn.onclick = function () {
+    createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "IdentifyAllSongs");
     };
   }
