@@ -394,7 +394,7 @@ public class ServerRunner {
                     trackList.add(matchedLine);
                 }
                 
-                return searchSongsOnSpotify(trackList);
+                return searchSongsOnSpotify(trackList, 1, null);
             } catch (Exception e) {
                 System.out.println(e);
             }

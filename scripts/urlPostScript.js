@@ -1,41 +1,46 @@
 //Popup for spotify
 function spotifyPopup(type, feature) {
   if (type == "createPlaylist") {
-    var connectButton = document.getElementsByClassName('login-btn')[0]
+    var connectButton = document.getElementsByClassName("login-btn")[0];
     var spotifyPopupDiv = document.getElementById("spotifyPopupCreate");
     var mainContainer = document.getElementById("main");
     spotifyPopupDiv.classList.add("active");
     mainContainer.classList.add("blur");
-      if (feature == 'convertPlaylist'){
-        connectButton.onclick = function() {
-          authenticateSpotify('createPlaylist', "resultContainerConvert");
+    if (feature == "convertPlaylist") {
+      connectButton.onclick = function () {
+        authenticateSpotify("createPlaylist", "resultContainerConvert");
       };
-      } else if (feature == 'identifySong'){
-        connectButton.onclick = function() {
-          authenticateSpotify('createPlaylist', 'resultContainerIdentifySong');
+    } else if (feature == "identifySong") {
+      connectButton.onclick = function () {
+        authenticateSpotify("createPlaylist", "resultContainerIdentifySong");
       };
-      } else if (feature == 'identifyAllSongs'){
-        connectButton.onclick = function() {
-          authenticateSpotify('createPlaylist', 'resultContainerIdentifyAllSongs');
+    } else if (feature == "identifyAllSongs") {
+      connectButton.onclick = function () {
+        authenticateSpotify(
+          "createPlaylist",
+          "resultContainerIdentifyAllSongs"
+        );
       };
-      }
+    }
   } else if (type == "addToPlaylist") {
-    var connectButton = document.getElementsByClassName('login-btn')[1]
+    var connectButton = document.getElementsByClassName("login-btn")[1];
     var spotifyPopupDiv2 = document.getElementById("spotifyPopupAdd");
     var mainContainer = document.getElementById("main");
     spotifyPopupDiv2.classList.add("active");
     mainContainer.classList.add("blur");
-    if (feature == 'convertPlaylist'){
-      connectButton.onclick = function() {
-        authenticateSpotify('addToPlaylist', 'resultContainerConvert');
-    };
-  } else if (feature == 'identifySong'){
-    connectButton.onclick = function() {
-      authenticateSpotify('addToPlaylist', 'resultContainerIdentifySong');}
-  } else if (feature == 'identifyAllSongs'){
-    connectButton.onclick = function() {
-      authenticateSpotify('addToPlaylist', 'resultContainerIdentifyAllSongs');};
-  }
+    if (feature == "convertPlaylist") {
+      connectButton.onclick = function () {
+        authenticateSpotify("addToPlaylist", "resultContainerConvert");
+      };
+    } else if (feature == "identifySong") {
+      connectButton.onclick = function () {
+        authenticateSpotify("addToPlaylist", "resultContainerIdentifySong");
+      };
+    } else if (feature == "identifyAllSongs") {
+      connectButton.onclick = function () {
+        authenticateSpotify("addToPlaylist", "resultContainerIdentifyAllSongs");
+      };
+    }
   }
 }
 
@@ -50,7 +55,7 @@ function cancelSpotifyPopup(type) {
     var mainContainer = document.getElementById("main");
     spotifyPopupDiv.classList.remove("active");
     mainContainer.classList.remove("blur");
-    resetSpotifyPopup('createPlaylistFinished')
+    resetSpotifyPopup("createPlaylistFinished");
   } else if (type == "addToPlaylist") {
     var spotifyPopupDiv = document.getElementById("spotifyPopupAdd");
     var mainContainer = document.getElementById("main");
@@ -61,7 +66,7 @@ function cancelSpotifyPopup(type) {
     var mainContainer = document.getElementById("main");
     spotifyPopupDiv.classList.remove("active");
     mainContainer.classList.remove("blur");
-    resetSpotifyPopup('addToPlaylistFinished')
+    resetSpotifyPopup("addToPlaylistFinished");
   }
 }
 
@@ -176,11 +181,17 @@ function toggleFeature(id) {
   var identifySongContainer = document.getElementById("identifySongContainer");
 
   var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
-  var identifyPlaylistContainer = document.getElementById("identifyPlaylistContainer");
+  var identifyPlaylistContainer = document.getElementById(
+    "identifyPlaylistContainer"
+  );
 
-  var convertPlaylistLink = document.getElementById("featureNavConvertPlaylist" );
-  var convertPlaylistContainer = document.getElementById("convertPlaylistContainer");
-  
+  var convertPlaylistLink = document.getElementById(
+    "featureNavConvertPlaylist"
+  );
+  var convertPlaylistContainer = document.getElementById(
+    "convertPlaylistContainer"
+  );
+
   var serviceContainer = document.getElementById("serviceContainer");
 
   if (id == "featureNavIdSong") {
@@ -192,22 +203,29 @@ function toggleFeature(id) {
     convertPlaylistLink.classList.remove("active");
     convertPlaylistContainer.classList.remove("active");
 
-    const resultContainerConvert = document.getElementById("resultContainerConvert");
+    const resultContainerConvert = document.getElementById(
+      "resultContainerConvert"
+    );
     if (resultContainerConvert) {
       resultContainerConvert.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
       expandedConvertPlaylistContainer.classList.remove("active");
     }
 
-    var resultContainerIdentifySong = document.getElementById('resultContainerIdentifySong');
+    var resultContainerIdentifySong = document.getElementById(
+      "resultContainerIdentifySong"
+    );
     if (resultContainerIdentifySong) {
-      resultContainerIdentifySong.classList.remove('hide');
-      var expandedIdentifySongContainer = document.getElementById('expandedIdentifySongContainer');
-      expandedIdentifySongContainer.classList.add('active');
-      serviceContainer.classList.add('active')
+      resultContainerIdentifySong.classList.remove("hide");
+      var expandedIdentifySongContainer = document.getElementById(
+        "expandedIdentifySongContainer"
+      );
+      expandedIdentifySongContainer.classList.add("active");
+      serviceContainer.classList.add("active");
     }
-
   } else if (id == "featureNavIdPlaylist") {
     identifyPlaylistLink.classList.add("active");
     identifyPlaylistContainer.classList.add("active");
@@ -217,32 +235,42 @@ function toggleFeature(id) {
     convertPlaylistLink.classList.remove("active");
     convertPlaylistContainer.classList.remove("active");
 
-    const resultContainerConvert = document.getElementById("resultContainerConvert");
+    const resultContainerConvert = document.getElementById(
+      "resultContainerConvert"
+    );
     if (resultContainerConvert) {
       resultContainerConvert.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
       expandedConvertPlaylistContainer.classList.remove("active");
     }
 
-    const resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
+    const resultContainerIdentifySong = document.getElementById(
+      "resultContainerIdentifySong"
+    );
     if (resultContainerIdentifySong) {
       resultContainerIdentifySong.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedIdentifySongContainer = document.getElementById("expandedIdentifySongContainer");
+      var expandedIdentifySongContainer = document.getElementById(
+        "expandedIdentifySongContainer"
+      );
       expandedIdentifySongContainer.classList.remove("active");
     }
 
-    var resultContainerIdentifyAllSongs = document.getElementById("resultContainerIdentifyAllSongs");
+    var resultContainerIdentifyAllSongs = document.getElementById(
+      "resultContainerIdentifyAllSongs"
+    );
     if (resultContainerIdentifyAllSongs) {
       resultContainerIdentifyAllSongs.classList.remove("hide");
-      var expandedIdentifyAllSongsContainer = document.getElementById("expandedIdentifyAllSongsContainer");
+      var expandedIdentifyAllSongsContainer = document.getElementById(
+        "expandedIdentifyAllSongsContainer"
+      );
       expandedIdentifyAllSongsContainer.classList.add("active");
       serviceContainer.classList.add("active");
     }
-
   } else if (id == "featureNavConvertPlaylist") {
-    
     convertPlaylistLink.classList.add("active");
     convertPlaylistContainer.classList.add("active");
     identifyPlaylistLink.classList.remove("active");
@@ -250,26 +278,38 @@ function toggleFeature(id) {
     identifySongLink.classList.remove("active");
     identifySongContainer.classList.remove("active");
 
-    const resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
+    const resultContainerIdentifySong = document.getElementById(
+      "resultContainerIdentifySong"
+    );
     if (resultContainerIdentifySong) {
       resultContainerIdentifySong.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedIdentifySongContainer = document.getElementById("expandedIdentifySongContainer");
+      var expandedIdentifySongContainer = document.getElementById(
+        "expandedIdentifySongContainer"
+      );
       expandedIdentifySongContainer.classList.remove("active");
     }
 
-    const resultContainerIdentifyAllSongs = document.getElementById("resultContainerIdentifyAllSongs");
+    const resultContainerIdentifyAllSongs = document.getElementById(
+      "resultContainerIdentifyAllSongs"
+    );
     if (resultContainerIdentifyAllSongs) {
       resultContainerIdentifyAllSongs.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedIdentifyAllSongsContainer = document.getElementById("expandedIdentifyAllSongsContainer");
+      var expandedIdentifyAllSongsContainer = document.getElementById(
+        "expandedIdentifyAllSongsContainer"
+      );
       expandedIdentifyAllSongsContainer.remove("active");
     }
 
-    var resultContainerConvert = document.getElementById("resultContainerConvert");
+    var resultContainerConvert = document.getElementById(
+      "resultContainerConvert"
+    );
     if (resultContainerConvert) {
       resultContainerConvert.classList.remove("hide");
-      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
+      var expandedConvertPlaylistContainer = document.getElementById(
+        "expandedConvertPlaylistContainer"
+      );
       expandedConvertPlaylistContainer.classList.add("active");
       serviceContainer.classList.add("active");
     }
@@ -277,28 +317,29 @@ function toggleFeature(id) {
 }
 
 function fetchSelectedTrackUris(type) {
-  console.log(type)
+  console.log(type);
   var selectedResultContainer = document.getElementById(type);
-  var selectedTrackUris = []
+  var selectedTrackUris = [];
   if (!selectedResultContainer) {
-      console.error(`Element with id "${type}" not found.`);
-      return;
+    console.error(`Element with id "${type}" not found.`);
+    return;
   }
 
-  selectedResultContainer.querySelectorAll('.tableTrackRow').forEach(trackRow => {
-      const checkbox = trackRow.querySelector('.customCheckbox');
-      if (checkbox.classList.contains('active')) {
-          const trackUri = trackRow.querySelector('.trackUri').textContent;
-          selectedTrackUris.push(trackUri);
+  selectedResultContainer
+    .querySelectorAll(".tableTrackRow")
+    .forEach((trackRow) => {
+      const checkbox = trackRow.querySelector(".customCheckbox");
+      if (checkbox.classList.contains("active")) {
+        const trackUri = trackRow.querySelector(".trackUri").textContent;
+        selectedTrackUris.push(trackUri);
       }
-  });
-  console.log(selectedTrackUris)
-  return selectedTrackUris
+    });
+  console.log(selectedTrackUris);
+  return selectedTrackUris;
 }
 
-
 function createPlaylist(type) {
-  selectedTrackUris = fetchSelectedTrackUris(type)
+  selectedTrackUris = fetchSelectedTrackUris(type);
   console.log("selected URIS:", selectedTrackUris);
   fetch("http://localhost:5000/createPlaylist", {
     method: "POST",
@@ -319,7 +360,7 @@ function createPlaylist(type) {
 
       const spotifyPlaylistUrl = `https://open.spotify.com/playlist/${data.playlistId}`;
       console.log("Spotify Playlist URL:", spotifyPlaylistUrl);
-      createPlaylistUrlElements(spotifyPlaylistUrl)
+      createPlaylistUrlElements(spotifyPlaylistUrl);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -330,137 +371,141 @@ function getUserPlaylists(feature) {
   fetch("http://localhost:5000/getUserPlaylists", {
     method: "GET",
     headers: {
-      "Content-Type": "application/json"
-    }
+      "Content-Type": "application/json",
+    },
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return response.json(); 
-  })
-  .then(data => {
-
-    console.log(data);
-    displayUserPlaylists(data, feature)
-  })
-  .catch(error => {
-    console.error("Fetch error:", error);
-  });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data);
+      displayUserPlaylists(data, feature);
+    })
+    .catch((error) => {
+      console.error("Fetch error:", error);
+    });
 }
 
 function displayUserPlaylists(data, feature) {
   var selectedTrackUris = fetchSelectedTrackUris(feature);
-  var spotifyPopupAdd = document.getElementById('spotifyPopupAdd');
-  var containerDiv = document.querySelector('.lds-ring-container');
+  var spotifyPopupAdd = document.getElementById("spotifyPopupAdd");
+  var containerDiv = document.querySelector(".lds-ring-container");
   if (containerDiv) {
-      containerDiv.remove();
+    containerDiv.remove();
   }
 
-  var pElement = spotifyPopupAdd.querySelector('p');
-  pElement.textContent = 'Please select the playlist that you wish to add the songs to';
+  var pElement = spotifyPopupAdd.querySelector("p");
+  pElement.textContent =
+    "Please select the playlist that you wish to add the songs to";
 
-  var playlistContainerScroll = document.createElement('div');
-  playlistContainerScroll.className = 'playlistContainerScroll';
+  var playlistContainerScroll = document.createElement("div");
+  playlistContainerScroll.className = "playlistContainerScroll";
   spotifyPopupAdd.appendChild(playlistContainerScroll);
 
-  data.forEach(function(playlist) {
-      var playlistContainer = document.createElement('div');
-      playlistContainer.className = 'playlistContainer';
-      playlistContainerScroll.appendChild(playlistContainer);
+  data.forEach(function (playlist) {
+    var playlistContainer = document.createElement("div");
+    playlistContainer.className = "playlistContainer";
+    playlistContainerScroll.appendChild(playlistContainer);
 
-      playlistContainer.onclick = function() {
-          addToPlaylist(playlist.id, selectedTrackUris);
-      };
+    playlistContainer.onclick = function () {
+      addToPlaylist(playlist.id, selectedTrackUris);
+    };
 
-      var playlistImage = document.createElement('img');
-      playlistImage.className = 'playlistImage';
-      playlistImage.src = playlist.imageUrl;
-      playlistContainer.appendChild(playlistImage);
+    var playlistImage = document.createElement("img");
+    playlistImage.className = "playlistImage";
+    playlistImage.src = playlist.imageUrl;
+    playlistContainer.appendChild(playlistImage);
 
-      var playlistParagraphElements = document.createElement('div');
-      playlistParagraphElements.className = 'playlistParagraphs';
-      playlistContainer.appendChild(playlistParagraphElements);
+    var playlistParagraphElements = document.createElement("div");
+    playlistParagraphElements.className = "playlistParagraphs";
+    playlistContainer.appendChild(playlistParagraphElements);
 
-      var playlistName = document.createElement('p');
-      playlistName.className = 'playlistName';
-      playlistName.textContent = playlist.name;
-      playlistParagraphElements.appendChild(playlistName);
+    var playlistName = document.createElement("p");
+    playlistName.className = "playlistName";
+    playlistName.textContent = playlist.name;
+    playlistParagraphElements.appendChild(playlistName);
 
-      var playlistTracks = document.createElement('p');
-      playlistTracks.className = 'playlistTracks';
-      playlistTracks.textContent = playlist.trackCount + ' songs';
-      playlistParagraphElements.appendChild(playlistTracks);
+    var playlistTracks = document.createElement("p");
+    playlistTracks.className = "playlistTracks";
+    playlistTracks.textContent = playlist.trackCount + " songs";
+    playlistParagraphElements.appendChild(playlistTracks);
   });
 }
 
 function addToPlaylist(selectedPlaylistId, selectedTrackUris) {
-  loadAddToPlaylist()
+  loadAddToPlaylist();
   fetch("http://localhost:5000/addTracksToPlaylist", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ playlistId: selectedPlaylistId, trackUris: selectedTrackUris }),
-      
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      playlistId: selectedPlaylistId,
+      trackUris: selectedTrackUris,
+    }),
   })
-  .then(response => response.json())
-  .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       console.log(data);
-      confirmAddToPlaylist(selectedPlaylistId)
-  })
-  .catch(error => {
-      console.error('Error adding tracks to playlist:', error);
-  });
+      confirmAddToPlaylist(selectedPlaylistId);
+    })
+    .catch((error) => {
+      console.error("Error adding tracks to playlist:", error);
+    });
 }
 
-function loadAddToPlaylist(){
-  var playlistContainerScroll = document.getElementsByClassName('playlistContainerScroll')[0]
+function loadAddToPlaylist() {
+  var playlistContainerScroll = document.getElementsByClassName(
+    "playlistContainerScroll"
+  )[0];
   playlistContainerScroll.remove();
-  spotifyAuthenticateLoadingAnimation('addToPlaylist')
+  spotifyAuthenticateLoadingAnimation("addToPlaylist");
 }
 
-function confirmAddToPlaylist(playlistId){
-  var containerDiv = document.querySelector('.lds-ring-container');
+function confirmAddToPlaylist(playlistId) {
+  var containerDiv = document.querySelector(".lds-ring-container");
 
   if (containerDiv) {
     containerDiv.remove();
   }
-  var spotifyPopupAdd = document.getElementById('spotifyPopupAdd')
-  var h1Element = spotifyPopupAdd.querySelector('h3');
-  h1Element.textContent = 'Songs added to playlist'
-  var pElement = spotifyPopupAdd.querySelector('p');
-  pElement.textContent = 'Visit playlist here:';
+  var spotifyPopupAdd = document.getElementById("spotifyPopupAdd");
+  var h1Element = spotifyPopupAdd.querySelector("h3");
+  h1Element.textContent = "Songs added to playlist";
+  var pElement = spotifyPopupAdd.querySelector("p");
+  pElement.textContent = "Visit playlist here:";
   var spotifyPlaylistUrl = `https://open.spotify.com/playlist/${playlistId}`;
-  var linkElement = document.createElement('a');
+  var linkElement = document.createElement("a");
   linkElement.textContent = spotifyPlaylistUrl;
   linkElement.href = spotifyPlaylistUrl;
   spotifyPopupAdd.appendChild(linkElement);
 
-  var resetButton = document.createElement('button');
-  resetButton.classList.add('cancelSpotifyPopup');
-  resetButton.textContent = 'Close';
-  resetButton.setAttribute('id', 'resetButton');
+  var resetButton = document.createElement("button");
+  resetButton.classList.add("cancelSpotifyPopup");
+  resetButton.textContent = "Close";
+  resetButton.setAttribute("id", "resetButton");
 
-  resetButton.onclick = function() {
-  cancelSpotifyPopup('addToPlaylistFinished');
-  }
-  spotifyPopupAdd.appendChild(resetButton)
-  }
+  resetButton.onclick = function () {
+    cancelSpotifyPopup("addToPlaylistFinished");
+  };
+  spotifyPopupAdd.appendChild(resetButton);
+}
 
 function addLoaderToButton(buttonId) {
   var button = document.getElementById(buttonId);
   if (!button) {
-      console.error('Button not found:', buttonId);
-      return;
+    console.error("Button not found:", buttonId);
+    return;
   }
 
-  var loaderDiv = document.createElement('div');
-  loaderDiv.className = 'lds-ring2';
+  var loaderDiv = document.createElement("div");
+  loaderDiv.className = "lds-ring2";
 
   for (var i = 0; i < 4; i++) {
-      var childDiv = document.createElement('div');
-      loaderDiv.appendChild(childDiv);
+    var childDiv = document.createElement("div");
+    loaderDiv.appendChild(childDiv);
   }
 
   button.appendChild(loaderDiv);
@@ -469,73 +514,69 @@ function addLoaderToButton(buttonId) {
 function removeLoaderFromButton(buttonId) {
   var button = document.getElementById(buttonId);
   if (!button) {
-      console.error('Button not found:', buttonId);
-      return;
+    console.error("Button not found:", buttonId);
+    return;
   }
 
   // Find the loader div inside the button
-  var loaderDiv = button.querySelector('.lds-ring2');
+  var loaderDiv = button.querySelector(".lds-ring2");
   if (loaderDiv) {
-      button.removeChild(loaderDiv);
+    button.removeChild(loaderDiv);
   } else {
-      console.error('Loader not found in button:', buttonId);
+    console.error("Loader not found in button:", buttonId);
   }
 }
 
 function createPlaylistUrlElements(playlistUrl) {
-  var spotifyPopupCreate = document.getElementById('spotifyPopupCreate');
-  var containerDiv = document.querySelector('.lds-ring-container');
+  var spotifyPopupCreate = document.getElementById("spotifyPopupCreate");
+  var containerDiv = document.querySelector(".lds-ring-container");
 
   if (containerDiv) {
     containerDiv.remove();
   }
 
-  var h3Element = spotifyPopupCreate.querySelector('h3');
-  h3Element.textContent = 'Playlist created';
+  var h3Element = spotifyPopupCreate.querySelector("h3");
+  h3Element.textContent = "Playlist created";
 
-  var pElement = spotifyPopupCreate.querySelector('p');
-  pElement.textContent = 'Visit playlist here:';
+  var pElement = spotifyPopupCreate.querySelector("p");
+  pElement.textContent = "Visit playlist here:";
 
-  var linkElement = document.createElement('a');
+  var linkElement = document.createElement("a");
   linkElement.textContent = playlistUrl;
   linkElement.href = playlistUrl;
   spotifyPopupCreate.appendChild(linkElement);
 
+  var resetButton = document.createElement("button");
+  resetButton.classList.add("cancelSpotifyPopup");
+  resetButton.textContent = "Close";
+  resetButton.setAttribute("id", "resetButton");
 
-  var resetButton = document.createElement('button');
-  resetButton.classList.add('cancelSpotifyPopup');
-  resetButton.textContent = 'Close';
-  resetButton.setAttribute('id', 'resetButton');
+  resetButton.onclick = function () {
+    cancelSpotifyPopup("createPlaylistFinished");
+  };
 
-  resetButton.onclick = function() {
-  cancelSpotifyPopup('createPlaylistFinished');
-};
-
-  
   spotifyPopupCreate.appendChild(resetButton);
 }
 
-
 function spotifyAuthenticateLoadingAnimation(type) {
-  if (type == 'createPlaylist') {
-    var chosenPopup = document.getElementById('spotifyPopupCreate');
-    var loadingElements = document.getElementsByClassName('loadingElements')[0];
-  } else if (type == 'addToPlaylist') {
-    var chosenPopup = document.getElementById('spotifyPopupAdd');
-    var loadingElements = document.getElementsByClassName('loadingElements')[1];
+  if (type == "createPlaylist") {
+    var chosenPopup = document.getElementById("spotifyPopupCreate");
+    var loadingElements = document.getElementsByClassName("loadingElements")[0];
+  } else if (type == "addToPlaylist") {
+    var chosenPopup = document.getElementById("spotifyPopupAdd");
+    var loadingElements = document.getElementsByClassName("loadingElements")[1];
   }
-  
-  
-  loadingElements.classList.add('hide');
-  
-  const containerDiv = document.createElement('div');
-  containerDiv.classList.add('lds-ring-container');
 
-  const parentDiv = document.createElement('div');
-  parentDiv.classList.add('lds-ring');
+  loadingElements.classList.add("hide");
+
+  const containerDiv = document.createElement("div");
+  containerDiv.classList.add("lds-ring-container");
+
+  const parentDiv = document.createElement("div");
+  parentDiv.classList.add("lds-ring");
 
   for (let i = 0; i < 4; i++) {
-    const childDiv = document.createElement('div');
+    const childDiv = document.createElement("div");
     parentDiv.appendChild(childDiv);
   }
 
@@ -545,47 +586,48 @@ function spotifyAuthenticateLoadingAnimation(type) {
 }
 
 function resetSpotifyPopup(type) {
-  if (type == 'createPlaylistFinished'){
-    var spotifyPopup = document.getElementById('spotifyPopupCreate');
-  } else if (type == 'addToPlaylistFinished'){
-    var spotifyPopup = document.getElementById('spotifyPopupAdd');
+  if (type == "createPlaylistFinished") {
+    var spotifyPopup = document.getElementById("spotifyPopupCreate");
+  } else if (type == "addToPlaylistFinished") {
+    var spotifyPopup = document.getElementById("spotifyPopupAdd");
   }
-  
-  var containerDiv = document.querySelector('.lds-ring-container');
+
+  var containerDiv = document.querySelector(".lds-ring-container");
 
   if (containerDiv) {
     containerDiv.remove();
   }
 
-  var h3Element = spotifyPopup.querySelector('h3');
-  var pElement = spotifyPopup.querySelector('p');
+  var h3Element = spotifyPopup.querySelector("h3");
+  var pElement = spotifyPopup.querySelector("p");
 
-  if (type == 'createPlaylistFinished'){
-  h3Element.textContent = 'Creating playlist';
-  pElement.textContent = 'In order to create a playlist you need to connect to Spotify'
-  } else if (type == 'addToPlaylistFinished') 
-  { h3Element.textContent = 'Adding to playlist';
-    pElement.textContent = 'In order to add these songs to a playlist you need to connect to Spotify'}
+  if (type == "createPlaylistFinished") {
+    h3Element.textContent = "Creating playlist";
+    pElement.textContent =
+      "In order to create a playlist you need to connect to Spotify";
+  } else if (type == "addToPlaylistFinished") {
+    h3Element.textContent = "Adding to playlist";
+    pElement.textContent =
+      "In order to add these songs to a playlist you need to connect to Spotify";
+  }
 
-  var linkElement = spotifyPopup.querySelector('a');
+  var linkElement = spotifyPopup.querySelector("a");
   if (linkElement) {
     linkElement.remove();
   }
 
-  var resetButton = document.getElementById('resetButton');
-if (resetButton) {
-  resetButton.remove();
-}
+  var resetButton = document.getElementById("resetButton");
+  if (resetButton) {
+    resetButton.remove();
+  }
 
-if (type == 'createPlaylistFinished'){
-  var loadingElements = document.getElementsByClassName('loadingElements')[0];
-  } else if (type == 'addToPlaylistFinished') {
-  var loadingElements = document.getElementsByClassName('loadingElements')[1];
+  if (type == "createPlaylistFinished") {
+    var loadingElements = document.getElementsByClassName("loadingElements")[0];
+  } else if (type == "addToPlaylistFinished") {
+    var loadingElements = document.getElementsByClassName("loadingElements")[1];
+  }
+  loadingElements.classList.remove("hide");
 }
-  loadingElements.classList.remove('hide');
-
-}
-
 
 const client_id = "c32d1829b55d4c5eac178bc34fdd6728";
 const redirect_uri = "http://localhost:5000/callback";
@@ -607,12 +649,12 @@ const scope =
   "user-read-private playlist-modify-public playlist-modify-private";
 
 function authenticateSpotify(type, feature) {
-  if (type == 'createPlaylist'){
-    spotifyAuthenticateLoadingAnimation('createPlaylist')
-  } else if (type == 'addToPlaylist') {
-    spotifyAuthenticateLoadingAnimation('addToPlaylist');
+  if (type == "createPlaylist") {
+    spotifyAuthenticateLoadingAnimation("createPlaylist");
+  } else if (type == "addToPlaylist") {
+    spotifyAuthenticateLoadingAnimation("addToPlaylist");
   }
-  
+
   const state = generateRandomString(16);
   let url = "https://accounts.spotify.com/authorize";
   url += "?response_type=code";
@@ -634,11 +676,11 @@ function authenticateSpotify(type, feature) {
     "message",
     (event) => {
       if (event.data === "authenticationComplete") {
-        if (type == 'createPlaylist'){
+        if (type == "createPlaylist") {
           createPlaylist(feature);
-        } else if (type == 'addToPlaylist'){
+        } else if (type == "addToPlaylist") {
           getUserPlaylists(feature);
-        } 
+        }
       }
     },
     { once: true }
@@ -647,7 +689,7 @@ function authenticateSpotify(type, feature) {
 
 /* Metod för att skicka spellista-url till backend*/
 function convertPlaylist() {
-  addLoaderToButton('URLsubmit-btn3')
+  addLoaderToButton("URLsubmit-btn3");
   var url = document.getElementById("convertPlaylistInput").value;
   fetch("/convertPlaylist?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -666,20 +708,20 @@ function convertPlaylist() {
           .slice(0, 50)
           .map((track) => track.uri)
           .filter((uri) => uri);
-          var serviceContainer = document.getElementById("serviceContainer");
-          var expandedConvertPlaylistContainer = document.getElementById(
-            "expandedConvertPlaylistContainer"
-          );
-    
-          expandedConvertPlaylistContainer.classList.add("active");
-          serviceContainer.classList.add("active");
-          removeLoaderFromButton('URLsubmit-btn3')
+        var serviceContainer = document.getElementById("serviceContainer");
+        var expandedConvertPlaylistContainer = document.getElementById(
+          "expandedConvertPlaylistContainer"
+        );
+
+        expandedConvertPlaylistContainer.classList.add("active");
+        serviceContainer.classList.add("active");
+        removeLoaderFromButton("URLsubmit-btn3");
         console.log("Extracted URIs:", selectedTrackUris);
       } else {
         console.error("Data.tracks is not an array");
       }
 
-      createPlaylistElements(data, 'convertPlaylist');
+      createPlaylistElements(data, "convertPlaylist");
     })
     .catch((error) => {
       console.error("Error sending data to backend:", error);
@@ -687,7 +729,7 @@ function convertPlaylist() {
 }
 
 function identifyAllSongs() {
-  addLoaderToButton('URLsubmit-btn2')
+  addLoaderToButton("URLsubmit-btn2");
   var url = document.getElementById("identifyAllSongsInput").value;
   fetch("/identifyAllSongsInVideo?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -706,21 +748,19 @@ function identifyAllSongs() {
           .slice(0, 50)
           .map((track) => track.uri)
           .filter((uri) => uri);
-          var serviceContainer = document.getElementById("serviceContainer");
-          var expandedConvertPlaylistContainer = document.getElementById(
-            "expandedIdentifyAllSongsContainer"
-          );
-    
-          expandedConvertPlaylistContainer.classList.add("active");
-          serviceContainer.classList.add("active");
-          createPlaylistElements(data, 'identifyAllSongs');
-          removeLoaderFromButton('URLsubmit-btn2')
+        var serviceContainer = document.getElementById("serviceContainer");
+        var expandedConvertPlaylistContainer = document.getElementById(
+          "expandedIdentifyAllSongsContainer"
+        );
+
+        expandedConvertPlaylistContainer.classList.add("active");
+        serviceContainer.classList.add("active");
+        createPlaylistElements(data, "identifyAllSongs");
+        removeLoaderFromButton("URLsubmit-btn2");
         console.log("Extracted URIs:", selectedTrackUris);
       } else {
         console.error("Data.tracks is not an array");
       }
-
-
     })
     .catch((error) => {
       console.error("Error sending data to backend:", error);
@@ -729,8 +769,7 @@ function identifyAllSongs() {
 
 function convertVideo() {
   console.log("In convert video");
-  selectedTrackUris = 
-  addLoaderToButton('URLsubmit-btn1')
+  selectedTrackUris = addLoaderToButton("URLsubmit-btn1");
   var url = document.getElementById("convertVideoInput").value;
   fetch("/convertVideo?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -758,8 +797,8 @@ function convertVideo() {
 
         expandedIdentifySongContainer.classList.add("active");
         serviceContainer.classList.add("active");
-        createPlaylistElements(data, 'identifySong');
-        removeLoaderFromButton('URLsubmit-btn1')
+        createPlaylistElements(data, "identifySong");
+        removeLoaderFromButton("URLsubmit-btn1");
       } else {
         console.error("Data.tracks is not an array");
       }
@@ -770,17 +809,26 @@ function convertVideo() {
 }
 
 function createPlaylistElements(data, feature) {
-
-  if (feature == 'identifySong'){
-    var expandedContainer = document.getElementById("expandedIdentifySongContainer");
-    var resultContainer = document.getElementById("resultContainerIdentifySong");
-  } else if (feature == 'convertPlaylist') {
-    var expandedContainer = document.getElementById("expandedConvertPlaylistContainer");
+  if (feature == "identifySong") {
+    var expandedContainer = document.getElementById(
+      "expandedIdentifySongContainer"
+    );
+    var resultContainer = document.getElementById(
+      "resultContainerIdentifySong"
+    );
+  } else if (feature == "convertPlaylist") {
+    var expandedContainer = document.getElementById(
+      "expandedConvertPlaylistContainer"
+    );
     var resultContainer = document.getElementById("resultContainerConvert");
-  } else if (feature == 'identifyAllSongs') {
-    var expandedContainer = document.getElementById("expandedIdentifyAllSongsContainer");
-    var resultContainer = document.getElementById("resultContainerIdentifyAllSongs");
-  } 
+  } else if (feature == "identifyAllSongs") {
+    var expandedContainer = document.getElementById(
+      "expandedIdentifyAllSongsContainer"
+    );
+    var resultContainer = document.getElementById(
+      "resultContainerIdentifyAllSongs"
+    );
+  }
 
   // Check if the resultContainerConvert element exists
   if (resultContainer) {
@@ -790,13 +838,13 @@ function createPlaylistElements(data, feature) {
 
   // Create a new resultContainerConvert element
   resultContainer = document.createElement("div");
-  if (feature == 'identifySong'){
+  if (feature == "identifySong") {
     resultContainer.id = "resultContainerIdentifySong";
-  } else if (feature == 'convertPlaylist') {
+  } else if (feature == "convertPlaylist") {
     resultContainer.id = "resultContainerConvert";
-  } else if (feature == 'identifyAllSongs') {
+  } else if (feature == "identifyAllSongs") {
     resultContainer.id = "resultContainerIdentifyAllSongs";
-  } 
+  }
   expandedContainer.appendChild(resultContainer);
 
   var resultDivider = document.createElement("div");
@@ -819,15 +867,15 @@ function createPlaylistElements(data, feature) {
   addToPlaylistBtn.className = "addToPlaylist-btn";
   addToPlaylistBtn.textContent = "Add to playlist";
 
-  if (feature == 'identifySong'){
+  if (feature == "identifySong") {
     addToPlaylistBtn.onclick = function () {
       spotifyPopup("addToPlaylist", "identifySong");
     };
-  } else if (feature == 'convertPlaylist') {
+  } else if (feature == "convertPlaylist") {
     addToPlaylistBtn.onclick = function () {
       spotifyPopup("addToPlaylist", "convertPlaylist");
     };
-  } else if (feature == 'identifyAllSongs') {
+  } else if (feature == "identifyAllSongs") {
     addToPlaylistBtn.onclick = function () {
       spotifyPopup("addToPlaylist", "identifyAllSongs");
     };
@@ -838,15 +886,15 @@ function createPlaylistElements(data, feature) {
   var createPlaylistBtn = document.createElement("button");
   createPlaylistBtn.className = "createPlaylist-btn";
   createPlaylistBtn.textContent = "Create new playlist";
-  if (feature == 'identifySong'){
+  if (feature == "identifySong") {
     createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "identifySong");
     };
-  } else if (feature == 'convertPlaylist') {
+  } else if (feature == "convertPlaylist") {
     createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "convertPlaylist");
     };
-  } else if (feature == 'identifyAllSongs') {
+  } else if (feature == "identifyAllSongs") {
     createPlaylistBtn.onclick = function () {
       spotifyPopup("createPlaylist", "identifyAllSongs");
     };
