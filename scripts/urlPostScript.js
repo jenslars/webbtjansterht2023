@@ -687,9 +687,8 @@ function convertPlaylist() {
 }
 
 function identifyAllSongs() {
-  console.log("In identifyAllSongs");
   addLoaderToButton('URLsubmit-btn2')
-  var url = document.getElementById("convertPlaylistInput").value;
+  var url = document.getElementById("identifyAllSongsInput").value;
   fetch("/identifyAllSongsInVideo?url=" + encodeURIComponent(url), {
     method: "GET",
   })
@@ -730,7 +729,7 @@ function identifyAllSongs() {
 
 function convertVideo() {
   console.log("In convert video");
-
+  selectedTrackUris = 
   addLoaderToButton('URLsubmit-btn1')
   var url = document.getElementById("convertVideoInput").value;
   fetch("/convertVideo?url=" + encodeURIComponent(url), {
@@ -822,7 +821,7 @@ function createPlaylistElements(data, feature) {
 
   if (feature == 'identifySong'){
     addToPlaylistBtn.onclick = function () {
-      spotifyPopup("addToPlaylist", "convertVideo");
+      spotifyPopup("addToPlaylist", "identifySong");
     };
   } else if (feature == 'convertPlaylist') {
     addToPlaylistBtn.onclick = function () {
@@ -841,7 +840,7 @@ function createPlaylistElements(data, feature) {
   createPlaylistBtn.textContent = "Create new playlist";
   if (feature == 'identifySong'){
     createPlaylistBtn.onclick = function () {
-      spotifyPopup("createPlaylist", "convertVideo");
+      spotifyPopup("createPlaylist", "identifySong");
     };
   } else if (feature == 'convertPlaylist') {
     createPlaylistBtn.onclick = function () {
