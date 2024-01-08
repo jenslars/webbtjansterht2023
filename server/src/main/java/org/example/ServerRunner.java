@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -158,6 +159,17 @@ public class ServerRunner {
                     jsonResponse.addProperty("status", "success");
                     jsonResponse.addProperty("message", "Video converted successfully");
                     jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    ctx.json(jsonResponse.toString());
+                })
+                .get("/identifyAllSongsInVideo", ctx -> {
+                    String url = ctx.queryParam("url");
+
+                    List<TrackInfo> trackInfoList = serverRunner.identifyAllSongsInVideo(url);
+
+                    JsonObject jsonResponse = new JsonObject();
+                    jsonResponse.addProperty("status", "success");
+                    jsonResponse.addProperty("message", "Video converted successfully");
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList));
                     ctx.json(jsonResponse.toString());
                 })
                 .get("/callback", ctx -> {
@@ -339,6 +351,54 @@ public class ServerRunner {
     }
             return new ArrayList<>();
 }
+
+    private List<TrackInfo> identifyAllSongsInVideo(String url) {
+        System.out.println("Received URL: " + url);
+        String videoId = extractVideoId(url);
+        List<String> trackList = new ArrayList<>();
+
+         if (videoId != null) {
+        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos?id=";
+        String youtubeApiParams = String.format("%s&key=%s", videoId ,apiKey + "&part=snippet");
+        
+            httpGet = new HttpGet(youtubeApiUrl + youtubeApiParams);
+
+            try {
+                response = httpClient.execute(httpGet);
+                String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+                JsonArray items = jsonObject.getAsJsonArray("items");
+
+                
+                JsonObject videoInfo = items.get(0).getAsJsonObject();
+                JsonObject snippet = videoInfo.get("snippet").getAsJsonObject();
+                String description = snippet.get("description").getAsString();
+
+                String regex = "\\b([0-5]?\\d):([0-5]?\\d)(?::([0-5]?\\d))?\\b";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(description);
+
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = description.indexOf("\n", start);
+                    if (end == -1) {
+                        end = description.length();
+                    }
+                    String matchedLine = description.substring(start, end).trim();
+                    matchedLine = matchedLine.replaceFirst(regex, "");
+                    System.out.println(matchedLine);
+                    trackList.add(matchedLine);
+                }
+
+                return searchSongsOnSpotify(trackList);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * Extract video ID
      * @param url
