@@ -475,7 +475,7 @@ function createPlaylistUrlElements(playlistUrl) {
   linkElement.href = playlistUrl;
   spotifyPopupCreate.appendChild(linkElement);
 
-  // Create a button to reset the popup
+
   var resetButton = document.createElement('button');
   resetButton.classList.add('cancelSpotifyPopup');
   resetButton.textContent = 'Close';
@@ -788,7 +788,13 @@ function createPlaylistElements(data, feature) {
 
   // Create a new resultContainerConvert element
   resultContainer = document.createElement("div");
-  resultContainer.id = "resultContainerConvert";
+  if (feature == 'identifySong'){
+    resultContainer.id = "resultContainerIdentifySong";
+  } else if (feature == 'convertPlaylist') {
+    resultContainer.id = "resultContainerConvert";
+  } else if (feature == 'identifyAllSongs') {
+    resultContainer.id = "resultContainerIdentifyAllSongs";
+  } 
   expandedContainer.appendChild(resultContainer);
 
   var resultDivider = document.createElement("div");
