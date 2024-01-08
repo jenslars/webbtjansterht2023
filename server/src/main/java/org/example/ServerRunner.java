@@ -22,10 +22,7 @@ import org.apache.http.entity.ContentType;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -209,7 +206,7 @@ public class ServerRunner {
                 System.out.println("Video Title: " + videoTitle);
                 videoTitles.add(videoTitle);
             }
-                return searchSongsOnSpotify(videoTitles, 1);
+                return searchSongsOnSpotify(videoTitles, 1,null);
                 
             } else {
                 System.out.println("No videos found");
@@ -243,6 +240,7 @@ public class ServerRunner {
             String nextPageToken = "";
     
             List<String> videoTitles = new ArrayList<>();
+            List<String> channelTitles = new ArrayList<>();
     
             do {
                 if (!nextPageToken.isEmpty()) {
@@ -257,16 +255,21 @@ public class ServerRunner {
     
                     Gson gson = new Gson();
                     JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
-    
+
                     if (responseJson.has("items")) {
                         JsonArray itemsArray = responseJson.getAsJsonArray("items");
     
                         for (JsonElement item : itemsArray) {
                             JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                             String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
-    
+                            String channelName = snippet.getAsJsonPrimitive("videoOwnerChannelTitle").getAsString();
+                            channelName = channelName.replace(" - Topic", "");
+
                             System.out.println("Video Title: " + videoTitle);
-    
+                            System.out.println("Channel name: "+ channelName);
+
+
+                            channelTitles.add(channelName);
                             videoTitles.add(videoTitle);
                         }
                     } else {
@@ -284,7 +287,7 @@ public class ServerRunner {
             } while (!nextPageToken.isEmpty());
     
             // Perform a single Spotify search for all video titles
-            return searchSongsOnSpotify(videoTitles, 1);
+            return searchSongsOnSpotify(videoTitles, 1,channelTitles);
         } else {
             System.out.println("Invalid YouTube playlist URL");
         }
@@ -305,8 +308,9 @@ public class ServerRunner {
      * Metod för att hämta lista av hittade låtar hos Spotify
      * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
     */
-    private List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit) {
+    private List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit,List<String> channelNameTitles) {
         List<TrackInfo> trackInfoList = new ArrayList<>();
+        int j = 0;
 
         if (accessToken == null) {
             System.out.println("Access token is null.");
@@ -318,7 +322,7 @@ public class ServerRunner {
         for (String videoTitle : videoTitles) {
             try {
                 String[] titleParts = parseTitle(videoTitle);
-                if (titleParts.length >= 2) {
+
                     String song = titleParts[0];
                     String encodedSong = URLEncoder.encode(song, StandardCharsets.UTF_8.toString());
 
@@ -327,12 +331,19 @@ public class ServerRunner {
                     queryBuilder.append("?q=");
                     queryBuilder.append(encodedSong);
 
+                if (titleParts.length >= 2){
                     for (int i = 1; i < titleParts.length; i++) {
                         String artist = titleParts[i];
                         String encodedArtist = URLEncoder.encode(artist, StandardCharsets.UTF_8.toString());
                         queryBuilder.append("%20");
                         queryBuilder.append(encodedArtist);
                     }
+                }else {
+                        String encodedChannelName = URLEncoder.encode(channelNameTitles.get(j),StandardCharsets.UTF_8.toString());
+                        queryBuilder.append("%20");
+                        queryBuilder.append(encodedChannelName);
+                }
+
 
                     queryBuilder.append("&type=track&limit=" + limit);
 
@@ -358,9 +369,9 @@ public class ServerRunner {
                         }
                     }
                     response.close();
-                } else {
-                    System.out.println("Error parsing YouTube title: " + videoTitle);
-                }
+
+
+                    j++;
             } catch (Exception e) {
                 System.out.println("Error searching on Spotify: " + e);
             }
