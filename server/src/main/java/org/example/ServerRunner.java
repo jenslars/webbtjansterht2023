@@ -205,8 +205,6 @@ public class ServerRunner {
     }
 
     private List<TrackInfo> convertVideo(String url) {
-        StringBuilder sb = new StringBuilder();
-        String[] titles = new String[100];
         System.out.println("Received URL: " + url);
         String videoId = extractVideoId(url);
         List<String> trackList = new ArrayList<>();
@@ -241,6 +239,7 @@ public class ServerRunner {
                     }
                     String matchedLine = description.substring(start, end).trim();
                     matchedLine = matchedLine.replaceFirst(regex, "");
+                    System.out.println(matchedLine);
                     trackList.add(matchedLine);
                 }
 
