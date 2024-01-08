@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -151,13 +153,13 @@ public class ServerRunner {
                 })
                 .get("/convertVideo", ctx -> {
                     String url = ctx.queryParam("url");
-                    System.out.println("url: " + url);
+
                     List<TrackInfo> trackInfoList = serverRunner.convertVideo(url);
 
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
                     jsonResponse.addProperty("message", "Video converted successfully");
-                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList));
                     ctx.json(jsonResponse.toString());
                 })
                 .get("/callback", ctx -> {
@@ -301,44 +303,51 @@ public class ServerRunner {
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
     private List<TrackInfo> convertVideo(String url) {
-    System.out.println("Received URL: " + url);
-    String videoId = extractVideoId(url);
+        System.out.println("Received URL: " + url);
+        String videoId = extractVideoId(url);
+        List<String> trackList = new ArrayList<>();
 
-    if (videoId != null) {
+         if (videoId != null) {
         String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
-        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
-        String youtubeApiParams = String.format("part=snippet&id=%s&key=%s", videoId, apiKey);
+        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos?id=";
+        String youtubeApiParams = String.format("%s&key=%s", videoId ,apiKey + "&part=snippet");
         
-        httpGet = new HttpGet(youtubeApiUrl +"?" + youtubeApiParams);
-        try {
-            response = httpClient.execute(httpGet);
-            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            System.out.println(responseBody);
-            Gson gson = new Gson();
-            JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
-            if (responseJson.has("items")) {
-                JsonArray itemsArray = responseJson.getAsJsonArray("items");
+            httpGet = new HttpGet(youtubeApiUrl + youtubeApiParams);
 
-                List<String> videoTitles = new ArrayList<>();
+            try {
+                response = httpClient.execute(httpGet);
+                String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+                JsonArray items = jsonObject.getAsJsonArray("items");
 
-                // Extract video details from the response
-                for (JsonElement item : itemsArray) {
-                JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
-                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
-                System.out.println("Video Title: " + videoTitle);
-                videoTitles.add(videoTitle);
-            }
-                return searchSongsOnSpotify(videoTitles);
                 
-            } else {
-                System.out.println("No videos found");
+                JsonObject videoInfo = items.get(0).getAsJsonObject();
+                JsonObject snippet = videoInfo.get("snippet").getAsJsonObject();
+                String description = snippet.get("description").getAsString();
+
+                String regex = "\\b([0-5]?\\d):([0-5]?\\d)(?::([0-5]?\\d))?\\b";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(description);
+
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = description.indexOf("\n", start);
+                    if (end == -1) {
+                        end = description.length();
+                    }
+                    String matchedLine = description.substring(start, end).trim();
+                    matchedLine = matchedLine.replaceFirst(regex, "");
+                    System.out.println(matchedLine);
+                    trackList.add(matchedLine);
+                }
+
+                return searchSongsOnSpotify(trackList);
+            } catch (Exception e) {
+                System.out.println(e);
             }
-        } catch (Exception e) {
-            System.out.println("Error fetching YouTube video: " + e);
         }
+        return new ArrayList<>();
     }
-            return new ArrayList<>();
-}
     /**
      * Extract video ID
      * @param url
