@@ -176,16 +176,11 @@ function toggleFeature(id) {
   var identifySongContainer = document.getElementById("identifySongContainer");
 
   var identifyPlaylistLink = document.getElementById("featureNavIdPlaylist");
-  var identifyPlaylistContainer = document.getElementById(
-    "identifyPlaylistContainer"
-  );
+  var identifyPlaylistContainer = document.getElementById("identifyPlaylistContainer");
 
-  var convertPlaylistLink = document.getElementById(
-    "featureNavConvertPlaylist"
-  );
-  var convertPlaylistContainer = document.getElementById(
-    "convertPlaylistContainer"
-  );
+  var convertPlaylistLink = document.getElementById("featureNavConvertPlaylist" );
+  var convertPlaylistContainer = document.getElementById("convertPlaylistContainer");
+  
   var serviceContainer = document.getElementById("serviceContainer");
 
   if (id == "featureNavIdSong") {
@@ -204,13 +199,15 @@ function toggleFeature(id) {
       var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
+
     var resultContainerIdentifySong = document.getElementById('resultContainerIdentifySong');
-        if (resultContainerIdentifySong) {
-            resultContainerIdentifySong.classList.remove('hide');
-            var expandedConvertPlaylistContainer = document.getElementById('expandedConvertPlaylistContainer');
-            expandedConvertPlaylistContainer.classList.add('active');
-            serviceContainer.classList.add('active')
-        }
+    if (resultContainerIdentifySong) {
+      resultContainerIdentifySong.classList.remove('hide');
+      var expandedIdentifySongContainer = document.getElementById('expandedIdentifySongContainer');
+      expandedIdentifySongContainer.classList.add('active');
+      serviceContainer.classList.add('active')
+    }
+
   } else if (id == "featureNavIdPlaylist") {
     identifyPlaylistLink.classList.add("active");
     identifyPlaylistContainer.classList.add("active");
@@ -227,7 +224,23 @@ function toggleFeature(id) {
       var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
       expandedConvertPlaylistContainer.classList.remove("active");
     }
-    
+
+    const resultContainerIdentifySong = document.getElementById("resultContainerIdentifySong");
+    if (resultContainerIdentifySong) {
+      resultContainerIdentifySong.classList.add("hide");
+      serviceContainer.classList.remove("active");
+      var expandedIdentifySongContainer = document.getElementById("expandedIdentifySongContainer");
+      expandedIdentifySongContainer.classList.remove("active");
+    }
+
+    var resultContainerIdentifyAllSongs = document.getElementById("resultContainerIdentifyAllSongs");
+    if (resultContainerIdentifyAllSongs) {
+      resultContainerIdentifyAllSongs.classList.remove("hide");
+      var expandedIdentifyAllSongsContainer = document.getElementById("expandedIdentifyAllSongsContainer");
+      expandedIdentifyAllSongsContainer.classList.add("active");
+      serviceContainer.classList.add("active");
+    }
+
   } else if (id == "featureNavConvertPlaylist") {
     
     convertPlaylistLink.classList.add("active");
@@ -241,8 +254,16 @@ function toggleFeature(id) {
     if (resultContainerIdentifySong) {
       resultContainerIdentifySong.classList.add("hide");
       serviceContainer.classList.remove("active");
-      var expandedConvertPlaylistContainer = document.getElementById("expandedConvertPlaylistContainer");
-      expandedConvertPlaylistContainer.classList.remove("active");
+      var expandedIdentifySongContainer = document.getElementById("expandedIdentifySongContainer");
+      expandedIdentifySongContainer.classList.remove("active");
+    }
+
+    const resultContainerIdentifyAllSongs = document.getElementById("resultContainerIdentifyAllSongs");
+    if (resultContainerIdentifyAllSongs) {
+      resultContainerIdentifyAllSongs.classList.add("hide");
+      serviceContainer.classList.remove("active");
+      var expandedIdentifyAllSongsContainer = document.getElementById("expandedIdentifyAllSongsContainer");
+      expandedIdentifyAllSongsContainer.remove("active");
     }
 
     var resultContainerConvert = document.getElementById("resultContainerConvert");
