@@ -571,3 +571,51 @@ html {
   }
 }
 
+.playlistContainerScroll{
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.playlistContainer{
+  display: flex;
+  font-family: "Albert Sans";
+  display: flex;
+  background-color: #2d2d2f;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  align-items: center;
+  cursor: pointer;
+  height: 80px;
+}
+
+.playlistContainer:active{
+  transform: translateY(1px)
+}
+.playlistContainer:hover{
+  background-color: #3a3a3d;
+  transition: 0.15s;
+}
+
+.playlistImage{
+  height: 60px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
+  margin-left: 20px
+}
+
+.playlistParagraphs{
+  font-family: "Albert Sans";
+  margin-left: 10px;
+  margin-top: -3px;
+}
+
+.playlistName{
+  font-size: 20px;
+}
+
+.playlistTracks{
+  font-size: 15px;
+  margin-top: -15px;
+  color: #d6d2d2;
+}

@@ -1,5 +1,5 @@
 package org.example;
-
+import org.apache.http.HttpStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.HttpHeaders;
 import org.apache.http.util.EntityUtils;
+import org.example.ServerRunner.Playlist;
 import org.apache.http.entity.ContentType;
 
 
@@ -87,10 +88,41 @@ public class ServerRunner {
                     // Send the JSON response
                     ctx.result(response.toString());
                 })
-                .get("/getUserPlaylists", ctx -> {
-                    //behöver implementeras
+                .post("/addTracksToPlaylist", ctx -> {
+                    JsonObject requestBody = JsonParser.parseString(ctx.body()).getAsJsonObject();
+                    String playlistId = requestBody.get("playlistId").getAsString();
+                    JsonArray trackUrisJson = requestBody.getAsJsonArray("trackUris");
+                
+                    if (trackUrisJson != null) {
+                        List<String> trackUris = new ArrayList<>();
+                        for (JsonElement trackUriJson : trackUrisJson) {
+                            trackUris.add(trackUriJson.getAsString());
+                        }
+                
+                        // Implement the logic to add tracks to the playlist
+                        // You should replace this with your actual implementation
+                        serverRunner.addTracksToPlaylist(playlistId, trackUris);
+                
+                        // Construct and send the response
+                        JsonObject response = new JsonObject();
+                        response.addProperty("status", "success");
+                        response.addProperty("message", "Tracks added to playlist successfully.");
+                        ctx.json(response.toString());
+                    } else {
+                        // Handle the case where trackUrisJson is null or not an array
+                        JsonObject response = new JsonObject();
+                        response.addProperty("status", "error");
+                        response.addProperty("message", "Invalid request data.");
+                        ctx.json(response.toString());
+                    }
                 })
                 
+                .get("/getUserPlaylists", ctx -> {
+                    List<Playlist> playlists = serverRunner.fetchUserPlaylists();
+                    
+                    ctx.status(200);
+                    ctx.json(playlists);
+                })
                 
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
@@ -163,6 +195,89 @@ public class ServerRunner {
             ctx.header("Access-Control-Allow-Headers", "*");
         });
     }
+
+    private List<Playlist> fetchUserPlaylists() {
+        try {
+            String userId = getUserId(accessToken);
+            String url = "https://api.spotify.com/v1/me/playlists";
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+    
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+    
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+                JsonArray itemsArray = responseJson.getAsJsonArray("items");
+    
+                List<Playlist> playlists = new ArrayList<>();
+    
+                for (JsonElement item : itemsArray) {
+                    JsonObject playlistJson = item.getAsJsonObject();
+                    JsonObject owner = playlistJson.getAsJsonObject("owner");
+    
+                    // Check if the current user is the owner of the playlist
+                    if (owner != null && userId.equals(owner.get("id").getAsString())) {
+                        String playlistName = playlistJson.get("name").getAsString();
+                        String playlistId = playlistJson.get("id").getAsString();
+    
+                        // Extract the image URL
+                        String imageUrl = "";
+                        if (playlistJson.getAsJsonArray("images").size() > 0) {
+                            imageUrl = playlistJson.getAsJsonArray("images").get(0).getAsJsonObject().get("url").getAsString();
+                        }
+    
+                        // Extract the number of tracks
+                        int trackCount = playlistJson.getAsJsonObject("tracks").get("total").getAsInt();
+    
+                        Playlist playlist = new Playlist(playlistName, playlistId, imageUrl, trackCount);
+                        
+                        playlists.add(playlist);
+                        
+                    }
+                }
+                return playlists;
+            } else {
+                System.out.println("Error fetching user playlists. Status code: " + response.getStatusLine().getStatusCode());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+    
+    public static class Playlist {
+        private String name;
+        private String id;
+        private String imageUrl;
+        private int trackCount;
+    
+        public Playlist(String name, String id, String imageUrl, int trackCount) {
+            this.name = name;
+            this.id = id;
+            this.imageUrl = imageUrl;
+            this.trackCount = trackCount;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        public int getTrackCount() {
+            return trackCount;
+        }
+    }
+    
+    
+    
 
     /**
      * Metod för att hämta URL till den låt som användaren/Shazam angav.
