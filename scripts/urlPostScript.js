@@ -688,7 +688,7 @@ function identifyAllSongs() {
   console.log("In identifyAllSongs");
   addLoaderToButton('URLsubmit-btn1')
   var url = document.getElementById("convertPlaylistInput").value;
-  fetch("/identifyAllSongs?url=" + encodeURIComponent(url), {
+  fetch("/identifyAllSongsInVideo?url=" + encodeURIComponent(url), {
     method: "GET",
   })
     .then((response) => {
