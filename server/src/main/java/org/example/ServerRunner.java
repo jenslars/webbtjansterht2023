@@ -22,6 +22,7 @@ import org.apache.http.entity.ContentType;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -355,9 +356,9 @@ public class ServerRunner {
 
     private List<TrackInfo> identifyAllSongsInVideo(String url) {
         System.out.println("Received URL: " + url);
-        String videoId = extractVideoId(url);
+        String videoId = extractIdMultipleSongs(url);
         List<String> trackList = new ArrayList<>();
-
+        System.out.println(videoId);
          if (videoId != null) {
         String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
         String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos?id=";
@@ -411,6 +412,28 @@ public class ServerRunner {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group() : null;
+    }
+
+    private String extractIdMultipleSongs(String url) {
+        try {
+            URI uri = new URI(url);
+            String host = uri.getHost();
+
+            if (host.endsWith("youtube.com") || host.endsWith("youtu.be")) {
+                String path = uri.getPath();
+                if (path != null && path.startsWith("/watch")) {
+                    String query = uri.getQuery();
+                    if (query != null && query.contains("v=")) {
+                        String[] parts = query.split("v=");
+                        String videoId = parts[1];
+                        return videoId;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return "ID not found";
     }
 
     private List<TrackInfo> convertPlaylist(String url) {

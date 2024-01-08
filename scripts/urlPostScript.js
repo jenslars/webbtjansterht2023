@@ -14,9 +14,9 @@ function spotifyPopup(type, feature) {
         connectButton.onclick = function() {
           authenticateSpotify('createPlaylist', 'resultContainerIdentifySong');
       };
-      } else if (feauture == 'identifyAllSongs'){
+      } else if (feature == 'identifyAllSongs'){
         connectButton.onclick = function() {
-          authenticateSpotify('createPlaylist', 'resultIdentifyAllSongsContainer');
+          authenticateSpotify('createPlaylist', 'resultContainerIdentifyAllSongs');
       };
       }
   } else if (type == "addToPlaylist") {
@@ -34,7 +34,7 @@ function spotifyPopup(type, feature) {
       authenticateSpotify('addToPlaylist', 'resultContainerIdentifySong');}
   } else if (feature == 'identifyAllSongs'){
     connectButton.onclick = function() {
-      authenticateSpotify('addToPlaylist', 'resultIdentifyAllSongsContainer');};
+      authenticateSpotify('addToPlaylist', 'resultContainerIdentifyAllSongs');};
   }
   }
 }
@@ -277,6 +277,7 @@ function toggleFeature(id) {
 }
 
 function fetchSelectedTrackUris(type) {
+  console.log(type)
   var selectedResultContainer = document.getElementById(type);
   var selectedTrackUris = []
   if (!selectedResultContainer) {
@@ -291,6 +292,7 @@ function fetchSelectedTrackUris(type) {
           selectedTrackUris.push(trackUri);
       }
   });
+  console.log(selectedTrackUris)
   return selectedTrackUris
 }
 
@@ -707,7 +709,7 @@ function identifyAllSongs() {
           .filter((uri) => uri);
           var serviceContainer = document.getElementById("serviceContainer");
           var expandedConvertPlaylistContainer = document.getElementById(
-            "expandedConvertPlaylistContainer"
+            "expandedIdentifyAllSongsContainer"
           );
     
           expandedConvertPlaylistContainer.classList.add("active");
@@ -778,7 +780,7 @@ function createPlaylistElements(data, feature) {
     var resultContainer = document.getElementById("resultContainerConvert");
   } else if (feature == 'identifyAllSongs') {
     var expandedContainer = document.getElementById("expandedIdentifyAllSongsContainer");
-    var resultContainer = document.getElementById("resultIdentifyAllSongsContainer");
+    var resultContainer = document.getElementById("resultContainerIdentifyAllSongs");
   } 
 
   // Check if the resultContainerConvert element exists
@@ -828,7 +830,7 @@ function createPlaylistElements(data, feature) {
     };
   } else if (feature == 'identifyAllSongs') {
     addToPlaylistBtn.onclick = function () {
-      spotifyPopup("addToPlaylist", "IdentifyAllSongs");
+      spotifyPopup("addToPlaylist", "identifyAllSongs");
     };
   }
 
@@ -847,7 +849,7 @@ function createPlaylistElements(data, feature) {
     };
   } else if (feature == 'identifyAllSongs') {
     createPlaylistBtn.onclick = function () {
-      spotifyPopup("createPlaylist", "IdentifyAllSongs");
+      spotifyPopup("createPlaylist", "identifyAllSongs");
     };
   }
   resultSpotifyButtons.appendChild(createPlaylistBtn);

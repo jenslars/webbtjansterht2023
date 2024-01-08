@@ -237,12 +237,12 @@ html {
   display: none;
 }
 
-#convertPlaylistContainer, #expandedIdentifySongContainer{
+#convertPlaylistContainer, #expandedIdentifySongContainer, #expandedIdentifyAllSongsContainer{
   height: 300px;
   overflow: hidden;
 }
 
-#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active {
+#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active, #expandedIdentifyAllSongsContainer.active {
   height: 520px;
   background-color: #3b3b3d;
   border-bottom-left-radius: 20px;
