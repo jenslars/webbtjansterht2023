@@ -260,6 +260,9 @@ public class ServerRunner {
                         JsonArray itemsArray = responseJson.getAsJsonArray("items");
     
                         for (JsonElement item : itemsArray) {
+                            if (videoTitles.size() >= 99) {
+                                break;
+                            }
                             JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                             String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
                             String channelName = snippet.getAsJsonPrimitive("videoOwnerChannelTitle").getAsString();
