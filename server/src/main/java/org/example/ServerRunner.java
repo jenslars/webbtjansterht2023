@@ -239,39 +239,52 @@ public class ServerRunner {
         if (playlistId != null) {
             String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";  // Replace with your YouTube API key
             String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
-            String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s", playlistId, apiKey);
+            String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s&maxResults=50", playlistId, apiKey);
+            String nextPageToken = "";
     
-            httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
+            List<String> videoTitles = new ArrayList<>();
     
-            try {
-                response = httpClient.execute(httpGet);
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            do {
+                if (!nextPageToken.isEmpty()) {
+                    youtubeApiParams += "&pageToken=" + nextPageToken;
+                }
     
-                Gson gson = new Gson();
-                JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+                httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
     
-                if (responseJson.has("items")) {
-                    JsonArray itemsArray = responseJson.getAsJsonArray("items");
+                try {
+                    response = httpClient.execute(httpGet);
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
     
-                    List<String> videoTitles = new ArrayList<>();
+                    Gson gson = new Gson();
+                    JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
     
-                    for (JsonElement item : itemsArray) {
-                        JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
-                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                    if (responseJson.has("items")) {
+                        JsonArray itemsArray = responseJson.getAsJsonArray("items");
     
-                        System.out.println("Video Title: " + videoTitle);
+                        for (JsonElement item : itemsArray) {
+                            JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
+                            String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
     
-                        videoTitles.add(videoTitle);
+                            System.out.println("Video Title: " + videoTitle);
+    
+                            videoTitles.add(videoTitle);
+                        }
+                    } else {
+                        System.out.println("No videos found in the playlist");
                     }
     
-                    // Perform a single Spotify search for all video titles
-                    return searchSongsOnSpotify(videoTitles, 20);
-                } else {
-                    System.out.println("No videos found in the playlist");
+                    if (responseJson.has("nextPageToken")) {
+                        nextPageToken = responseJson.getAsJsonPrimitive("nextPageToken").getAsString();
+                    } else {
+                        nextPageToken = "";
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error fetching YouTube playlist: " + e);
                 }
-            } catch (Exception e) {
-                System.out.println("Error fetching YouTube playlist: " + e);
-            }
+            } while (!nextPageToken.isEmpty());
+    
+            // Perform a single Spotify search for all video titles
+            return searchSongsOnSpotify(videoTitles, 1);
         } else {
             System.out.println("Invalid YouTube playlist URL");
         }
