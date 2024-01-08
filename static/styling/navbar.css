@@ -33,8 +33,12 @@
   padding-right: 60px;
   color: #c8c8c8;
   font-size: 20px;
+  text-decoration: none;
 }
 
+.links a:visited {
+  text-decoration: none;
+}
 .links a:hover {
   cursor: pointer;
   color: #ffffff;
