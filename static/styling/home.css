@@ -89,6 +89,25 @@ html {
   font-size: 25px;
 }
 
+#descriptionContainer h2 {
+  font-weight: 100;
+  margin-left: 20px;
+  margin-bottom: 40px;
+  font-size: 20px;
+}
+
+#descriptionContainer h3 {
+  font-weight: 100;
+  margin-left: 20px;
+  font-size: 20px;
+}
+
+#descriptionContainer h4 {
+  font-weight: 100;
+  margin-left: 20px;
+  font-size: 18px;
+}
+
 #featureContainer {
   background-color: #3b3b3d;
   height: 70%;
@@ -237,12 +256,12 @@ html {
   display: none;
 }
 
-#expandedConvertPlaylistContainer, #expandedIdentifySongContainer{
+#convertPlaylistContainer, #expandedIdentifySongContainer, #expandedIdentifyAllSongsContainer{
   height: 300px;
   overflow: hidden;
 }
 
-#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active {
+#expandedConvertPlaylistContainer.active, #expandedIdentifySongContainer.active, #expandedIdentifyAllSongsContainer.active {
   height: 520px;
   background-color: #3b3b3d;
   border-bottom-left-radius: 20px;
@@ -296,8 +315,7 @@ html {
   margin-right: 40px;
 }
 
-#resultContainerConvert,
-#resultContainerIdentifySong th {
+#resultContainerConvert th, #resultContainerIdentifyAllSongs th, #resultContainerIdentifySong th{
   font-weight: 300;
   font-size: 12px;
   color: #a5a5a5;
@@ -393,7 +411,7 @@ html {
   padding-left: 20px;
 }
 
-#resultContainerConvert, #resultContainerIdentifySong {
+#resultContainerConvert, #resultContainerIdentifySong, #resultContainerIdentifyAllSongs {
   max-height: 420px;
 }
 
@@ -571,3 +589,51 @@ html {
   }
 }
 
+.playlistContainerScroll{
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.playlistContainer{
+  display: flex;
+  font-family: "Albert Sans";
+  display: flex;
+  background-color: #2d2d2f;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  align-items: center;
+  cursor: pointer;
+  height: 80px;
+}
+
+.playlistContainer:active{
+  transform: translateY(1px)
+}
+.playlistContainer:hover{
+  background-color: #3a3a3d;
+  transition: 0.15s;
+}
+
+.playlistImage{
+  height: 60px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
+  margin-left: 20px
+}
+
+.playlistParagraphs{
+  font-family: "Albert Sans";
+  margin-left: 10px;
+  margin-top: -3px;
+}
+
+.playlistName{
+  font-size: 20px;
+}
+
+.playlistTracks{
+  font-size: 15px;
+  margin-top: -15px;
+  color: #d6d2d2;
+}

@@ -77,6 +77,7 @@
                 </div>
               </div>
               <div id="identifyPlaylistContainer">
+                <div id="expandedIdentifyAllSongsContainer">
                 <form class="urlForm">
                   <div class="urlFormInputLabel">
                     <p>
@@ -85,8 +86,9 @@
                     </p>
                   </div>
                   <div class="inputDiv">
-                    <input
+                    <input 
                       type="text"
+                      id="identifyAllSongsInput"
                       class="URLinput"
                       placeholder="youtube.com/watch?v=YoU-tuBe_23"
                     />
@@ -94,6 +96,7 @@
                   </div>
                   <p id="error-message2"></p>
                 </form>
+                </div>
               </div>
               <div id="convertPlaylistContainer">
                 <div id="expandedConvertPlaylistContainer">
@@ -115,53 +118,21 @@
                     </div>
                     <p id="error-message3"></p>
                   </form>
-                  <!--This is a comment. Comments are not displayed in the browser
-                                    <div id="resultContainer">
-                                        <div class="resultDivider"></div>
-                                        <div class="resultHeader">
-                                            <h3>Songs identified on Spotify</h3>
-                                            <div class="resultSpotifyButtons">
-                                                <button class="addToPlaylist-btn">Add to playlist</button>
-                                                <button class="createPlaylist-btn">Create new playlist</button>
-                                            </div>
-                                        </div>
-                                        <div class="scrollContainer">
-                                            <table class="spotifyTable">
-                                                <thead>
-                                                    <tr class="tableHead">
-                                                        <th>Include</th>
-                                                        <th>Title</th>
-                                                        <th>Album</th>
-                                                    </tr>
-                                                    <tr class="tableDivider">
-                                                        <td colspan="3"></td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="tableTrackRow">
-                                                        <td><div class="customCheckbox active" onclick="toggleCheckbox(this)"></div></td>
-                                                        <td class="titleRow">
-                                                            <img src="https://i.scdn.co/image/ab67616d0000b2737af0c13dce12e734753b4790">
-                                                            <div class="titleRowText">
-                                                                <p class="titleSong">Pikachu</p>
-                                                                <p class="titleArtist">Yung Lean</p>
-                                                            </div>
-                                                        </td>
-                                                        <td class="titleAlbum">Starz</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                -->
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div id="descriptionContainer">
-          <h1>About Youtube to Spotify</h1>
-        </div>
+            <h1>About Youtube to Spotify</h1>
+                  <h2>Youtube to Spotify is a service that helps you create Spotify playlists by providing a URL to a Youtube playlist or video with songs.</h2>
+                  <h3>How to use:</h3>
+                  <h4>To identify a single song, enter the URL of a song you'd like to identify. 
+                      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="blank">Example</a>
+                  </h4>
+                  <h4>To identify several songs in a video, enter the URL of the video.</h4>
+                  <h4>To convert a Youtube playlist, make sure the URL is in fact the URL to the playlist itself and not the URL to any of the songs in the playlist.</h4>
+          </div>
       </div>
     </main>
     <div id="spotifyPopupCreate">
@@ -169,16 +140,16 @@
         <h3>Creating playlist</h3>
         <p>In order to create a playlist you need to connect to Spotify</p>
         <div class="loadingElements">
-          <button class="login-btn" onclick="authenticateSpotify()">Connect</button>
+          <button class="login-btn" onclick="authenticateSpotify('createPlaylist')">Connect</button>
           <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('createPlaylist')">Cancel</button>
         </div>
     </div>
     <div id="spotifyPopupAdd">
         <img src="images/svg/spotifylogo.svg" alt="Spotify" class="spotifyPopupLogo">
         <h3>Adding to playlist</h3>
-        <div class="loadingElements">
-          <p>In order to add these songs to a playlist you need to connect to Spotify</p>
-          <button class="login-btn">Connect</button>
+        <p>In order to add these songs to a playlist you need to connect to Spotify</p>
+        <div class="loadingElements">     
+          <button class="login-btn" onclick="authenticateSpotify('addToPlaylist')">Connect</button>
           <button class="cancelSpotifyPopup" onclick="cancelSpotifyPopup('addToPlaylist')">Cancel</button>
         </div>
     </div>
