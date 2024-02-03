@@ -218,7 +218,9 @@ public class ServerRunner {
                 "yt-dlp",
                 "-x", // Extract audio
                 "--audio-format", "mp3", // Convert to mp3
-                "-o", outputPath, // Output path and filename format
+                "--force-overwrites",
+                "-o",
+                outputPath, // Output path and filename format
                 youtubeUrl);
         builder.redirectErrorStream(true);
 
@@ -230,6 +232,7 @@ public class ServerRunner {
                 System.out.println(line);
             }
             int exitCode = process.waitFor();
+
             if (exitCode != 0) {
                 System.out.println("Error downloading audio, exit code " + exitCode);
             }
@@ -251,7 +254,7 @@ public class ServerRunner {
         config.put("debug", false);
         recognizer = new ACRCloudRecognizer(config);
 
-        String songInfo = recognizer.recognizeByFile("resources/battery.mp3", 0);
+        String songInfo = recognizer.recognizeByFile("resources/downloaded_audio.mp3", 0);
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(songInfo).getAsJsonObject();
         String title = json.getAsJsonObject("metadata").getAsJsonArray("music").get(0).getAsJsonObject().get("title").getAsString();
