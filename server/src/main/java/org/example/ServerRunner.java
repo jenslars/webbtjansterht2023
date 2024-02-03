@@ -1,4 +1,5 @@
 package org.example;
+import com.acrcloud.utils.ACRCloudRecognizer;
 import org.apache.http.HttpStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -20,14 +21,12 @@ import org.example.ServerRunner.Playlist;
 import org.apache.http.entity.ContentType;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.nio.file.Files;
@@ -45,6 +44,7 @@ public class ServerRunner {
     HttpPut httpPut = null;
     CloseableHttpResponse response = null;
     String accessToken = null;
+
     static Gson gson = new Gson();
 
     /**
@@ -162,6 +162,7 @@ public class ServerRunner {
                     jsonResponse.addProperty("message", "Video converted successfully");
                     jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
                     ctx.json(jsonResponse.toString());
+
                 })
                 .get("/identifyAllSongsInVideo", ctx -> {
                     String url = ctx.queryParam("url");
@@ -208,9 +209,58 @@ public class ServerRunner {
             ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
             ctx.header("Access-Control-Allow-Headers", "*");
         });
+
+
+    }
+
+    public static void downloadAudio(String youtubeUrl, String outputPath) {
+        ProcessBuilder builder = new ProcessBuilder(
+                "yt-dlp",
+                "-x", // Extract audio
+                "--audio-format", "mp3", // Convert to mp3
+                "-o", outputPath, // Output path and filename format
+                youtubeUrl);
+        builder.redirectErrorStream(true);
+
+        try {
+            Process process = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.out.println("Error downloading audio, exit code " + exitCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String recognizeSong() {
+        System.out.println("recognize song called");
+        ACRCloudRecognizer recognizer;
+        Map<String, Object> config = new HashMap<>();
+        config.put("host", "identify-eu-west-1.acrcloud.com");
+        config.put("protocol", "http");
+        config.put("access_key", "4ee095c457208ad88f1a28a5b14b9f87");
+        config.put("access_secret", "6O8dg2TJ95w0QSqODexAwrJqm0VaDvHzF5aCl8BE");
+        config.put("timeout", 5);
+        config.put("rec_type", ACRCloudRecognizer.RecognizerType.AUDIO);
+        config.put("debug", false);
+        recognizer = new ACRCloudRecognizer(config);
+
+        String songInfo = recognizer.recognizeByFile("resources/battery.mp3", 0);
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(songInfo).getAsJsonObject();
+        String title = json.getAsJsonObject("metadata").getAsJsonArray("music").get(0).getAsJsonObject().get("title").getAsString();
+        System.out.println("Song title from ACRCkiyd: "+ title);
+        return title;
     }
 
     private List<Playlist> fetchUserPlaylists() {
+        System.out.println("fetch user playlist called");
         try {
             String userId = getUserId(accessToken);
             String url = "https://api.spotify.com/v1/me/playlists";
@@ -299,6 +349,7 @@ public class ServerRunner {
      * @param ctx
      */
     private void getSongUrl(Context ctx) {
+        System.out.println("get song url called");
         String url = "https://api.spotify.com/v1/search?q=track%3A" + ctx.pathParam("id") + "&type=track";
         httpGet = new HttpGet(url);
         httpGet.setHeader("Authorization: Bearer ", accessToken);
@@ -315,6 +366,10 @@ public class ServerRunner {
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
     private List<TrackInfo> convertVideo(String url) {
+
+    downloadAudio(url,"resources/downloaded_audio.mp3");
+    recognizeSong();
+    System.out.println(" convertvideo called");
     System.out.println("Received URL: " + url);
     String videoId = extractVideoId(url);
 
@@ -351,10 +406,13 @@ public class ServerRunner {
             System.out.println("Error fetching YouTube video: " + e);
         }
     }
+
             return new ArrayList<>();
+
 }
 
     private List<TrackInfo> identifyAllSongsInVideo(String url) {
+        System.out.println(" identifyAllSongsInVideo called");
         System.out.println("Received URL: " + url);
         String videoId = extractIdMultipleSongs(url);
         List<String> trackList = new ArrayList<>();
@@ -408,6 +466,7 @@ public class ServerRunner {
      * @return
      */
     private String extractVideoId(String url) {
+        System.out.println("extractVideoID called");
         String regex = "(?<=watch\\?v=|/videos/|embed/|youtu.be/|/v/|/e/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%2F|youtu.be%2F|%2Fv%2F)[^#&?\\n]*";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
@@ -415,6 +474,7 @@ public class ServerRunner {
     }
 
     private String extractIdMultipleSongs(String url) {
+        System.out.println("extractIdmultipleSongs called");
         try {
             URI uri = new URI(url);
             String host = uri.getHost();
@@ -437,6 +497,7 @@ public class ServerRunner {
     }
 
     private List<TrackInfo> convertPlaylist(String url) {
+        System.out.println("convert playlist called");
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
     
@@ -506,6 +567,7 @@ public class ServerRunner {
     }
 
     private String extractPlaylistId(String url) {
+        System.out.println("extract playlist id called");
         String regex = "[&?]list=([^&]+)";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
@@ -517,6 +579,7 @@ public class ServerRunner {
      * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
     */
     private List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit,List<String> channelNameTitles) {
+        System.out.println("searchSongsOnspotify called");
         List<TrackInfo> trackInfoList = new ArrayList<>();
         int j = 0;
 
@@ -590,6 +653,7 @@ public class ServerRunner {
     
 
     private String[] parseTitle(String title) {
+        System.out.println("parseTitle called");
         // Remove anything inside parentheses
         title = title.replaceAll("\\(.*?\\)", "").trim();
     
@@ -630,6 +694,7 @@ public class ServerRunner {
     
 
     private TrackInfo extractTrackInfo(JsonElement track) {
+        System.out.println("extractTrackInfo called");
         JsonObject trackInfoJson = new JsonObject();
         trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
         trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
@@ -645,6 +710,7 @@ public class ServerRunner {
     
     
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
+        System.out.println("isDuplicate called");
         for (TrackInfo existingTrack : trackInfoList) {
             if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
                 existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
@@ -793,6 +859,7 @@ public class ServerRunner {
      * @param ctx
      */
     private String createPlaylist(Context ctx, List<String> trackUris) {
+        System.out.println("create Playlist called");
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
             String userId = getUserId(accessToken);
@@ -832,7 +899,7 @@ public class ServerRunner {
      * @param ctx
      */
     private void addTracksToPlaylist(String playlistId, List<String> trackUris) {
-
+        System.out.println("addTracksToPlaylist called");
         try {
             String spotifyApiUrl = "https://api.spotify.com/v1/playlists/" + playlistId + "/tracks";
             System.out.println("addtracks");
