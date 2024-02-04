@@ -44,6 +44,7 @@ public class ServerRunner {
     HttpPut httpPut = null;
     CloseableHttpResponse response = null;
     String accessToken = null;
+    SongRecognizer songRecognizer;
 
     static Gson gson = new Gson();
 
@@ -55,6 +56,7 @@ public class ServerRunner {
     public static void main(String[] args) {
         ServerRunner serverRunner = new ServerRunner();
         serverRunner.requestAccessToken();
+
         Javalin app = Javalin.create(config -> {
         })
                 .get("/", ctx -> {
@@ -213,54 +215,9 @@ public class ServerRunner {
 
     }
 
-    public static void downloadAudio(String youtubeUrl, String outputPath) {
-        ProcessBuilder builder = new ProcessBuilder(
-                "yt-dlp",
-                "-x", // Extract audio
-                "--audio-format", "mp3", // Convert to mp3
-                "--force-overwrites",
-                "-o",
-                outputPath, // Output path and filename format
-                youtubeUrl);
-        builder.redirectErrorStream(true);
 
-        try {
-            Process process = builder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-            int exitCode = process.waitFor();
 
-            if (exitCode != 0) {
-                System.out.println("Error downloading audio, exit code " + exitCode);
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private String recognizeSong() {
-        System.out.println("recognize song called");
-        ACRCloudRecognizer recognizer;
-        Map<String, Object> config = new HashMap<>();
-        config.put("host", "identify-eu-west-1.acrcloud.com");
-        config.put("protocol", "http");
-        config.put("access_key", "4ee095c457208ad88f1a28a5b14b9f87");
-        config.put("access_secret", "6O8dg2TJ95w0QSqODexAwrJqm0VaDvHzF5aCl8BE");
-        config.put("timeout", 5);
-        config.put("rec_type", ACRCloudRecognizer.RecognizerType.AUDIO);
-        config.put("debug", false);
-        recognizer = new ACRCloudRecognizer(config);
-
-        String songInfo = recognizer.recognizeByFile("resources/downloaded_audio.mp3", 0);
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(songInfo).getAsJsonObject();
-        String title = json.getAsJsonObject("metadata").getAsJsonArray("music").get(0).getAsJsonObject().get("title").getAsString();
-        System.out.println("Song title from ACRCkiyd: "+ title);
-        return title;
-    }
 
     private List<Playlist> fetchUserPlaylists() {
         System.out.println("fetch user playlist called");
@@ -365,13 +322,98 @@ public class ServerRunner {
     }
 
 
+    private List<TrackInfo> convertVideo(String url){
+        songRecognizer = new SongRecognizer();
+        System.out.println(" convertvideo called");
+        System.out.println("Received URL: " + url);
+
+        String path = songRecognizer.downloadAudio(url,"resources/downloaded_audio");
+        List<TrackInfo> tracks;
+        // if download success
+
+        if(path != null){
+            tracks= songRecognizer.recognizeSongs(path);
+
+            if(tracks !=null){
+                tracks= searchSongsOnSpotifyNew(tracks);
+                System.out.println(tracks.get(0));
+                return tracks;
+            }
+
+        }
+
+
+        return null;
+
+    }
+
+    private List<TrackInfo> searchSongsOnSpotifyNew(List<TrackInfo> tracks) {
+        System.out.println("searchSongsOnSpotify called");
+
+        List<TrackInfo> trackInfoList = new ArrayList<>();
+
+        if (accessToken == null) {
+            System.out.println("Access token is null.");
+            return trackInfoList;
+        }
+
+        String spotifyApiUrl = "https://api.spotify.com/v1/search";
+
+        for (TrackInfo trackInfo : tracks) {
+            try {
+                // It seems there was a mix-up between artistName and songName in your original code.
+                // Swapping the variables to reflect their actual content.
+                String artistName = trackInfo.getArtist(); // Assuming getArtist() returns the artist's name
+                String songName = trackInfo.getTitle(); // Assuming getTitle() returns the song's name
+                String query = "track:" + songName + " artist:" + artistName;
+                String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
+
+                String finalUrl = spotifyApiUrl + "?q=" + encodedQuery + "&type=track&limit=1";
+                System.out.println("Final URL: " + finalUrl);
+
+                HttpGet httpGet = new HttpGet(finalUrl);
+                httpGet.setHeader("Authorization", "Bearer " + accessToken);
+                try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    System.out.println("Spotify API Response: " + responseBody); // Print the entire response body
+
+                    JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+
+                    if (responseJson.has("tracks")) {
+                        JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
+
+                        for (JsonElement trackElement : tracksArray) {
+                            TrackInfo newTrack = extractTrackInfo(trackElement);
+                            if (!isDuplicate(trackInfoList, newTrack)) {
+                                trackInfoList.add(newTrack);
+                                // Optionally print added track info for verification
+                                System.out.println("Added Track: " + newTrack.getTitle() + " by " + newTrack.getArtist());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Error searching on Spotify: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return trackInfoList;
+    }
+
+// Ensure the TrackInfo class, extractTrackInfo, and isDuplicate methods are correctly implemented.
+
+
+
+
+
+
+
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
-    private List<TrackInfo> convertVideo(String url) {
+    private List<TrackInfo> convertVideoOld(String url) {
 
-    downloadAudio(url,"resources/downloaded_audio.mp3");
-    recognizeSong();
     System.out.println(" convertvideo called");
     System.out.println("Received URL: " + url);
     String videoId = extractVideoId(url);
@@ -724,128 +766,11 @@ public class ServerRunner {
     }
 
     
+
     
 
-    /**
-     * Klass för en låt på spotify.
-    */
 
-    private static class TrackInfo {
-        private String title;
-        private String artist;
-        private String imageUrl;
-        private String album;
-        private String uri;
-    
-        public String getTitle() {
-            return title;
-        }
-    
-        public String getArtist() {
-            return artist;
-        }
-    
-        public String getImageUrl() {
-            return imageUrl;
-        }
-    
-        public String getAlbum() {
-            return album;
-        }
-    
-        public String getUri() {
-            return uri;
-        }
-    }
-    
 
-   /**
-     * Metod för att hämta Javascript-fil.
-    */
-    private void serveJavaScriptFile(Context ctx) {
-        String fileName = ctx.pathParam("filename");
-
-        Path filePath = Paths.get("scripts/" + fileName);
-
-        if (Files.exists(filePath)) {
-            ctx.contentType("application/javascript");
-
-            try {
-                ctx.result(new String(Files.readAllBytes(filePath)));
-            } catch (IOException e) {
-                e.printStackTrace();
-                ctx.status(500).result("Internal Server Error");
-            }
-        } else {
-            ctx.status(404).result("File not found");
-        }
-    }
-
-    /**
-     * Metod för att hämta CSS-fil.
-    */
-    private void serveCssFile(io.javalin.http.Context ctx) {
-        String fileName = ctx.pathParam("filename");
-
-        Path filePath = Paths.get("static/styling/" + fileName);
-
-        if (Files.exists(filePath)) {
-            ctx.contentType("text/css");
-
-            try {
-                ctx.result(new String(Files.readAllBytes(filePath)));
-            } catch (Exception e) {
-                e.printStackTrace();
-                ctx.status(500).result("Internal Server Error");
-            }
-        } else {
-            ctx.status(404).result("File not found");
-        }
-    }
-
-    /**
-     * Metod för att hämta SVG-fil.
-    */
-    private void serveSvgFile(io.javalin.http.Context ctx) {
-        String fileName = ctx.pathParam("filename");
-
-        Path filePath = Paths.get("images/svg/" + fileName);
-
-        if (Files.exists(filePath)) {
-            ctx.contentType("image/svg+xml");
-
-            try {
-                ctx.result(new String(Files.readAllBytes(filePath)));
-            } catch (Exception e) {
-                e.printStackTrace();
-                ctx.status(500).result("Internal Server Error");
-            }
-        } else {
-            ctx.status(404).result("File not found");
-        }
-    }
-
-    /**
-     * Metod för att hämta PNG-fil.
-    */
-    private void servePngFile(io.javalin.http.Context ctx) {
-        String fileName = ctx.pathParam("filename");
-    
-        Path filePath = Paths.get("images/png/" + fileName);
-    
-        if (Files.exists(filePath)) {
-            ctx.contentType("image/png");
-    
-            try {
-                ctx.result(Files.readAllBytes(filePath));
-            } catch (Exception e) {
-                e.printStackTrace();
-                ctx.status(500).result("Internal Server Error");
-            }
-        } else {
-            ctx.status(404).result("File not found");
-        }
-    }
 
     /**
      * Metod som hämtar Spotify ID:t på den spellista som användaren vill lägga till en låt i.
@@ -1028,6 +953,94 @@ public class ServerRunner {
         } catch (Exception e) {
             e.printStackTrace();
             return "Error reading HTML file.";
+        }
+    }
+
+    /**
+     * Metod för att hämta SVG-fil.
+     */
+    private void serveSvgFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("images/svg/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("image/svg+xml");
+
+            try {
+                ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta PNG-fil.
+     */
+    private void servePngFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("images/png/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("image/png");
+
+            try {
+                ctx.result(Files.readAllBytes(filePath));
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta CSS-fil.
+     */
+    private void serveCssFile(io.javalin.http.Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("static/styling/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("text/css");
+
+            try {
+                ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
+        }
+    }
+
+    /**
+     * Metod för att hämta Javascript-fil.
+     */
+    private void serveJavaScriptFile(Context ctx) {
+        String fileName = ctx.pathParam("filename");
+
+        Path filePath = Paths.get("scripts/" + fileName);
+
+        if (Files.exists(filePath)) {
+            ctx.contentType("application/javascript");
+
+            try {
+                ctx.result(new String(Files.readAllBytes(filePath)));
+            } catch (IOException e) {
+                e.printStackTrace();
+                ctx.status(500).result("Internal Server Error");
+            }
+        } else {
+            ctx.status(404).result("File not found");
         }
     }
 }
