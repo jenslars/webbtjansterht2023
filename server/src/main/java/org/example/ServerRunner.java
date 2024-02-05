@@ -155,6 +155,7 @@ public class ServerRunner {
                     */
                 })
                 .get("/convertVideo", ctx -> {
+                    System.out.println("convertvideo get called from frontend");
                     String url = ctx.queryParam("url");
                     System.out.println("url: " + url);
                     List<TrackInfo> trackInfoList = serverRunner.convertVideo(url);
@@ -167,6 +168,8 @@ public class ServerRunner {
 
                 })
                 .get("/identifyAllSongsInVideo", ctx -> {
+                    System.out.println("identifyAllSongsInVideo get called from frontend");
+
                     String url = ctx.queryParam("url");
 
                     List<TrackInfo> trackInfoList = serverRunner.identifyAllSongsInVideo(url);
@@ -327,27 +330,26 @@ public class ServerRunner {
         System.out.println(" convertvideo called");
         System.out.println("Received URL: " + url);
 
-        String path = songRecognizer.downloadAudio(url,"resources/downloaded_audio");
-        List<TrackInfo> tracks;
+
+        List<TrackInfo> tracks = songRecognizer.downloadAudio(url,"resources/downloaded_audio.m4a");
         // if download success
 
-        if(path != null){
-            tracks= songRecognizer.recognizeSongs(path);
-
-            if(tracks !=null){
-                tracks= searchSongsOnSpotifyNew(tracks);
-                System.out.println(tracks.get(0));
+            if(tracks !=null && !tracks.isEmpty()){
+                tracks= searchSongsOnSpotify(tracks);
+                //System.out.println(tracks.get(0));
                 return tracks;
+            }else {
+                convertVideoString(url);
             }
 
-        }
 
 
-        return null;
+
+        return tracks;
 
     }
 
-    private List<TrackInfo> searchSongsOnSpotifyNew(List<TrackInfo> tracks) {
+    private List<TrackInfo> searchSongsOnSpotify(List<TrackInfo> tracks) {
         System.out.println("searchSongsOnSpotify called");
 
         List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -412,7 +414,7 @@ public class ServerRunner {
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
     */
-    private List<TrackInfo> convertVideoOld(String url) {
+    private List<TrackInfo> convertVideoString(String url) {
 
     System.out.println(" convertvideo called");
     System.out.println("Received URL: " + url);
@@ -675,10 +677,12 @@ public class ServerRunner {
                     JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
 
                     if (responseJson.has("tracks")) {
+
                         JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
 
                         for (JsonElement track : tracksArray) {
                             TrackInfo newTrack = extractTrackInfo(track);
+                            System.out.println(newTrack);
                             if (!isDuplicate(trackInfoList, newTrack)) {
                                 trackInfoList.add(newTrack);
                             }

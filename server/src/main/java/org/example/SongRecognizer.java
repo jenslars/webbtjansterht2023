@@ -47,6 +47,7 @@ public class SongRecognizer {
             if (statusCode == 0 && jsonResult.getAsJsonObject("metadata") != null) {
                 JsonArray musicArray = jsonResult.getAsJsonObject("metadata").getAsJsonArray("music");
                 for (JsonElement musicElement : musicArray) {
+
                     JsonObject musicInfo = musicElement.getAsJsonObject();
                     String title = musicInfo.get("title").getAsString();
                     StringBuilder artistNames = new StringBuilder();
@@ -56,10 +57,13 @@ public class SongRecognizer {
                         if (artistNames.length() > 0) {
                             artistNames.append(", ");
                         }
+
                         artistNames.append(artistInfo.get("name").getAsString());
                     }
-                    tracks.add(new TrackInfo(title, artistNames.toString()));
-                    System.out.println(tracks.get(0));
+                    TrackInfo newTrack = new TrackInfo(title, artistNames.toString());
+                    tracks.add(newTrack);
+                    System.out.println(newTrack);
+
                 }
             } else {
                 System.out.println("No song recognized or error occurred. Message: " + statusMsg);
@@ -105,7 +109,7 @@ public class SongRecognizer {
      * @return The path to the downloaded MP3 audio file if the download is successful, or null if there's an error.
      */
 
-    private String executeDownloadProcess(List<String> command, String outputPath) {
+    private String executeProcess(List<String> command, String outputPath) {
         ProcessBuilder downloadBuilder = new ProcessBuilder(command);
         downloadBuilder.redirectErrorStream(true); // Merge standard output and error stream
 
@@ -119,42 +123,63 @@ public class SongRecognizer {
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
-                System.out.println("Download successful: " + outputPath);
+                System.out.println("Download/trimming successful: " + outputPath);
                 return outputPath; // Successful download path
             } else {
-                System.out.println("Error downloading audio, exit code: " + exitCode);
+                System.out.println("Error downloading/trimming audio, exit code: " + exitCode);
             }
         } catch (IOException | InterruptedException e) {
-            System.err.println("Download failed: " + e.getMessage());
+            System.err.println("Downloading/trimming failed: " + e.getMessage());
             e.printStackTrace();
         }
 
         return null; // Return null on failure
     }
 
-    public String downloadAudio(String youtubeUrl, String outputPath) {
+    public List<TrackInfo> downloadAudio(String youtubeUrl, String outputPath) {
+
         String startTime = extractTimestamp(youtubeUrl); // Extract the timestamp from the URL
-        int startTimeInt = Integer.parseInt(startTime);
-        int endTime = startTimeInt+5;
-        System.out.println(startTime);
-        // Build the command with conditional inclusion of the timestamp
-        List<String> command = Arrays.asList(
+        listFormats(youtubeUrl);
+
+
+        List<String> downloadCommand = Arrays.asList(
                 "yt-dlp",
-                "-x", // Extract audio
-                "--force-overwrite", // Overwrite files if they exist
-                "--download-sections" ,"*"+startTime"-", // Apply timestamp if exists
-                "-S +size",
-                "-v",
-                "-o", outputPath, // Set output path
+                "-f", "m4a", // Select m4a formats
+                "-S", "+size", // Prioritize by file size to get the smallest file
+                "--extract-audio",
+                "--audio-format", "m4a",
+                "--force-overwrite", // Force overwriting existing files
+                "-o", outputPath, // Specify the output file path
                 youtubeUrl // YouTube video URL
         );
 
 
-        // Remove empty arguments which might have been added for optional parameters
-        //command.removeAll(Arrays.asList("", null));
+
+        String downloadResult = executeProcess(downloadCommand, outputPath);
+        if (downloadResult == null) {
+            System.out.println("Download failed.");
+            return null;
+        }
+
+        if (startTime != null && !startTime.isEmpty()) {
+            int startTimeInt = Integer.parseInt(startTime);
+            int endTime = startTimeInt + 30; // Calculate end time for a 10-second clip
+
+            List<String> trimCommand = Arrays.asList(
+                    "ffmpeg",
+                    "-ss", String.valueOf(startTimeInt), // Start time
+                    "-to", String.valueOf(endTime), // End time, adjust accordingly
+                    "-i", outputPath, // Input file
+                    "-acodec", "copy", // Use the same audio codec to avoid re-encoding
+                    outputPath // Output file
+            );
+
+
+
+        }
 
         // Start the download process
-        return executeDownloadProcess(command, outputPath);
+        return recognizeSongs(outputPath);
     }
 
     private String extractTimestamp(String youtubeUrl) {
@@ -179,6 +204,8 @@ public class SongRecognizer {
 
         return ""; // Return an empty string if no valid timestamp is found
     }
+
+
 
 }
 
