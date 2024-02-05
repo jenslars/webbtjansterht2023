@@ -24,7 +24,7 @@ public class SongRecognizer {
      */
 
     public List<TrackInfo> recognizeSongs(String downloadedAudioPath) {
-        System.out.println("Recognize songs called");
+        System.out.println("Recognize songs called + path file used: "+ downloadedAudioPath);
         ACRCloudRecognizer recognizer;
         Map<String, Object> config = new HashMap<>();
         config.put("host", "identify-eu-west-1.acrcloud.com");
@@ -139,7 +139,8 @@ public class SongRecognizer {
     public List<TrackInfo> downloadAudio(String youtubeUrl, String outputPath) {
 
         String startTime = extractTimestamp(youtubeUrl); // Extract the timestamp from the URL
-        listFormats(youtubeUrl);
+        System.out.println("Timestamp start:" +startTime);
+       // listFormats(youtubeUrl);
 
 
         List<String> downloadCommand = Arrays.asList(
@@ -155,31 +156,41 @@ public class SongRecognizer {
 
 
 
-        String downloadResult = executeProcess(downloadCommand, outputPath);
-        if (downloadResult == null) {
+        String downloadOutPutpath = executeProcess(downloadCommand, outputPath);
+        if (downloadOutPutpath == null) {
             System.out.println("Download failed.");
             return null;
         }
 
         if (startTime != null && !startTime.isEmpty()) {
+            System.out.println("Starting trimming....");
             int startTimeInt = Integer.parseInt(startTime);
             int endTime = startTimeInt + 30; // Calculate end time for a 10-second clip
 
+            String trimmedOutputPath = outputPath.replace(".m4a", "_trimmed.m4a");
+            System.out.println("trimmed outpath: "+trimmedOutputPath);
+
             List<String> trimCommand = Arrays.asList(
                     "ffmpeg",
+                    "-y", // Force overwrite without asking
                     "-ss", String.valueOf(startTimeInt), // Start time
                     "-to", String.valueOf(endTime), // End time, adjust accordingly
                     "-i", outputPath, // Input file
                     "-acodec", "copy", // Use the same audio codec to avoid re-encoding
-                    outputPath // Output file
+                    trimmedOutputPath // Output file
             );
 
+            downloadOutPutpath = executeProcess(trimCommand, trimmedOutputPath);
 
-
+            if (downloadOutPutpath == null) {
+                System.out.println("Trimming failed.");
+                return null;
+            }else {
+                System.out.println("trimming success output file+"+downloadOutPutpath);
+            }
         }
 
-        // Start the download process
-        return recognizeSongs(outputPath);
+        return recognizeSongs(downloadOutPutpath);
     }
 
     private String extractTimestamp(String youtubeUrl) {

@@ -337,11 +337,10 @@ public class ServerRunner {
             if(tracks !=null && !tracks.isEmpty()){
                 tracks= searchSongsOnSpotify(tracks);
                 //System.out.println(tracks.get(0));
-                return tracks;
-            }else {
-                convertVideoString(url);
-            }
 
+            }else {
+                tracks = convertVideoString(url);
+            }
 
 
 
