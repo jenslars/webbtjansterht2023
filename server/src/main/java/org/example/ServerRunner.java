@@ -331,7 +331,7 @@ public class ServerRunner {
         System.out.println("Received URL: " + url);
 
 
-        List<TrackInfo> tracks = songRecognizer.downloadAudio(url,"resources/downloaded_audio.m4a");
+        List<TrackInfo> tracks = songRecognizer.identifyYouTubeVideoWithTimeStampOrWithout(url);
         // if download success
 
             if(tracks !=null && !tracks.isEmpty()){
@@ -341,8 +341,6 @@ public class ServerRunner {
             }else {
                 tracks = convertVideoString(url);
             }
-
-
 
         return tracks;
 
@@ -435,15 +433,22 @@ public class ServerRunner {
                 JsonArray itemsArray = responseJson.getAsJsonArray("items");
 
                 List<String> videoTitles = new ArrayList<>();
+                List<String> channelNames = new ArrayList<>();
 
                 // Extract video details from the response
                 for (JsonElement item : itemsArray) {
                 JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
-                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                String channelName = snippet.getAsJsonPrimitive("channelTitle").getAsString();
+                channelName = channelName.replace(" - Topic", "");
+
+
                 System.out.println("Video Title: " + videoTitle);
+                System.out.println("Channel name: "+channelName);
                 videoTitles.add(videoTitle);
+                channelNames.add(channelName);
             }
-                return searchSongsOnSpotify(videoTitles, 1, null);
+                return searchSongsOnSpotify(videoTitles, 1, channelNames);
                 
             } else {
                 System.out.println("No videos found");
