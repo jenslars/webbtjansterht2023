@@ -137,7 +137,7 @@ public class SongRecognizer {
     }
 
 
-    public List<TrackInfo> identifyYouTubeVideoWithTimeStampOrWithout(String youtubeUrl){
+    public List<TrackInfo> identifyYouTubeVideo(String youtubeUrl){
         String outputPath = "resources/downloaded_audio.m4a";
         String downloadAudioPath = downloadAudio(youtubeUrl,outputPath);
         List<TrackInfo> tracks;

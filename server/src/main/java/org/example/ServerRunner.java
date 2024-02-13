@@ -331,7 +331,7 @@ public class ServerRunner {
         System.out.println("Received URL: " + url);
 
 
-        List<TrackInfo> tracks = songRecognizer.identifyYouTubeVideoWithTimeStampOrWithout(url);
+        List<TrackInfo> tracks = songRecognizer.identifyYouTubeVideo(url);
         // if download success
 
             if(tracks !=null && !tracks.isEmpty()){
@@ -772,11 +772,6 @@ public class ServerRunner {
         }
         return false;
     }
-
-    
-
-    
-
 
 
 
