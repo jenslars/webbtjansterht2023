@@ -43,10 +43,20 @@ public class ServerRunner {
     HttpPost httpPost = null;
     HttpPut httpPut = null;
     CloseableHttpResponse response = null;
-    String accessToken = null;
+    static String accessToken = null;
     SongRecognizer songRecognizer;
 
+    SpotifySongSearcher spotifySongSearcher;
+    YouTubeVideoInfoExtractor youTubeVideoInfoExtractor;
+
     static Gson gson = new Gson();
+
+    public ServerRunner(){
+        requestAccessToken();
+        this.spotifySongSearcher = new SpotifySongSearcher(accessToken,gson);
+        this.youTubeVideoInfoExtractor = new YouTubeVideoInfoExtractor();
+    }
+
 
     /**
      * Main-metod som startar servern och lyssnar efter API-anrop.
@@ -55,7 +65,7 @@ public class ServerRunner {
      */
     public static void main(String[] args) {
         ServerRunner serverRunner = new ServerRunner();
-        serverRunner.requestAccessToken();
+
 
         Javalin app = Javalin.create(config -> {
         })
@@ -160,6 +170,8 @@ public class ServerRunner {
                     System.out.println("url: " + url);
                     List<TrackInfo> trackInfoList = serverRunner.convertVideo(url);
 
+                    System.out.println(trackInfoList);
+
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
                     jsonResponse.addProperty("message", "Video converted successfully");
@@ -217,7 +229,6 @@ public class ServerRunner {
 
 
     }
-
 
 
 
@@ -330,81 +341,38 @@ public class ServerRunner {
         System.out.println(" convertvideo called");
         System.out.println("Received URL: " + url);
 
-
         List<TrackInfo> tracks = songRecognizer.identifyYouTubeVideo(url);
-        // if download success
+        VideoInfo videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
+
+        if(videoInfo!=null){
+            TrackInfo ytTrack = YouTubeVideoInfoExtractor.parseTitle(videoInfo.getVideoTitle());
+
+            if(!isDuplicate(tracks,ytTrack)){
+                tracks.add(ytTrack);
+            }
+
+            String songname = YouTubeVideoInfoExtractor.parseSongNameFromTitle(videoInfo.getVideoTitle());
+
+            TrackInfo ytTrack1 = new TrackInfo(songname,videoInfo.getChannelName());
+
+            if(!isDuplicate(tracks,ytTrack)){
+                tracks.add(ytTrack1);
+            }
+        }
 
             if(tracks !=null && !tracks.isEmpty()){
-                tracks= searchSongsOnSpotify(tracks);
-                //System.out.println(tracks.get(0));
+                tracks= spotifySongSearcher.searchSongsOnSpotify(tracks,url);
+                return tracks;
 
             }else {
-                tracks = convertVideoString(url);
+               // tracks = convertVideoString(url);
             }
 
         return tracks;
-
     }
 
-    private List<TrackInfo> searchSongsOnSpotify(List<TrackInfo> tracks) {
-        System.out.println("searchSongsOnSpotify called");
-
-        List<TrackInfo> trackInfoList = new ArrayList<>();
-
-        if (accessToken == null) {
-            System.out.println("Access token is null.");
-            return trackInfoList;
-        }
-
-        String spotifyApiUrl = "https://api.spotify.com/v1/search";
-
-        for (TrackInfo trackInfo : tracks) {
-            try {
-                // It seems there was a mix-up between artistName and songName in your original code.
-                // Swapping the variables to reflect their actual content.
-                String artistName = trackInfo.getArtist(); // Assuming getArtist() returns the artist's name
-                String songName = trackInfo.getTitle(); // Assuming getTitle() returns the song's name
-                String query = "track:" + songName + " artist:" + artistName;
-                String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
-
-                String finalUrl = spotifyApiUrl + "?q=" + encodedQuery + "&type=track&limit=1";
-                System.out.println("Final URL: " + finalUrl);
-
-                HttpGet httpGet = new HttpGet(finalUrl);
-                httpGet.setHeader("Authorization", "Bearer " + accessToken);
-                try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                    System.out.println("Spotify API Response: " + responseBody); // Print the entire response body
-
-                    JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                    if (responseJson.has("tracks")) {
-                        JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
-
-                        for (JsonElement trackElement : tracksArray) {
-                            TrackInfo newTrack = extractTrackInfo(trackElement);
-                            if (!isDuplicate(trackInfoList, newTrack)) {
-                                trackInfoList.add(newTrack);
-                                // Optionally print added track info for verification
-                                System.out.println("Added Track: " + newTrack.getTitle() + " by " + newTrack.getArtist());
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("Error searching on Spotify: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        return trackInfoList;
-    }
 
 // Ensure the TrackInfo class, extractTrackInfo, and isDuplicate methods are correctly implemented.
-
-
-
-
 
 
 
@@ -448,7 +416,7 @@ public class ServerRunner {
                 videoTitles.add(videoTitle);
                 channelNames.add(channelName);
             }
-                return searchSongsOnSpotify(videoTitles, 1, channelNames);
+                return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1, channelNames);
                 
             } else {
                 System.out.println("No videos found");
@@ -459,7 +427,6 @@ public class ServerRunner {
     }
 
             return new ArrayList<>();
-
 }
 
     private List<TrackInfo> identifyAllSongsInVideo(String url) {
@@ -503,7 +470,7 @@ public class ServerRunner {
                     trackList.add(matchedLine);
                 }
                 
-                return searchSongsOnSpotify(trackList, 1, null);
+                return spotifySongSearcher.searchSongsOnSpotify(trackList, 1, null);
             } catch (Exception e) {
                 System.out.println(e);
             }
@@ -609,12 +576,25 @@ public class ServerRunner {
             } while (!nextPageToken.isEmpty());
     
             // Perform a single Spotify search for all video titles
-            return searchSongsOnSpotify(videoTitles, 1,channelTitles);
+            return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1,channelTitles);
         } else {
             System.out.println("Invalid YouTube playlist URL");
         }
     
         return new ArrayList<>();
+    }
+
+
+    private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
+        System.out.println("isDuplicate called");
+        for (TrackInfo existingTrack : trackInfoList) {
+            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
+                    existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
+                System.out.println("Duplicate found");
+                return true;
+            }
+        }
+        return false;
     }
 
     private String extractPlaylistId(String url) {
@@ -625,153 +605,11 @@ public class ServerRunner {
         return matcher.find() ? matcher.group(1) : null;
     }
 
-    /**
-     * Metod för att hämta lista av hittade låtar hos Spotify
-     * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
-    */
-    private List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit,List<String> channelNameTitles) {
-        System.out.println("searchSongsOnspotify called");
-        List<TrackInfo> trackInfoList = new ArrayList<>();
-        int j = 0;
 
-        if (accessToken == null) {
-            System.out.println("Access token is null.");
-            return trackInfoList;
-        }
-
-        String spotifyApiUrl = "https://api.spotify.com/v1/search";
-
-        for (String videoTitle : videoTitles) {
-            try {
-                String[] titleParts = parseTitle(videoTitle);
-
-                    String song = titleParts[0];
-                    String encodedSong = URLEncoder.encode(song, StandardCharsets.UTF_8.toString());
-
-                    StringBuilder queryBuilder = new StringBuilder();
-                    queryBuilder.append(spotifyApiUrl);
-                    queryBuilder.append("?q=");
-                    queryBuilder.append(encodedSong);
-
-                if (titleParts.length >= 2){
-                    for (int i = 1; i < titleParts.length; i++) {
-                        String artist = titleParts[i];
-                        String encodedArtist = URLEncoder.encode(artist, StandardCharsets.UTF_8.toString());
-                        queryBuilder.append("%20");
-                        queryBuilder.append(encodedArtist);
-                    }
-                }else {
-                        String encodedChannelName = URLEncoder.encode(channelNameTitles.get(j),StandardCharsets.UTF_8.toString());
-                        queryBuilder.append("%20");
-                        queryBuilder.append(encodedChannelName);
-                }
-
-
-                    queryBuilder.append("&type=track&limit=" + limit);
-
-                    String query = queryBuilder.toString();
-                    System.out.println(query);
-
-                    HttpGet httpGet = new HttpGet(query);
-                    httpGet.setHeader("Authorization", "Bearer " + accessToken);
-                    CloseableHttpResponse response = httpClient.execute(httpGet);
-
-                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
-                    JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                    if (responseJson.has("tracks")) {
-
-                        JsonArray tracksArray = responseJson.getAsJsonObject("tracks").getAsJsonArray("items");
-
-                        for (JsonElement track : tracksArray) {
-                            TrackInfo newTrack = extractTrackInfo(track);
-                            System.out.println(newTrack);
-                            if (!isDuplicate(trackInfoList, newTrack)) {
-                                trackInfoList.add(newTrack);
-                            }
-                        }
-                    }
-                    response.close();
-
-
-                    j++;
-            } catch (Exception e) {
-                System.out.println("Error searching on Spotify: " + e);
-            }
-        }
-
-        return trackInfoList;
-    }
     
 
-    private String[] parseTitle(String title) {
-        System.out.println("parseTitle called");
-        // Remove anything inside parentheses
-        title = title.replaceAll("\\(.*?\\)", "").trim();
-    
-        // Split by " - " or "–"
-        String[] parts = title.split("\\s+-\\s+|\\s+–\\s+");
-    
-        // Trim leading and trailing whitespaces
-        for (int i = 0; i < parts.length; i++) {
-            parts[i] = parts[i].trim();
-        }
-    
-        // If there's only one part, return it immediately
-        if (parts.length < 2) {
-            return parts;
-        }
-    
-        // If the title contains "feat." or "ft.", split it into song, main artist, and featuring artist(s)
-        if (parts[1].contains("feat.") || parts[1].contains("ft.")) {
-            String[] songParts = parts[1].split("(?:feat\\.|ft\\.)");
-            if (songParts.length == 2) {
-                String song = songParts[0].trim();
-                String[] artists = songParts[1].split(",");
-                String mainArtist = parts[0].trim();
-                String[] newParts = new String[artists.length + 2];
-                newParts[0] = song;
-                newParts[1] = mainArtist;
-                for (int i = 0; i < artists.length; i++) {
-                    newParts[i + 2] = artists[i].trim();
-                }
-                parts = newParts;
-            }
-        }
-    
-        // Return the parts
-        return parts;
-    }
-    
-    
 
-    private TrackInfo extractTrackInfo(JsonElement track) {
-        System.out.println("extractTrackInfo called");
-        JsonObject trackInfoJson = new JsonObject();
-        trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
-        trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
-        trackInfoJson.addProperty("imageUrl", track.getAsJsonObject().getAsJsonObject("album").getAsJsonArray("images").get(0).getAsJsonObject().getAsJsonPrimitive("url").getAsString());
-        trackInfoJson.addProperty("album", track.getAsJsonObject().getAsJsonObject("album").getAsJsonPrimitive("name").getAsString());
-
-        String trackId = track.getAsJsonObject().getAsJsonPrimitive("id").getAsString();
-        String trackUri = "spotify:track:" + trackId;
-        trackInfoJson.addProperty("uri", trackUri);
-
-        return gson.fromJson(trackInfoJson, TrackInfo.class);
-    }
     
-    
-    private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
-        System.out.println("isDuplicate called");
-        for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
-                existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
 
@@ -860,7 +698,7 @@ public class ServerRunner {
     private void requestAccessToken() {
         try {
             httpClient = HttpClients.createDefault();
-    
+
             String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String requestBody = "grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret;

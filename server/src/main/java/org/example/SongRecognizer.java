@@ -24,55 +24,64 @@ public class SongRecognizer {
      */
 
     public List<TrackInfo> recognizeSongs(String downloadedAudioPath) {
-        System.out.println("Recognize songs called + path file used: "+ downloadedAudioPath);
-        ACRCloudRecognizer recognizer;
+        System.out.println("Recognizing songs from: " + downloadedAudioPath);
+        // Configuration for ACRCloudRecognizer
         Map<String, Object> config = new HashMap<>();
         config.put("host", "identify-eu-west-1.acrcloud.com");
         config.put("access_key", "4ee095c457208ad88f1a28a5b14b9f87");
         config.put("access_secret", "6O8dg2TJ95w0QSqODexAwrJqm0VaDvHzF5aCl8BE");
-        config.put("timeout", 100); // Adjust the timeout as needed
-        recognizer = new ACRCloudRecognizer(config);
+        config.put("timeout", 100);
 
-        List<TrackInfo> tracks = new ArrayList<>();
-
+        ACRCloudRecognizer recognizer = new ACRCloudRecognizer(config);
         String result = recognizer.recognizeByFile(downloadedAudioPath, 0);
         System.out.println("ACRCloud Response: " + result);
 
+        List<TrackInfo> tracks = new ArrayList<>();
         JsonObject jsonResult = JsonParser.parseString(result).getAsJsonObject();
-        if (jsonResult.getAsJsonObject("status") != null) {
-            int statusCode = jsonResult.getAsJsonObject("status").get("code").getAsInt();
-            String statusMsg = jsonResult.getAsJsonObject("status").get("msg").getAsString();
-            System.out.println("Status Code: " + statusCode + ", Message: " + statusMsg);
 
-            if (statusCode == 0 && jsonResult.getAsJsonObject("metadata") != null) {
-                JsonArray musicArray = jsonResult.getAsJsonObject("metadata").getAsJsonArray("music");
-                for (JsonElement musicElement : musicArray) {
+        if (jsonResult.has("status") && jsonResult.getAsJsonObject("status").get("code").getAsInt() == 0) {
+            JsonArray musicArray = jsonResult.getAsJsonObject("metadata").getAsJsonArray("music");
+            musicArray.forEach(element -> {
+                JsonObject musicInfo = element.getAsJsonObject();
+                String title = musicInfo.get("title").getAsString();
+                String artistNames = parseArtists(musicInfo.getAsJsonArray("artists"));
+                String albumName = parseAlbum(musicInfo.getAsJsonObject("album"));
 
-                    JsonObject musicInfo = musicElement.getAsJsonObject();
-                    String title = musicInfo.get("title").getAsString();
-                    StringBuilder artistNames = new StringBuilder();
-                    JsonArray artists = musicInfo.getAsJsonArray("artists");
-                    for (JsonElement artistElement : artists) {
-                        JsonObject artistInfo = artistElement.getAsJsonObject();
-                        if (artistNames.length() > 0) {
-                            artistNames.append(", ");
-                        }
+                TrackInfo track = new TrackInfo(title, artistNames);
+                track.setAlbum(albumName);
+                setSpotifyURI(track, musicInfo);
 
-                        artistNames.append(artistInfo.get("name").getAsString());
-                    }
-                    TrackInfo newTrack = new TrackInfo(title, artistNames.toString());
-                    tracks.add(newTrack);
-                    System.out.println(newTrack);
-
-                }
-            } else {
-                System.out.println("No song recognized or error occurred. Message: " + statusMsg);
-            }
+                tracks.add(track);
+                System.out.println("Song identified: "+track);
+            });
         } else {
-            System.out.println("Response from ACRCloud did not contain a status object.");
+            System.out.println("No songs recognized or an error occurred.");
         }
-
         return tracks;
+    }
+
+    private String parseArtists(JsonArray artists) {
+        List<String> artistNames = new ArrayList<>();
+        for (JsonElement artistElement : artists) {
+            JsonObject artistObject = artistElement.getAsJsonObject();
+            String artistName = artistObject.get("name").getAsString();
+            artistNames.add(artistName);
+        }
+        return String.join(", ", artistNames);
+    }
+
+    private String parseAlbum(JsonObject album) {
+        return album != null && album.has("name") ? album.get("name").getAsString() : "Unknown Album";
+    }
+
+    private void setSpotifyURI(TrackInfo track, JsonObject musicInfo) {
+        if (musicInfo.has("external_metadata") && musicInfo.getAsJsonObject("external_metadata").has("spotify")) {
+            JsonObject spotifyInfo = musicInfo.getAsJsonObject("external_metadata").getAsJsonObject("spotify");
+            if (spotifyInfo.has("track") && spotifyInfo.getAsJsonObject("track").has("id")) {
+                String spotifyURI = "spotify:track:" + spotifyInfo.getAsJsonObject("track").get("id").getAsString();
+                track.setSpotifyURI(spotifyURI);
+            }
+        }
     }
 
 
