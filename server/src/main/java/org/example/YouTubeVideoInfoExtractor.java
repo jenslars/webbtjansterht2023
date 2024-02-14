@@ -8,7 +8,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-
+import java.time.Duration;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +20,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class YouTubeVideoInfoExtractor {
+    private CloseableHttpClient httpClient;
 
+
+    public YouTubeVideoInfoExtractor(CloseableHttpClient httpClient) {
+        this.httpClient=httpClient;
+    }
 
     public VideoInfo convertVideoString(String url, CloseableHttpClient httpClient) {
         System.out.println(" convertvideoString called");
@@ -64,6 +71,44 @@ public class YouTubeVideoInfoExtractor {
         }
         return null;
     }
+
+
+    public String fetchVideoDuration(String url, CloseableHttpClient httpClient) {
+        System.out.println("fetchVideoDuration called");
+        String videoId = extractVideoId(url);
+
+        if (videoId == null) {
+            System.out.println("Invalid URL or Video ID not found.");
+            return null;
+        }
+
+        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
+        String params = String.format("part=contentDetails&id=%s&key=%s", videoId, apiKey);
+
+        HttpGet httpGet = new HttpGet(youtubeApiUrl + "?" + params);
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            Gson gson = new Gson();
+            JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+
+            if (responseJson.has("items") && responseJson.getAsJsonArray("items").size() > 0) {
+                JsonObject contentDetails = responseJson.getAsJsonArray("items").get(0).getAsJsonObject().getAsJsonObject("contentDetails");
+                String duration = contentDetails.get("duration").getAsString();
+
+                return duration;
+            } else {
+                System.out.println("No video found for the given ID.");
+                return null;
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching video duration: " + e.getMessage());
+            return null;
+        }
+    }
+
+
 
     public static TrackInfo parseTitle(String title) {
         System.out.println("parseTitle called");
@@ -112,5 +157,28 @@ public class YouTubeVideoInfoExtractor {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group() : null;
+    }
+
+   public String extractTimestamp(String youtubeUrl) {
+        try {
+            URI uri = new URI(youtubeUrl);
+            String query = uri.getQuery();
+            if (query == null) return "";
+
+            // Simple parsing assuming 't' is always numeric
+            String[] params = query.split("&");
+            for (String param : params) {
+                if (param.startsWith("t=")) {
+                    String value = param.split("=")[1];
+                    if (value.matches("\\d+")) { // Check if 't' value is numeric
+                        return value; // Return the timestamp in seconds
+                    }
+                }
+            }
+        } catch (URISyntaxException e) {
+            System.err.println("Invalid URL: " + e.getMessage());
+        }
+
+        return ""; // Return an empty string if no valid timestamp is found
     }
 }

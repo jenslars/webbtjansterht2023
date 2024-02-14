@@ -13,11 +13,21 @@ public class TrackInfo {
         this.artist=artist;
     }
 
+    public void setSongDuration(int songDuration) {
+        this.songDuration = songDuration;
+    }
+
+    public int getSongDuration() {
+        return songDuration;
+    }
+
     private String title;
     private String artist;
     private String imageUrl;
     private String album;
     private String uri;
+
+    private int songDuration;
 
     private List<String> featuredArtists;
 

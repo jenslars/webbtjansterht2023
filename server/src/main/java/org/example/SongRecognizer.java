@@ -25,17 +25,17 @@ public class SongRecognizer {
      * @return A search query for the recognized song in the format "track:[Song Title] artist:[Artist Name]" or "No song recognized" if no song was recognized.
      */
 
-    public List<TrackInfo> recognizeSongs(String downloadedAudioPath) {
+    public List<TrackInfo> recognizeSongs(String downloadedAudioPath,int startime,int endtime) {
         System.out.println("Recognizing songs from: " + downloadedAudioPath);
         // Configuration for ACRCloudRecognizer
         Map<String, Object> config = new HashMap<>();
         config.put("host", "identify-eu-west-1.acrcloud.com");
-        config.put("access_key", "4ee095c457208ad88f1a28a5b14b9f87");
-        config.put("access_secret", "6O8dg2TJ95w0QSqODexAwrJqm0VaDvHzF5aCl8BE");
+        config.put("access_key", "4489b7284fdeaba761df5b03c63faa14");
+        config.put("access_secret", "e4mp893fsRRm5a2vyILg54XeKk0njWAiBtP9cWaV");
         config.put("timeout", 100);
 
         ACRCloudRecognizer recognizer = new ACRCloudRecognizer(config);
-        String result = recognizer.recognizeByFile(downloadedAudioPath, 0);
+        String result = recognizer.recognizeByFile(downloadedAudioPath, startime,20);
         System.out.println("ACRCloud Response: " + result);
 
         List<TrackInfo> tracks = new ArrayList<>();
@@ -48,10 +48,12 @@ public class SongRecognizer {
                 String title = musicInfo.get("title").getAsString();
                 String artistNames = parseArtists(musicInfo.getAsJsonArray("artists"));
                 String albumName = parseAlbum(musicInfo.getAsJsonObject("album"));
+                int durationsec = (musicInfo.get("duration_ms").getAsInt())/1000;
 
                 TrackInfo track = new TrackInfo(title, artistNames);
                 track.setAlbum(albumName);
                 setSpotifyURI(track, musicInfo);
+                track.setSongDuration(durationsec);
 
                 if(!DuplicateChecker.isExactDuplicate(tracks,track)){
                     tracks.add(track);
@@ -151,25 +153,64 @@ public class SongRecognizer {
     }
 
 
-    public List<TrackInfo> identifyYouTubeVideo(String youtubeUrl){
+    public List<TrackInfo> identifyYouTubeVideo(String youtubeUrl,int startTime){
         String outputPath = "resources/downloaded_audio.m4a";
         String downloadAudioPath = downloadAudio(youtubeUrl,outputPath);
         List<TrackInfo> tracks;
 
 
-        String startTime = extractTimestamp(youtubeUrl); // Extract the timestamp from the URL
-
-        if (startTime != null && !startTime.isEmpty()) {
+        if (startTime>=0) {
             System.out.println("Timestamp start:" +startTime);
-            String trimmeAudioPath = identifyYTUrlTimestamp(startTime,downloadAudioPath);
-
-           return recognizeSongs(trimmeAudioPath);
+           return recognizeSongs(downloadAudioPath, startTime,25);
         }
 
-        tracks= recognizeSongs(downloadAudioPath);
+        tracks= recognizeSongs(downloadAudioPath,0,25);
 
         return tracks;
     }
+
+
+    public List<TrackInfo> identifyAllSongsInYTVideo(String youtubeUrl, int duration) {
+        String outputPath = "resources/downloaded_audio.m4a";
+        String downloadAudioPath = downloadAudio(youtubeUrl, outputPath);
+
+        List<TrackInfo> tracks = new ArrayList<>();
+        int startTime = 0;
+        int segmentLength = 12; // Segment length in seconds
+        int totalAudioLength = duration;
+        int overlap = 3;
+
+        while (startTime + segmentLength <= totalAudioLength) {
+            List<TrackInfo> temp = recognizeSongs(downloadAudioPath, startTime, segmentLength);
+            if (!temp.isEmpty() && !DuplicateChecker.isExactDuplicate(tracks, temp.get(0))) {
+                tracks.add(temp.get(0));
+                System.out.println("Song added to final tracklist: " + temp.get(0));
+
+                startTime += temp.get(0).getSongDuration() > 0 ? temp.get(0).getSongDuration() : (segmentLength);
+
+            } else {
+                System.out.println("No new song identified or duplicate found");
+
+                startTime += segmentLength - overlap;
+            }
+        }
+
+        // Handling any remaining audio at the end that's shorter than segmentLength
+        if (startTime < totalAudioLength) {
+            List<TrackInfo> temp = recognizeSongs(downloadAudioPath, startTime, totalAudioLength - startTime);
+            if (!temp.isEmpty() && !DuplicateChecker.isExactDuplicate(tracks, temp.get(0))) {
+                tracks.add(temp.get(0));
+                System.out.println("Song added to final tracklist: " + temp.get(0));
+            } else {
+                System.out.println("No new song identified or duplicate found in the final segment");
+            }
+        }
+        return tracks;
+    }
+
+
+
+
 
     public String identifyYTUrlTimestamp(String startTime,String downloadAudioPath){
 
@@ -228,28 +269,7 @@ public class SongRecognizer {
         return downloadOutPutpath;
     }
 
-    private String extractTimestamp(String youtubeUrl) {
-        try {
-            URI uri = new URI(youtubeUrl);
-            String query = uri.getQuery();
-            if (query == null) return "";
 
-            // Simple parsing assuming 't' is always numeric
-            String[] params = query.split("&");
-            for (String param : params) {
-                if (param.startsWith("t=")) {
-                    String value = param.split("=")[1];
-                    if (value.matches("\\d+")) { // Check if 't' value is numeric
-                        return value; // Return the timestamp in seconds
-                    }
-                }
-            }
-        } catch (URISyntaxException e) {
-            System.err.println("Invalid URL: " + e.getMessage());
-        }
-
-        return ""; // Return an empty string if no valid timestamp is found
-    }
 }
 
 

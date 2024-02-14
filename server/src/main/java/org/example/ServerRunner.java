@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,8 +56,8 @@ public class ServerRunner {
 
     public ServerRunner(){
         requestAccessToken();
-        this.spotifySongSearcher = new SpotifySongSearcher(accessToken,gson);
-        this.youTubeVideoInfoExtractor = new YouTubeVideoInfoExtractor();
+        this.spotifySongSearcher = new SpotifySongSearcher(accessToken,gson,httpClient);
+        this.youTubeVideoInfoExtractor = new YouTubeVideoInfoExtractor(httpClient);
     }
 
 
@@ -316,8 +317,7 @@ public class ServerRunner {
         }
     }
     
-    
-    
+
 
     /**
      * Metod för att hämta URL till den låt som användaren/Shazam angav.
@@ -343,9 +343,18 @@ public class ServerRunner {
         System.out.println(" convertvideo called");
         System.out.println("Received URL: " + url);
         List<TrackInfo> tracks = new ArrayList<>();
+        VideoInfo videoInfo = null;
 
-        tracks = songRecognizer.identifyYouTubeVideo(url);
-        VideoInfo videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
+
+        String startTime = youTubeVideoInfoExtractor.extractTimestamp(url); // Extract the timestamp from the URL
+
+        if(!Objects.equals(startTime, "")){
+            videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
+            tracks = songRecognizer.identifyYouTubeVideo(url, Integer.parseInt(startTime));
+        }else {
+            tracks = songRecognizer.identifyYouTubeVideo(url, -1);
+        }
+
 
         if(videoInfo!=null){
             TrackInfo ytTrack = YouTubeVideoInfoExtractor.parseTitle(videoInfo.getVideoTitle());
@@ -364,7 +373,7 @@ public class ServerRunner {
         }
 
             if(tracks !=null && !tracks.isEmpty()){
-                tracks= spotifySongSearcher.searchSongsOnSpotify(tracks,url);
+                tracks= spotifySongSearcher.searchSongsOnSpotify(tracks);
                 return tracks;
 
             }else {
@@ -376,7 +385,6 @@ public class ServerRunner {
 
 
 // Ensure the TrackInfo class, extractTrackInfo, and isDuplicate methods are correctly implemented.
-
 
 
     /**
@@ -432,7 +440,35 @@ public class ServerRunner {
             return new ArrayList<>();
 }
 
-    private List<TrackInfo> identifyAllSongsInVideo(String url) {
+
+    private List<TrackInfo> identifyAllSongsInVideo(String url){
+        songRecognizer = new SongRecognizer();
+        System.out.println(" identifyAllSongsInVideo called");
+        System.out.println("Received URL: " + url);
+        String videoId = extractIdMultipleSongs(url);
+        List<TrackInfo> tracks = new ArrayList<>();
+        System.out.println("youtube video id:"+ videoId);
+
+        String ISOduration = youTubeVideoInfoExtractor.fetchVideoDuration(url,httpClient);
+        Duration duration = Duration.parse(ISOduration);
+        System.out.println("video duration in seconds: "+duration.getSeconds());
+
+
+        tracks = songRecognizer.identifyAllSongsInYTVideo(url, (int) duration.getSeconds());
+
+        if(tracks !=null && !tracks.isEmpty()){
+            tracks= spotifySongSearcher.searchSongsOnSpotify(tracks);
+            System.out.println("Number of songs added to array and being sent to frontend: "+tracks.size());
+            return tracks;
+
+        }else {
+            // tracks = convertVideoString(url);
+        }
+
+        return tracks;
+    }
+
+    private List<TrackInfo> identifyAllSongsInVideoOLD(String url) {
         System.out.println(" identifyAllSongsInVideo called");
         System.out.println("Received URL: " + url);
         String videoId = extractIdMultipleSongs(url);

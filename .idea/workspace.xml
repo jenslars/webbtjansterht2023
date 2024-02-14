@@ -102,10 +102,21 @@
       <workItem from="1707828474757" duration="1057000" />
       <workItem from="1707829576520" duration="19231000" />
       <workItem from="1707927872937" duration="1655000" />
+      <workItem from="1707929718861" duration="15356000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="com.fasterxml.jackson.databind.exc.InvalidDefinitionException" package="com.fasterxml.jackson.databind.exc" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

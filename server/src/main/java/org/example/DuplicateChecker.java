@@ -19,14 +19,23 @@ public class DuplicateChecker {
     public static boolean isExactDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         System.out.println("isExactDuplicate called");
         for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
-                    existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist()) &&
-                    existingTrack.getAlbum().equalsIgnoreCase(newTrack.getAlbum()) &&
-                    existingTrack.getSpotifyUri().equalsIgnoreCase(newTrack.getSpotifyUri())) {
+            boolean titleMatch = existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle());
+            boolean artistMatch = existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist());
+            boolean albumMatch = existingTrack.getAlbum().equalsIgnoreCase(newTrack.getAlbum());
+
+            boolean spotifyUriMatch = existingTrack.getSpotifyUri() != null && newTrack.getSpotifyUri() != null
+                    && existingTrack.getSpotifyUri().equalsIgnoreCase(newTrack.getSpotifyUri());
+
+            // If Spotify URI for either track is null, skip URI comparison
+            boolean isMatch = titleMatch && artistMatch && albumMatch &&
+                    (existingTrack.getSpotifyUri() == null || newTrack.getSpotifyUri() == null || spotifyUriMatch);
+
+            if (isMatch) {
                 System.out.println("Exact duplicate found");
                 return true;
             }
         }
         return false;
     }
+
 }
