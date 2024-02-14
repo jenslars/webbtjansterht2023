@@ -127,16 +127,35 @@ public class SpotifySongSearcher {
 
 
     private String buildSpotifySearchUrl(TrackInfo trackInfo) {
+        // If a Spotify URI is available, use it to directly access the track
         if (trackInfo.getSpotifyUri() != null && !trackInfo.getSpotifyUri().isEmpty()) {
             String trackId = trackInfo.getSpotifyUri().split(":")[2];
-            System.out.println("track id in query: "+trackId);
+            System.out.println("Using track ID for query: " + trackId);
             return "https://api.spotify.com/v1/tracks/" + trackId;
         } else {
+            // Start building the search query
             StringBuilder queryBuilder = new StringBuilder("https://api.spotify.com/v1/search?q=");
-            queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
 
-            if (trackInfo.getArtist() != null && !trackInfo.getArtist().isEmpty()) {
-                queryBuilder.append(URLEncoder.encode(" artist:" + trackInfo.getArtist(), StandardCharsets.UTF_8));
+            // Check if both artist and song name are not null/empty, and optionally include album
+            if (trackInfo.getArtist() != null && !trackInfo.getArtist().isEmpty() && trackInfo.getTitle() != null && !trackInfo.getTitle().isEmpty()) {
+                queryBuilder.append(URLEncoder.encode("artist:" + trackInfo.getArtist() + " ", StandardCharsets.UTF_8));
+                queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
+
+                // Include album in the search if it's not null/empty
+                if (trackInfo.getAlbum() != null && !trackInfo.getAlbum().isEmpty()) {
+                    queryBuilder.append(URLEncoder.encode(" album:" + trackInfo.getAlbum(), StandardCharsets.UTF_8));
+                }
+            } else if (trackInfo.getArtist() == null || trackInfo.getArtist().isEmpty()) {
+                // If the artist is null, search only by song name
+                queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
+            } else {
+                // Fallback to searching with whatever information is available (e.g., only artist or song name)
+                if (!trackInfo.getTitle().isEmpty()) {
+                    queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
+                }
+                if (!trackInfo.getArtist().isEmpty()) {
+                    queryBuilder.append(URLEncoder.encode(" artist:" + trackInfo.getArtist(), StandardCharsets.UTF_8));
+                }
             }
 
             queryBuilder.append("&type=track&limit=1");
@@ -163,10 +182,13 @@ public class SpotifySongSearcher {
                 for (JsonElement trackElement : tracksArray) {
                     foundTracks.add(extractTrackInfo(trackElement));
                 }
-            }else if(responseJson.has("track")){
-                JsonObject trackObject = responseJson.getAsJsonObject("track");
-                foundTracks.add(extractTrackInfo(trackObject));
+            }else{
+                System.out.println("hej");
+                //  JsonObject trackObject = responseJson.getAsJsonObject("track");
+                foundTracks.add(extractTrackInfo(responseJson));
             }
+
+
             // Extend this to handle albums and artists if needed
         }
         return foundTracks;

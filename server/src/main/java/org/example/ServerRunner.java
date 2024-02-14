@@ -37,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.example.DuplicateChecker.isDuplicate;
+
 public class ServerRunner {
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet = null;
@@ -340,14 +342,15 @@ public class ServerRunner {
         songRecognizer = new SongRecognizer();
         System.out.println(" convertvideo called");
         System.out.println("Received URL: " + url);
+        List<TrackInfo> tracks = new ArrayList<>();
 
-        List<TrackInfo> tracks = songRecognizer.identifyYouTubeVideo(url);
+        tracks = songRecognizer.identifyYouTubeVideo(url);
         VideoInfo videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
 
         if(videoInfo!=null){
             TrackInfo ytTrack = YouTubeVideoInfoExtractor.parseTitle(videoInfo.getVideoTitle());
 
-            if(!isDuplicate(tracks,ytTrack)){
+            if(!DuplicateChecker.isDuplicate(tracks,ytTrack)){
                 tracks.add(ytTrack);
             }
 
@@ -355,7 +358,7 @@ public class ServerRunner {
 
             TrackInfo ytTrack1 = new TrackInfo(songname,videoInfo.getChannelName());
 
-            if(!isDuplicate(tracks,ytTrack)){
+            if(!DuplicateChecker.isDuplicate(tracks,ytTrack)){
                 tracks.add(ytTrack1);
             }
         }
@@ -584,18 +587,6 @@ public class ServerRunner {
         return new ArrayList<>();
     }
 
-
-    private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
-        System.out.println("isDuplicate called");
-        for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
-                    existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
-                System.out.println("Duplicate found");
-                return true;
-            }
-        }
-        return false;
-    }
 
     private String extractPlaylistId(String url) {
         System.out.println("extract playlist id called");

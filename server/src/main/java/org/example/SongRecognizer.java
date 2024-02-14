@@ -13,6 +13,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import static org.example.DuplicateChecker.isExactDuplicate;
+
 public class SongRecognizer {
 
 
@@ -51,8 +53,11 @@ public class SongRecognizer {
                 track.setAlbum(albumName);
                 setSpotifyURI(track, musicInfo);
 
-                tracks.add(track);
-                System.out.println("Song identified: "+track);
+                if(!DuplicateChecker.isExactDuplicate(tracks,track)){
+                    tracks.add(track);
+                    System.out.println("Song identified: "+track);
+                }
+
             });
         } else {
             System.out.println("No songs recognized or an error occurred.");
