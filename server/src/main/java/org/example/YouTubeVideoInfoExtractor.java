@@ -8,6 +8,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+
 import java.time.Duration;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,7 +25,7 @@ public class YouTubeVideoInfoExtractor {
 
 
     public YouTubeVideoInfoExtractor(CloseableHttpClient httpClient) {
-        this.httpClient=httpClient;
+        this.httpClient = httpClient;
     }
 
     public VideoInfo convertVideoString(String url, CloseableHttpClient httpClient) {
@@ -37,7 +38,7 @@ public class YouTubeVideoInfoExtractor {
             String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
             String youtubeApiParams = String.format("part=snippet&id=%s&key=%s", videoId, apiKey);
 
-            HttpGet httpGet = new HttpGet(youtubeApiUrl +"?" + youtubeApiParams);
+            HttpGet httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
             try {
                 CloseableHttpResponse response = httpClient.execute(httpGet);
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
@@ -52,13 +53,13 @@ public class YouTubeVideoInfoExtractor {
                         JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
                         String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
                         String channelName = snippet.getAsJsonPrimitive("channelTitle").getAsString();
-                       // channelName = channelName.replace(" - Topic", "");
+                        // channelName = channelName.replace(" - Topic", "");
 
 
                         System.out.println("Video Title: " + videoTitle);
-                        System.out.println("Channel name: "+channelName);
+                        System.out.println("Channel name: " + channelName);
 
-                        return new VideoInfo(videoTitle,channelName);
+                        return new VideoInfo(videoTitle, channelName);
                     }
 
 
@@ -107,7 +108,6 @@ public class YouTubeVideoInfoExtractor {
             return null;
         }
     }
-
 
 
     public static TrackInfo parseTitle(String title) {
@@ -159,7 +159,7 @@ public class YouTubeVideoInfoExtractor {
         return matcher.find() ? matcher.group() : null;
     }
 
-   public String extractTimestamp(String youtubeUrl) {
+    public String extractTimestamp(String youtubeUrl) {
         try {
             URI uri = new URI(youtubeUrl);
             String query = uri.getQuery();

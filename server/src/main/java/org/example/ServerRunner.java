@@ -1,4 +1,5 @@
 package org.example;
+
 import com.acrcloud.utils.ACRCloudRecognizer;
 import org.apache.http.HttpStatus;
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import org.example.ServerRunner.Playlist;
 import org.apache.http.entity.ContentType;
 
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -54,9 +56,9 @@ public class ServerRunner {
 
     static Gson gson = new Gson();
 
-    public ServerRunner(){
+    public ServerRunner() {
         requestAccessToken();
-        this.spotifySongSearcher = new SpotifySongSearcher(accessToken,gson,httpClient);
+        this.spotifySongSearcher = new SpotifySongSearcher(accessToken, gson, httpClient);
         this.youTubeVideoInfoExtractor = new YouTubeVideoInfoExtractor(httpClient);
     }
 
@@ -71,7 +73,7 @@ public class ServerRunner {
 
 
         Javalin app = Javalin.create(config -> {
-        })
+                })
                 .get("/", ctx -> {
                     String htmlContent = serverRunner.readHtmlFile("static/views/index.html");
                     ctx.html(htmlContent);
@@ -87,22 +89,22 @@ public class ServerRunner {
                         ctx.status(400).result("Bad Request: trackUris is missing or not an array");
                         return;
                     }
-                    
+
                     List<String> trackUris = new ArrayList<>();
                     for (JsonElement trackUriJson : trackUrisJson) {
                         trackUris.add(trackUriJson.getAsString());
                     }
-                    
+
                     System.out.println(trackUris);
                     String playlistId = serverRunner.createPlaylist(ctx, trackUris);
-                
+
                     // Create a JSON response object with the playlistId
                     JsonObject response = new JsonObject();
                     response.addProperty("playlistId", playlistId);
-                
+
                     // Set the response content type to JSON
                     ctx.contentType("application/json");
-                
+
                     // Send the JSON response
                     ctx.result(response.toString());
                 })
@@ -110,17 +112,17 @@ public class ServerRunner {
                     JsonObject requestBody = JsonParser.parseString(ctx.body()).getAsJsonObject();
                     String playlistId = requestBody.get("playlistId").getAsString();
                     JsonArray trackUrisJson = requestBody.getAsJsonArray("trackUris");
-                
+
                     if (trackUrisJson != null) {
                         List<String> trackUris = new ArrayList<>();
                         for (JsonElement trackUriJson : trackUrisJson) {
                             trackUris.add(trackUriJson.getAsString());
                         }
-                
+
                         // Implement the logic to add tracks to the playlist
                         // You should replace this with your actual implementation
                         serverRunner.addTracksToPlaylist(playlistId, trackUris);
-                
+
                         // Construct and send the response
                         JsonObject response = new JsonObject();
                         response.addProperty("status", "success");
@@ -134,14 +136,14 @@ public class ServerRunner {
                         ctx.json(response.toString());
                     }
                 })
-                
+
                 .get("/getUserPlaylists", ctx -> {
                     List<Playlist> playlists = serverRunner.fetchUserPlaylists();
-                    
+
                     ctx.status(200);
                     ctx.json(playlists);
                 })
-                
+
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
 
@@ -150,7 +152,7 @@ public class ServerRunner {
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
                     jsonResponse.addProperty("message", "Playlist converted successfully");
-                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList));
                     ctx.json(jsonResponse.toString());
                 })
                 //Behöver implementeras
@@ -178,7 +180,7 @@ public class ServerRunner {
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
                     jsonResponse.addProperty("message", "Video converted successfully");
-                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList)); 
+                    jsonResponse.add("tracks", gson.toJsonTree(trackInfoList));
                     ctx.json(jsonResponse.toString());
 
                 })
@@ -188,6 +190,13 @@ public class ServerRunner {
                     String url = ctx.queryParam("url");
 
                     List<TrackInfo> trackInfoList = serverRunner.identifyAllSongsInVideo(url);
+
+
+                    System.out.println("Print all songs found from spotify: nmbr of songs: " + trackInfoList.size());
+                    for (int i = 0; i < trackInfoList.size(); i++) {
+                        System.out.println(trackInfoList.get(i));
+                    }
+
 
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
@@ -207,10 +216,10 @@ public class ServerRunner {
                 .get("/static/styling/{filename}", ctx -> {
                     serverRunner.serveCssFile(ctx);
                 });
-                app.get("/images/svg/{filename}", ctx -> {
-                    serverRunner.serveSvgFile(ctx);
-                });
-                app.get("/images/png/{filename}", ctx -> {
+        app.get("/images/svg/{filename}", ctx -> {
+            serverRunner.serveSvgFile(ctx);
+        });
+        app.get("/images/png/{filename}", ctx -> {
                     serverRunner.servePngFile(ctx);
                 })
                 .get("/{id}", ctx -> {
@@ -234,8 +243,6 @@ public class ServerRunner {
     }
 
 
-
-
     private List<Playlist> fetchUserPlaylists() {
         System.out.println("fetch user playlist called");
         try {
@@ -243,38 +250,38 @@ public class ServerRunner {
             String url = "https://api.spotify.com/v1/me/playlists";
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-    
+
             CloseableHttpResponse response = httpClient.execute(httpGet);
-    
+
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
                 JsonArray itemsArray = responseJson.getAsJsonArray("items");
-    
+
                 List<Playlist> playlists = new ArrayList<>();
-    
+
                 for (JsonElement item : itemsArray) {
                     JsonObject playlistJson = item.getAsJsonObject();
                     JsonObject owner = playlistJson.getAsJsonObject("owner");
-    
+
                     // Check if the current user is the owner of the playlist
                     if (owner != null && userId.equals(owner.get("id").getAsString())) {
                         String playlistName = playlistJson.get("name").getAsString();
                         String playlistId = playlistJson.get("id").getAsString();
-    
+
                         // Extract the image URL
                         String imageUrl = "";
                         if (playlistJson.getAsJsonArray("images").size() > 0) {
                             imageUrl = playlistJson.getAsJsonArray("images").get(0).getAsJsonObject().get("url").getAsString();
                         }
-    
+
                         // Extract the number of tracks
                         int trackCount = playlistJson.getAsJsonObject("tracks").get("total").getAsInt();
-    
+
                         Playlist playlist = new Playlist(playlistName, playlistId, imageUrl, trackCount);
-                        
+
                         playlists.add(playlist);
-                        
+
                     }
                 }
                 return playlists;
@@ -286,13 +293,13 @@ public class ServerRunner {
         }
         return new ArrayList<>();
     }
-    
+
     public static class Playlist {
         private String name;
         private String id;
         private String imageUrl;
         private int trackCount;
-    
+
         public Playlist(String name, String id, String imageUrl, int trackCount) {
             this.name = name;
             this.id = id;
@@ -316,7 +323,6 @@ public class ServerRunner {
             return trackCount;
         }
     }
-    
 
 
     /**
@@ -338,7 +344,7 @@ public class ServerRunner {
     }
 
 
-    private List<TrackInfo> convertVideo(String url){
+    private List<TrackInfo> convertVideo(String url) {
         songRecognizer = new SongRecognizer();
         System.out.println(" convertvideo called");
         System.out.println("Received URL: " + url);
@@ -348,38 +354,34 @@ public class ServerRunner {
 
         String startTime = youTubeVideoInfoExtractor.extractTimestamp(url); // Extract the timestamp from the URL
 
-        if(!Objects.equals(startTime, "")){
-            videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
+        if (!Objects.equals(startTime, "")) {
+            System.out.println("Timestamp used");
+            //videoInfo = youTubeVideoInfoExtractor.convertVideoString(url,httpClient);
             tracks = songRecognizer.identifyYouTubeVideo(url, Integer.parseInt(startTime));
-        }else {
+        } else {
+            videoInfo = youTubeVideoInfoExtractor.convertVideoString(url, httpClient);
             tracks = songRecognizer.identifyYouTubeVideo(url, -1);
         }
 
-
-        if(videoInfo!=null){
+        if (videoInfo != null) {
             TrackInfo ytTrack = YouTubeVideoInfoExtractor.parseTitle(videoInfo.getVideoTitle());
-
-            if(!DuplicateChecker.isDuplicate(tracks,ytTrack)){
+            if (!DuplicateChecker.isDuplicate(tracks, ytTrack)) {
                 tracks.add(ytTrack);
             }
 
             String songname = YouTubeVideoInfoExtractor.parseSongNameFromTitle(videoInfo.getVideoTitle());
-
-            TrackInfo ytTrack1 = new TrackInfo(songname,videoInfo.getChannelName());
-
-            if(!DuplicateChecker.isDuplicate(tracks,ytTrack)){
+            TrackInfo ytTrack1 = new TrackInfo(songname, videoInfo.getChannelName());
+            if (!DuplicateChecker.isDuplicate(tracks, ytTrack)) {
                 tracks.add(ytTrack1);
             }
         }
 
-            if(tracks !=null && !tracks.isEmpty()){
-                tracks= spotifySongSearcher.searchSongsOnSpotify(tracks);
-                return tracks;
-
-            }else {
-               // tracks = convertVideoString(url);
-            }
-
+        if (tracks != null && !tracks.isEmpty()) {
+            tracks = spotifySongSearcher.searchSongsOnSpotify(tracks);
+            return tracks;
+        } else {
+            // tracks = convertVideoString(url);
+        }
         return tracks;
     }
 
@@ -389,84 +391,87 @@ public class ServerRunner {
 
     /**
      * Metod för att konvertera YouTube-spellista till Spotify-spellista.
-    */
+     */
     private List<TrackInfo> convertVideoString(String url) {
 
-    System.out.println(" convertvideo called");
-    System.out.println("Received URL: " + url);
-    String videoId = extractVideoId(url);
+        System.out.println(" convertvideo called");
+        System.out.println("Received URL: " + url);
+        String videoId = extractVideoId(url);
 
-    if (videoId != null) {
-        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
-        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
-        String youtubeApiParams = String.format("part=snippet&id=%s&key=%s", videoId, apiKey);
-        
-        httpGet = new HttpGet(youtubeApiUrl +"?" + youtubeApiParams);
-        try {
-            response = httpClient.execute(httpGet);
-            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            System.out.println(responseBody);
-            Gson gson = new Gson();
-            JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
-            if (responseJson.has("items")) {
-                JsonArray itemsArray = responseJson.getAsJsonArray("items");
+        if (videoId != null) {
+            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+            String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
+            String youtubeApiParams = String.format("part=snippet&id=%s&key=%s", videoId, apiKey);
 
-                List<String> videoTitles = new ArrayList<>();
-                List<String> channelNames = new ArrayList<>();
+            httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
+            try {
+                response = httpClient.execute(httpGet);
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                System.out.println(responseBody);
+                Gson gson = new Gson();
+                JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
+                if (responseJson.has("items")) {
+                    JsonArray itemsArray = responseJson.getAsJsonArray("items");
 
-                // Extract video details from the response
-                for (JsonElement item : itemsArray) {
-                JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
-                String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
-                String channelName = snippet.getAsJsonPrimitive("channelTitle").getAsString();
-                channelName = channelName.replace(" - Topic", "");
+                    List<String> videoTitles = new ArrayList<>();
+                    List<String> channelNames = new ArrayList<>();
+
+                    // Extract video details from the response
+                    for (JsonElement item : itemsArray) {
+                        JsonObject snippet = item.getAsJsonObject().getAsJsonObject("snippet");
+                        String videoTitle = snippet.getAsJsonPrimitive("title").getAsString();
+                        String channelName = snippet.getAsJsonPrimitive("channelTitle").getAsString();
+                        channelName = channelName.replace(" - Topic", "");
 
 
-                System.out.println("Video Title: " + videoTitle);
-                System.out.println("Channel name: "+channelName);
-                videoTitles.add(videoTitle);
-                channelNames.add(channelName);
+                        System.out.println("Video Title: " + videoTitle);
+                        System.out.println("Channel name: " + channelName);
+                        videoTitles.add(videoTitle);
+                        channelNames.add(channelName);
+                    }
+                    return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1, channelNames);
+
+                } else {
+                    System.out.println("No videos found");
+                }
+            } catch (Exception e) {
+                System.out.println("Error fetching YouTube video: " + e);
             }
-                return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1, channelNames);
-                
-            } else {
-                System.out.println("No videos found");
-            }
-        } catch (Exception e) {
-            System.out.println("Error fetching YouTube video: " + e);
         }
+
+        return new ArrayList<>();
     }
 
-            return new ArrayList<>();
-}
 
-
-    private List<TrackInfo> identifyAllSongsInVideo(String url){
+    private List<TrackInfo> identifyAllSongsInVideo(String url) {
         songRecognizer = new SongRecognizer();
         System.out.println(" identifyAllSongsInVideo called");
         System.out.println("Received URL: " + url);
         String videoId = extractIdMultipleSongs(url);
         List<TrackInfo> tracks = new ArrayList<>();
-        System.out.println("youtube video id:"+ videoId);
+        System.out.println("youtube video id:" + videoId);
 
-        String ISOduration = youTubeVideoInfoExtractor.fetchVideoDuration(url,httpClient);
+        String ISOduration = youTubeVideoInfoExtractor.fetchVideoDuration(url, httpClient);
         Duration duration = Duration.parse(ISOduration);
-        System.out.println("video duration in seconds: "+duration.getSeconds());
+        System.out.println(ISOduration);
+        System.out.println("video duration in seconds: " + duration.getSeconds());
 
 
-        tracks = songRecognizer.identifyAllSongsInYTVideo(url, (int) duration.getSeconds());
+        tracks = songRecognizer.identifyAllSongsInYTVideo(url, (double) duration.getSeconds());
 
-        if(tracks !=null && !tracks.isEmpty()){
-            tracks= spotifySongSearcher.searchSongsOnSpotify(tracks);
-            System.out.println("Number of songs added to array and being sent to frontend: "+tracks.size());
+        if (tracks != null && !tracks.isEmpty()) {
+            tracks = spotifySongSearcher.searchSongsOnSpotify(tracks);
+            System.out.println("Number of songs added to array and being sent to frontend: " + tracks.size());
+            tracks = DuplicateChecker.checkDuplicates(tracks);
             return tracks;
 
-        }else {
+        } else {
             // tracks = convertVideoString(url);
         }
-
         return tracks;
     }
+
+
 
     private List<TrackInfo> identifyAllSongsInVideoOLD(String url) {
         System.out.println(" identifyAllSongsInVideo called");
@@ -474,11 +479,11 @@ public class ServerRunner {
         String videoId = extractIdMultipleSongs(url);
         List<String> trackList = new ArrayList<>();
         System.out.println(videoId);
-         if (videoId != null) {
-        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
-        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos?id=";
-        String youtubeApiParams = String.format("%s&key=%s", videoId ,apiKey + "&part=snippet");
-        
+        if (videoId != null) {
+            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
+            String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos?id=";
+            String youtubeApiParams = String.format("%s&key=%s", videoId, apiKey + "&part=snippet");
+
             httpGet = new HttpGet(youtubeApiUrl + youtubeApiParams);
 
             try {
@@ -488,7 +493,7 @@ public class ServerRunner {
                 JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
                 JsonArray items = jsonObject.getAsJsonArray("items");
 
-                
+
                 JsonObject videoInfo = items.get(0).getAsJsonObject();
                 JsonObject snippet = videoInfo.get("snippet").getAsJsonObject();
                 String description = snippet.get("description").getAsString();
@@ -508,7 +513,7 @@ public class ServerRunner {
                     System.out.println(matchedLine);
                     trackList.add(matchedLine);
                 }
-                
+
                 return spotifySongSearcher.searchSongsOnSpotify(trackList, 1, null);
             } catch (Exception e) {
                 System.out.println(e);
@@ -519,6 +524,7 @@ public class ServerRunner {
 
     /**
      * Extract video ID
+     *
      * @param url
      * @return
      */
@@ -558,33 +564,33 @@ public class ServerRunner {
         System.out.println("convert playlist called");
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
-    
+
         if (playlistId != null) {
             String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";  // Replace with your YouTube API key
             String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
             String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s&maxResults=50", playlistId, apiKey);
             String nextPageToken = "";
-    
+
             List<String> videoTitles = new ArrayList<>();
             List<String> channelTitles = new ArrayList<>();
-    
+
             do {
                 if (!nextPageToken.isEmpty()) {
                     youtubeApiParams += "&pageToken=" + nextPageToken;
                 }
-    
+
                 httpGet = new HttpGet(youtubeApiUrl + "?" + youtubeApiParams);
-    
+
                 try {
                     response = httpClient.execute(httpGet);
                     String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-    
+
                     Gson gson = new Gson();
                     JsonObject responseJson = gson.fromJson(responseBody, JsonObject.class);
 
                     if (responseJson.has("items")) {
                         JsonArray itemsArray = responseJson.getAsJsonArray("items");
-    
+
                         for (JsonElement item : itemsArray) {
                             if (videoTitles.size() >= 99) {
                                 break;
@@ -595,7 +601,7 @@ public class ServerRunner {
                             channelName = channelName.replace(" - Topic", "");
 
                             System.out.println("Video Title: " + videoTitle);
-                            System.out.println("Channel name: "+ channelName);
+                            System.out.println("Channel name: " + channelName);
 
 
                             channelTitles.add(channelName);
@@ -604,7 +610,7 @@ public class ServerRunner {
                     } else {
                         System.out.println("No videos found in the playlist");
                     }
-    
+
                     if (responseJson.has("nextPageToken")) {
                         nextPageToken = responseJson.getAsJsonPrimitive("nextPageToken").getAsString();
                     } else {
@@ -614,13 +620,13 @@ public class ServerRunner {
                     System.out.println("Error fetching YouTube playlist: " + e);
                 }
             } while (!nextPageToken.isEmpty());
-    
+
             // Perform a single Spotify search for all video titles
-            return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1,channelTitles);
+            return spotifySongSearcher.searchSongsOnSpotify(videoTitles, 1, channelTitles);
         } else {
             System.out.println("Invalid YouTube playlist URL");
         }
-    
+
         return new ArrayList<>();
     }
 
@@ -632,13 +638,6 @@ public class ServerRunner {
         java.util.regex.Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group(1) : null;
     }
-
-
-    
-
-
-    
-
 
 
     /**
@@ -663,32 +662,32 @@ public class ServerRunner {
             HttpPost httpPost = new HttpPost("https://api.spotify.com/v1/users/" + userId + "/playlists");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-    
+
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    
+
             JsonObject playlistDetails = new JsonObject();
             playlistDetails.addProperty("name", currentDate);
             playlistDetails.addProperty("description", "Created with Spotify API");
             playlistDetails.addProperty("public", false);
             StringEntity requestEntity = new StringEntity(playlistDetails.toString(), ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
-    
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-    
+
             JsonObject responseJson = new JsonParser().parse(responseBody).getAsJsonObject();
             String playlistId = responseJson.get("id").getAsString();
-    
+
             addTracksToPlaylist(playlistId, trackUris);
-    
+
             return playlistId;
-    
+
         } catch (Exception e) {
             System.out.println(e);
             return null;
         }
     }
-    
+
 
     /**
      * Metod för att lägga till låten i användarens Spotify-spellista.
@@ -706,15 +705,15 @@ public class ServerRunner {
 
             Gson gson = new Gson();
             String jsonTrackUris = gson.toJson(trackUris);
-    
+
             StringEntity requestEntity = new StringEntity("{\"uris\":" + jsonTrackUris + "}", ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
-    
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
-    
+
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             System.out.println("Response from Spotify API: " + responseBody);
-    
+
         } catch (Exception e) {
             System.out.println("Error adding tracks to playlist: " + e);
         }
@@ -730,11 +729,11 @@ public class ServerRunner {
             String clientID = "c32d1829b55d4c5eac178bc34fdd6728";
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String requestBody = "grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret;
-    
+
             httpPost = new HttpPost("https://accounts.spotify.com/api/token");
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             httpPost.setEntity(new StringEntity(requestBody));
-    
+
             try {
                 response = httpClient.execute(httpPost);
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
@@ -747,7 +746,7 @@ public class ServerRunner {
             } catch (Exception e) {
                 System.out.println(e);
             }
-    
+
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -756,7 +755,7 @@ public class ServerRunner {
     /**
      * Metod som byter ut den temporära koden som användaren fick vid inloggning mot en access token.
      *
-     * @param code 
+     * @param code
      */
     private void exchangeCodeForAccessToken(String code) {
         try {
@@ -766,7 +765,7 @@ public class ServerRunner {
             String clientSecret = "b9f53919c0774da89f480a8863d5234e";
             String redirectURI = "http://localhost:5000/callback";
             String requestBody = "grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirectURI;
-        
+
             HttpPost httpPost = new HttpPost("https://accounts.spotify.com/api/token");
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
             httpPost.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
@@ -774,14 +773,14 @@ public class ServerRunner {
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-        
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-        
+
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(responseBody, JsonObject.class);
             accessToken = json.get("access_token").getAsString();
-        
+
             // Get and print the user ID
             String userId = getUserId(accessToken);
             System.out.println("User ID: " + userId);
@@ -789,7 +788,7 @@ public class ServerRunner {
             System.out.println(e);
         }
     }
-    
+
     /**
      * Metod för att läsa innehållet i en HTML-fil.
      *
@@ -797,24 +796,25 @@ public class ServerRunner {
      * @return Innehållet i HTML-filen som en sträng.
      */
 
-    
+
     private String getUserId(String accessToken) {
-    try {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("https://api.spotify.com/v1/me");
-        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet("https://api.spotify.com/v1/me");
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
-        CloseableHttpResponse response = httpClient.execute(httpGet);
-        String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
-        Gson gson = new Gson();
-        JsonObject json = gson.fromJson(responseBody, JsonObject.class);
-        return json.get("id").getAsString();
-    } catch (Exception e) {
-        System.out.println(e);
-        return null;
+            Gson gson = new Gson();
+            JsonObject json = gson.fromJson(responseBody, JsonObject.class);
+            return json.get("id").getAsString();
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
-}
+
     private String readHtmlFile(String filePath) {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(filePath));

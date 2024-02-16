@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class SpotifySongSearcher {
 
     private final String accessToken;
@@ -19,6 +20,7 @@ public class SpotifySongSearcher {
     private CloseableHttpClient httpClient;
 
     private final Gson gson;
+
     public SpotifySongSearcher(String accessToken, Gson gson, CloseableHttpClient httpClient) {
         this.youTubeVideoInfoExtractor = new YouTubeVideoInfoExtractor(httpClient);
         this.accessToken = accessToken;
@@ -27,33 +29,58 @@ public class SpotifySongSearcher {
     }
 
     public List<TrackInfo> searchSongsOnSpotify(List<TrackInfo> tracks) {
-        System.out.println("searchSongsOnSpotify called");
         List<TrackInfo> foundTracks = new ArrayList<>();
-
+        List<TrackInfo> returnedTracks = null;
         if (accessToken == null) {
             System.out.println("Access token is null.");
             return foundTracks;
         }
 
         for (TrackInfo trackInfo : tracks) {
-            System.out.println("Current track being search with on spotify"+trackInfo);
-            System.out.println("searchsongsspotify loop called");
-            String searchUrl = buildSpotifySearchUrl(trackInfo,true);
+            System.out.println("Current track being search with on spotify" + trackInfo);
+            String searchUrl;
             try {
 
-                foundTracks.addAll(performSpotifySearch(searchUrl));
+                if (trackInfo.getSpotifyUri() != null) {
+                    searchUrl = buildDirectSpotifyTrackUrl(trackInfo);
 
-                if(foundTracks.isEmpty()){
-                    System.out.println("foundtracks empty");
-                    searchUrl = buildSpotifySearchUrl(trackInfo,false);
-                    foundTracks.addAll(performSpotifySearch(searchUrl));
+                } else {
+                    searchUrl = buildSearchUrlWithAlbumArtistTrack(trackInfo);
+                }
+
+                returnedTracks = performSpotifySearch(searchUrl);
+
+                if (returnedTracks == null) {
+                    System.out.println("foundtracks empty from album search, make new search");
+                    searchUrl = buildSearchUrlWithArtistTrack(trackInfo);
+                    returnedTracks = performSpotifySearch(searchUrl);
+
+                    if (returnedTracks == null) {
+                        System.out.println("foundtracks empty from song + arist search, make new search");
+                        searchUrl = buildSearchUrlWithTrack(trackInfo);
+                        returnedTracks = performSpotifySearch(searchUrl);
+
+                        if (returnedTracks == null) {
+                            System.out.println("track not found with filtering track only, making general search");
+                            searchUrl = buildGeneralSpotifySearchUrl(trackInfo);
+                            returnedTracks = performSpotifySearch(searchUrl);
+
+                            if (returnedTracks == null) {
+                                System.out.println("track not found on spotify");
+                            }
+                        }
+                    }
 
                 }
             } catch (Exception e) {
                 System.out.println("Error searching on Spotify: " + e.getMessage());
             }
-        }
+            if (returnedTracks != null) {
 
+                foundTracks.addAll(returnedTracks);
+            }
+        }
+        //remove all duplicates ignoring lower and uppercase
         return foundTracks;
     }
 
@@ -61,7 +88,7 @@ public class SpotifySongSearcher {
      * Metod för att hämta lista av hittade låtar hos Spotify
      * Tar lista av strängar(titlar) som input och kan återanvändas av andra metoder
      */
-    public List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit,List<String> channelNameTitles) {
+    public List<TrackInfo> searchSongsOnSpotify(List<String> videoTitles, int limit, List<String> channelNameTitles) {
         System.out.println("searchSongsOnspotify with string called");
         List<TrackInfo> trackInfoList = new ArrayList<>();
         int j = 0;
@@ -85,17 +112,17 @@ public class SpotifySongSearcher {
                 queryBuilder.append("?q=");
                 queryBuilder.append(encodedSong);
 
-                if (titleParts.length >= 2){
+                if (titleParts.length >= 2) {
                     for (int i = 1; i < titleParts.length; i++) {
                         String artist = titleParts[i];
                         String encodedArtist = URLEncoder.encode(artist, StandardCharsets.UTF_8.toString());
                         queryBuilder.append("%20");
                         queryBuilder.append(encodedArtist);
                     }
-                }else {
-                   // String encodedChannelName = URLEncoder.encode(channelNameTitles.get(j),StandardCharsets.UTF_8.toString());
-                  //  queryBuilder.append("%20");
-                   // queryBuilder.append(encodedChannelName);
+                } else {
+                    // String encodedChannelName = URLEncoder.encode(channelNameTitles.get(j),StandardCharsets.UTF_8.toString());
+                    //  queryBuilder.append("%20");
+                    // queryBuilder.append(encodedChannelName);
                 }
 
 
@@ -119,9 +146,8 @@ public class SpotifySongSearcher {
                     for (JsonElement track : tracksArray) {
                         TrackInfo newTrack = extractTrackInfo(track);
                         System.out.println(newTrack);
-                        if (!isDuplicate(trackInfoList, newTrack)) {
-                            trackInfoList.add(newTrack);
-                        }
+                        trackInfoList.add(newTrack);
+
                     }
                 }
                 response.close();
@@ -137,56 +163,91 @@ public class SpotifySongSearcher {
     }
 
 
-    private String buildSpotifySearchUrl(TrackInfo trackInfo,boolean simplesearch) {
+    private String buildSpotifySearchUrl(TrackInfo trackInfo, boolean searchWithoutAlbum, boolean searchWithoutArtist) {
         // If a Spotify URI is available, use it to directly access the track
         if (trackInfo.getSpotifyUri() != null && !trackInfo.getSpotifyUri().isEmpty()) {
             String trackId = trackInfo.getSpotifyUri().split(":")[2];
-            System.out.println("Using track ID for query: " + trackId);
             return "https://api.spotify.com/v1/tracks/" + trackId;
         } else {
             // Start building the search query
             StringBuilder queryBuilder = new StringBuilder("https://api.spotify.com/v1/search?q=");
 
-            // Check if both artist and song name are not null/empty, and optionally include album
-            if (trackInfo.getArtist() != null && !trackInfo.getArtist().isEmpty() && trackInfo.getTitle() != null && !trackInfo.getTitle().isEmpty()) {
+            // Include the artist in the search if not null/empty and if searchWithoutArtist is false
+            if (!searchWithoutArtist && trackInfo.getArtist() != null && !trackInfo.getArtist().isEmpty()) {
                 queryBuilder.append(URLEncoder.encode("artist:" + trackInfo.getArtist() + " ", StandardCharsets.UTF_8));
-                queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
-
-                // Include album in the search if it's not null/empty
-                if (trackInfo.getAlbum() != null && !trackInfo.getAlbum().isEmpty() && simplesearch) {
-                    queryBuilder.append(URLEncoder.encode(" album:" + trackInfo.getAlbum(), StandardCharsets.UTF_8));
-                }
-            } else if (trackInfo.getArtist() == null || trackInfo.getArtist().isEmpty()) {
-                // If the artist is null, search only by song name
-                queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
-            } else {
-                // Fallback to searching with whatever information is available (e.g., only artist or song name)
-                if (!trackInfo.getTitle().isEmpty()) {
-                    queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
-                }
-                if (!trackInfo.getArtist().isEmpty()) {
-                    queryBuilder.append(URLEncoder.encode(" artist:" + trackInfo.getArtist(), StandardCharsets.UTF_8));
-                }
             }
 
+            // Include the track title in the search if not null/empty
+            if (trackInfo.getTitle() != null && !trackInfo.getTitle().isEmpty()) {
+                queryBuilder.append(URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8));
+            }
+
+            // Include the album in the search if not null/empty and if searchWithoutAlbum is false
+            if (!searchWithoutAlbum && trackInfo.getAlbum() != null && !trackInfo.getAlbum().isEmpty()) {
+                queryBuilder.append(URLEncoder.encode(" album:" + trackInfo.getAlbum(), StandardCharsets.UTF_8));
+            }
+
+            // Append the search type and limit
             queryBuilder.append("&type=track&limit=1");
 
             return queryBuilder.toString();
         }
     }
 
+
+    private String buildDirectSpotifyTrackUrl(TrackInfo trackInfo) {
+        // Extract the track ID from the Spotify URI
+        String trackId = trackInfo.getSpotifyUri().split(":")[2];
+        System.out.println("Using track ID for query: " + trackId);
+        // Return the direct URL to the Spotify track
+        return "https://api.spotify.com/v1/tracks/" + trackId;
+    }
+
+
+    private String buildSearchUrlWithAlbumArtistTrack(TrackInfo trackInfo) {
+        return "https://api.spotify.com/v1/search?q=" +
+                URLEncoder.encode("album:" + trackInfo.getAlbum() + " ", StandardCharsets.UTF_8) +
+                URLEncoder.encode("artist:" + trackInfo.getArtist() + " ", StandardCharsets.UTF_8) +
+                URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8) +
+                "&type=track&limit=1";
+    }
+
+    private String buildSearchUrlWithArtistTrack(TrackInfo trackInfo) {
+        return "https://api.spotify.com/v1/search?q=" +
+                URLEncoder.encode("artist:" + trackInfo.getArtist() + " ", StandardCharsets.UTF_8) +
+                URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8) +
+                "&type=track&limit=1";
+    }
+
+    private String buildSearchUrlWithTrack(TrackInfo trackInfo) {
+        return "https://api.spotify.com/v1/search?q=" +
+                URLEncoder.encode("track:" + trackInfo.getTitle(), StandardCharsets.UTF_8) +
+                "&type=track&limit=1";
+    }
+
+    private String buildGeneralSpotifySearchUrl(TrackInfo trackInfo) {
+        // Construct the search query by combining the track title and artist name
+        String searchQuery = trackInfo.getTitle() + " " + trackInfo.getArtist();
+
+        // Encode the search query and build the final URL
+        return "https://api.spotify.com/v1/search?q=" +
+                URLEncoder.encode(searchQuery, StandardCharsets.UTF_8) +
+                "&type=track&limit=1";
+    }
+
+
     private List<TrackInfo> performSpotifySearch(String url) throws Exception {
         List<TrackInfo> foundTracks = new ArrayList<>();
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("Authorization", "Bearer " + accessToken);
 
-        System.out.println("Spotify URL: "+url);
+        System.out.println("Spotify URL: " + url);
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
 
-            System.out.println("spotifyresponse: " + responseBody);
+            // System.out.println("spotifyresponse: " + responseBody);
 
             if (responseJson.has("tracks")) {
 
@@ -195,20 +256,22 @@ public class SpotifySongSearcher {
                     for (JsonElement trackElement : tracksArray) {
                         foundTracks.add(extractTrackInfo(trackElement));
                     }
+
+
                 } else {
-                    System.out.println("No tracks found.");
+                    System.out.println("No tracks found");
+                    return null;
+
                 }
-            }else{
-                System.out.println("Response from spotify is from using trackURI");
+            } else {
                 //  JsonObject trackObject = responseJson.getAsJsonObject("track");
                 foundTracks.add(extractTrackInfo(responseJson));
             }
-
-
             // Extend this to handle albums and artists if needed
         }
         return foundTracks;
     }
+
 
     private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         System.out.println("isDuplicate called");
@@ -222,7 +285,6 @@ public class SpotifySongSearcher {
     }
 
     private TrackInfo extractTrackInfo(JsonElement track) {
-        System.out.println("extractTrackInfo called");
         JsonObject trackInfoJson = new JsonObject();
         trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());
         trackInfoJson.addProperty("artist", track.getAsJsonObject().getAsJsonArray("artists").get(0).getAsJsonObject().getAsJsonPrimitive("name").getAsString());
@@ -236,7 +298,6 @@ public class SpotifySongSearcher {
 
         return gson.fromJson(trackInfoJson, TrackInfo.class);
     }
-
 
 
     private String[] parseTitle(String title) {
@@ -277,8 +338,6 @@ public class SpotifySongSearcher {
         // Return the parts
         return parts;
     }
-
-
 
 
 }
