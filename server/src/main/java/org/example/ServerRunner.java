@@ -147,7 +147,7 @@ public class ServerRunner {
                 .get("/convertPlaylist", ctx -> {
                     String url = ctx.queryParam("url");
 
-                    List<TrackInfo> trackInfoList = serverRunner.convertPlaylist(url);
+                    List<TrackInfo> trackInfoList = serverRunner.convertPlayList(url);
 
                     JsonObject jsonResponse = new JsonObject();
                     jsonResponse.addProperty("status", "success");
@@ -560,13 +560,81 @@ public class ServerRunner {
         return "ID not found";
     }
 
-    private List<TrackInfo> convertPlaylist(String url) {
+
+
+
+
+
+    private List<TrackInfo> convertPlayList(String url){
+        // Your logic to extract the playlist ID from the URL
+        String playlistId = extractPlaylistId(url);
+        if (playlistId == null) {
+            System.out.println("Invalid YouTube playlist URL");
+            return null;
+        }
+
+        songRecognizer = new SongRecognizer();
+
+        String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY"; // Use your actual YouTube Data API key
+        String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
+        String nextPageToken = "";
+        List<String> videoUrlList = new ArrayList<>();
+        List<TrackInfo> trackInfoList = new ArrayList<>();
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            do {
+                String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s&maxResults=50", playlistId, apiKey);
+                if (!nextPageToken.isEmpty()) {
+                    youtubeApiParams += "&pageToken=" + nextPageToken;
+                }
+
+                String requestUrl = youtubeApiUrl + "?" + youtubeApiParams;
+                HttpGet request = new HttpGet(requestUrl);
+                String responseBody = EntityUtils.toString(httpClient.execute(request).getEntity(), StandardCharsets.UTF_8);
+
+                JsonObject responseJson = new Gson().fromJson(responseBody, JsonObject.class);
+                if (responseJson.has("items")) {
+                    JsonArray itemsArray = responseJson.getAsJsonArray("items");
+                    for (JsonElement item : itemsArray) {
+                        JsonObject resourceId = item.getAsJsonObject().getAsJsonObject("snippet").getAsJsonObject("resourceId");
+                        String videoId = resourceId.getAsJsonPrimitive("videoId").getAsString();
+                        videoUrlList.add("https://www.youtube.com/watch?v=" + videoId);
+                    }
+                }
+
+                nextPageToken = responseJson.has("nextPageToken") ? responseJson.getAsJsonPrimitive("nextPageToken").getAsString() : "";
+            } while (!nextPageToken.isEmpty());
+        } catch (Exception e) {
+            System.out.println("Error fetching YouTube playlist: " + e.getMessage());
+        }
+
+        List<String> outputPaths = songRecognizer.downloadPlaylistVideosInParallel(videoUrlList);
+
+        for (int i = 0; i < outputPaths.size(); i++) {
+            trackInfoList.addAll(songRecognizer.recognizeSongs(outputPaths.get(i),5));
+        }
+
+
+        List<TrackInfo> finalList = spotifySongSearcher.searchSongsOnSpotify(trackInfoList);
+        finalList = DuplicateChecker.checkDuplicates(finalList);
+
+        for (int i = 0; i < finalList.size(); i++) {
+            System.out.println(finalList.get(i));
+        }
+
+        // This function currently returns null, but you have the videoUrls array ready for when you need it
+        return finalList;
+    }
+
+
+
+    private List<TrackInfo> convertPlaylistOLD(String url) {
         System.out.println("convert playlist called");
         System.out.println("Received URL: " + url);
         String playlistId = extractPlaylistId(url);
 
         if (playlistId != null) {
-            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";  // Replace with your YouTube API key
+            String apiKey = "AIzaSyDN60vbLZ6CNekmYd7WP_r8C96unRI4CaY";
             String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/playlistItems";
             String youtubeApiParams = String.format("part=snippet&playlistId=%s&key=%s&maxResults=50", playlistId, apiKey);
             String nextPageToken = "";

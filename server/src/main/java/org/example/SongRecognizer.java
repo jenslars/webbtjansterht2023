@@ -7,12 +7,28 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 public class SongRecognizer {
-
+    private final AtomicInteger fileCounter;
+    public SongRecognizer(){
+        this.fileCounter = new AtomicInteger(1);
+    }
 
     /**
      * Recognizes a song using the ACRCloud audio recognition service and returns a search query based on the recognized song's title and artist.
@@ -57,6 +73,7 @@ public class SongRecognizer {
                     tracks.add(track);
                     System.out.printf("Song identified: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n",
                             title, artistNames, albumName, durationsec, track.getSpotifyUri());
+                    break; // Remove this to retrieve all songs identified from one identification
                 } else {
                     System.out.printf("Song identified but not added cause of duplicate: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n",
                             title, artistNames, albumName, durationsec, track.getSpotifyUri());
@@ -146,7 +163,7 @@ public class SongRecognizer {
             return recognizeSongs(downloadAudioPath, startTime);
         }
 
-        tracks = recognizeSongs(downloadAudioPath, 0);
+        tracks = recognizeSongs(downloadAudioPath, startTime);
 
         return tracks;
     }
@@ -170,7 +187,7 @@ public class SongRecognizer {
             for (TrackInfo identifiedTrack : identifiedTracks) {
                 if (!tracks.contains(identifiedTrack)) {
 
-                    if(!DuplicateChecker.isDuplicate(tracks,identifiedTrack)){
+                    if (!DuplicateChecker.isDuplicate(tracks, identifiedTrack)) {
                         tracks.add(identifiedTrack);
                         System.out.println("Song added to final tracklist: " + identifiedTrack);
                         newTrackAdded = true; // Set flag to true since a new track was added
@@ -223,6 +240,91 @@ public class SongRecognizer {
 
         return downloadOutPutpath;
     }
+
+
+    public List<String> downloadPlaylistAudio(String playlistUrl) {
+        String outputDirectory = "resources/Playlistfiles"; // Set the desired output directory
+        new File(outputDirectory).mkdirs(); // Ensure the directory exists
+
+        String outputTemplate = outputDirectory + "/%(title)s.%(ext)s"; // Template for saving downloaded files
+
+        List<String> downloadCommand = Arrays.asList(
+                "yt-dlp",
+                "--yes-playlist", // Confirm downloading playlists
+                "-f", "m4a/bestaudio", // Select best audio format available, prefer m4a
+                "--extract-audio",
+                "--audio-format", "m4a",
+                "--force-overwrite", // Force overwriting existing files
+                "-o", outputTemplate, // Specify the output template
+                playlistUrl // YouTube playlist URL
+        );
+
+        // Execute the process
+        executeProcess(downloadCommand, outputDirectory); // Assuming executeProcess method handles ProcessBuilder and execution
+
+        // Post-process output directory to list downloaded files
+        return listDownloadedFiles(outputDirectory);
+    }
+
+    public List<String> downloadPlaylistVideosInParallel(List<String> videoUrls) {
+        // Set a conservative number of threads for parallel downloads to avoid rate-limiting
+        int numberOfThreads = 10; // For example, 4 threads
+        String outputDirectory = "resources/Playlistfiles"; // Set the desired output directory
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        List<String> outputPaths = new ArrayList<>();
+
+        Object lock = new Object();
+
+        for (String videoUrl : videoUrls) {
+            executorService.submit(() -> {
+                int count = fileCounter.getAndIncrement(); // Safely increment
+                String outputFileName = String.format("%s/downloaded_audio%d.m4a", outputDirectory, count);
+                List<String> downloadCommand = Arrays.asList(
+                        "yt-dlp",
+                        "-f", "bestaudio",
+                        "--extract-audio",
+                        "--audio-format", "m4a",
+                        "--force-overwrite",
+                        "-o", outputFileName,
+                        videoUrl
+                );
+
+                // Execute the download command
+                String outPath = executeProcess(downloadCommand,outputFileName);
+                synchronized (outputPaths){
+                    outputPaths.add(outPath);
+                }
+
+            });
+        }
+
+        executorService.shutdown(); // Stop accepting new tasks
+        try {
+            // Wait for all tasks to finish executing or timeout after a certain period
+            if (!executorService.awaitTermination(1, TimeUnit.HOURS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+            System.err.println("Downloads interrupted: " + e.getMessage());
+        }
+        return outputPaths;
+    }
+
+
+    private List<String> listDownloadedFiles(String directoryPath) {
+        List<String> filePaths = new ArrayList<>();
+        try {
+            Files.walk(Paths.get(directoryPath))
+                    .filter(Files::isRegularFile)
+                    .forEach(path -> filePaths.add(path.toString()));
+        } catch (Exception e) {
+            System.out.println("Error listing downloaded files: " + e.getMessage());
+        }
+        return filePaths;
+    }
+
 
     public String identifyYTUrlTimestamp(String startTime, String downloadAudioPath) {
 
