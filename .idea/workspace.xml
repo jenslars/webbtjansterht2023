@@ -106,7 +106,7 @@
       <workItem from="1707997591813" duration="18162000" />
       <workItem from="1708022372037" duration="2711000" />
       <workItem from="1708093763510" duration="16772000" />
-      <workItem from="1708186506566" duration="363000" />
+      <workItem from="1708186506566" duration="2908000" />
     </task>
     <servers />
   </component>
@@ -119,6 +119,10 @@
         <breakpoint enabled="true" type="java-exception">
           <properties class="com.fasterxml.jackson.databind.exc.InvalidDefinitionException" package="com.fasterxml.jackson.databind.exc" />
           <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="2" />
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>

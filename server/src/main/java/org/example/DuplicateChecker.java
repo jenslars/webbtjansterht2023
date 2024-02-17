@@ -7,8 +7,7 @@ public class DuplicateChecker {
     public static boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
         System.out.println("isDuplicate called");
         for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
-                    existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
+            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) && existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
                 System.out.println("Duplicate found");
                 return true;
             }
@@ -22,8 +21,7 @@ public class DuplicateChecker {
         for (TrackInfo currentTrack : trackInfoList) {
             boolean isDuplicate = false;
             for (TrackInfo uniqueTrack : deduplicatedList) {
-                if (currentTrack.getTitle().equalsIgnoreCase(uniqueTrack.getTitle()) &&
-                        currentTrack.getArtist().equalsIgnoreCase(uniqueTrack.getArtist())) {
+                if (currentTrack.getTitle().equalsIgnoreCase(uniqueTrack.getTitle()) && currentTrack.getArtist().equalsIgnoreCase(uniqueTrack.getArtist())) {
                     isDuplicate = true;
                     break;
                 }
@@ -35,8 +33,6 @@ public class DuplicateChecker {
 
         return deduplicatedList;
     }
-
-
 
 
 }

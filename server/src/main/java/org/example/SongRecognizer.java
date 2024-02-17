@@ -13,10 +13,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +22,8 @@ import java.util.ArrayList;
 
 public class SongRecognizer {
     private final AtomicInteger fileCounter;
-    public SongRecognizer(){
+
+    public SongRecognizer() {
         this.fileCounter = new AtomicInteger(1);
     }
 
@@ -38,8 +35,6 @@ public class SongRecognizer {
      */
 
     public List<TrackInfo> recognizeSongs(String downloadedAudioPath, double starttime) {
-        //System.out.println("Recognizing songs from: " + downloadedAudioPath);
-        // Configuration for ACRCloudRecognizer
         Map<String, Object> config = new HashMap<>();
         config.put("host", "identify-eu-west-1.acrcloud.com");
         config.put("access_key", "4489b7284fdeaba761df5b03c63faa14");
@@ -49,7 +44,7 @@ public class SongRecognizer {
         ACRCloudRecognizer recognizer = new ACRCloudRecognizer(config);
         System.out.println("Starting song recognition at: " + starttime + " seconds");
         String result = recognizer.recognizeByFile(downloadedAudioPath, (int) starttime);
-        // System.out.println("ACRCloud Response: " + result);
+
 
         List<TrackInfo> tracks = new ArrayList<>();
         JsonObject jsonResult = JsonParser.parseString(result).getAsJsonObject();
@@ -71,27 +66,20 @@ public class SongRecognizer {
                 // Check for duplicates before adding
                 if (!tracks.contains(track)) {
                     tracks.add(track);
-                    System.out.printf("Song identified: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n",
-                            title, artistNames, albumName, durationsec, track.getSpotifyUri());
+                    System.out.printf("Song identified: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n", title, artistNames, albumName, durationsec, track.getSpotifyUri());
                     break; // Remove this to retrieve all songs identified from one identification
                 } else {
-                    System.out.printf("Song identified but not added cause of duplicate: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n",
-                            title, artistNames, albumName, durationsec, track.getSpotifyUri());
+                    System.out.printf("Song identified but not added cause of duplicate: Title='%s', Artist='%s', Album='%s', Duration='%.2f', Spotify URI='%s'%n", title, artistNames, albumName, durationsec, track.getSpotifyUri());
                 }
             }
         } else {
             System.out.println("No songs recognized or an error occurred.");
         }
-
-
         return tracks;
     }
 
 
-// Other methods like parseArtists, parseAlbum, setSpotifyURI, and isExactDuplicate remain unchanged.
-
-
-    private String parseArtists(JsonArray artists) {
+    public String parseArtists(JsonArray artists) {
         List<String> artistNames = new ArrayList<>();
         for (JsonElement artistElement : artists) {
             JsonObject artistObject = artistElement.getAsJsonObject();
@@ -101,7 +89,7 @@ public class SongRecognizer {
         return String.join(", ", artistNames);
     }
 
-    private String parseAlbum(JsonObject album) {
+    public String parseAlbum(JsonObject album) {
         return album != null && album.has("name") ? album.get("name").getAsString() : "Unknown Album";
     }
 
@@ -220,13 +208,9 @@ public class SongRecognizer {
 
         // listFormats(youtubeUrl);
 
-        List<String> downloadCommand = Arrays.asList(
-                "yt-dlp",
-                "-f", "m4a", // Select m4a formats
+        List<String> downloadCommand = Arrays.asList("yt-dlp", "-f", "m4a", // Select m4a formats
                 "-S", "+size", // Prioritize by file size to get the smallest file
-                "--extract-audio",
-                "--audio-format", "m4a",
-                "--force-overwrite", // Force overwriting existing files
+                "--extract-audio", "--audio-format", "m4a", "--force-overwrite", // Force overwriting existing files
                 "-o", outputPath, // Specify the output file path
                 youtubeUrl // YouTube video URL
         );
@@ -242,56 +226,23 @@ public class SongRecognizer {
     }
 
 
-    public List<String> downloadPlaylistAudio(String playlistUrl) {
-        String outputDirectory = "resources/Playlistfiles"; // Set the desired output directory
-        new File(outputDirectory).mkdirs(); // Ensure the directory exists
-
-        String outputTemplate = outputDirectory + "/%(title)s.%(ext)s"; // Template for saving downloaded files
-
-        List<String> downloadCommand = Arrays.asList(
-                "yt-dlp",
-                "--yes-playlist", // Confirm downloading playlists
-                "-f", "m4a/bestaudio", // Select best audio format available, prefer m4a
-                "--extract-audio",
-                "--audio-format", "m4a",
-                "--force-overwrite", // Force overwriting existing files
-                "-o", outputTemplate, // Specify the output template
-                playlistUrl // YouTube playlist URL
-        );
-
-        // Execute the process
-        executeProcess(downloadCommand, outputDirectory); // Assuming executeProcess method handles ProcessBuilder and execution
-
-        // Post-process output directory to list downloaded files
-        return listDownloadedFiles(outputDirectory);
-    }
-
     public List<String> downloadPlaylistVideosInParallel(List<String> videoUrls) {
         // Set a conservative number of threads for parallel downloads to avoid rate-limiting
-        int numberOfThreads = 10; // For example, 4 threads
+        int numberOfThreads = 15; // For example, 4 threads
         String outputDirectory = "resources/Playlistfiles"; // Set the desired output directory
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> outputPaths = new ArrayList<>();
 
-        Object lock = new Object();
 
         for (String videoUrl : videoUrls) {
             executorService.submit(() -> {
                 int count = fileCounter.getAndIncrement(); // Safely increment
                 String outputFileName = String.format("%s/downloaded_audio%d.m4a", outputDirectory, count);
-                List<String> downloadCommand = Arrays.asList(
-                        "yt-dlp",
-                        "-f", "bestaudio",
-                        "--extract-audio",
-                        "--audio-format", "m4a",
-                        "--force-overwrite",
-                        "-o", outputFileName,
-                        videoUrl
-                );
+                List<String> downloadCommand = Arrays.asList("yt-dlp", "-f", "bestaudio", "--extract-audio", "--audio-format", "m4a", "--force-overwrite", "-o", outputFileName, videoUrl);
 
                 // Execute the download command
-                String outPath = executeProcess(downloadCommand,outputFileName);
-                synchronized (outputPaths){
+                String outPath = executeProcess(downloadCommand, outputFileName);
+                synchronized (outputPaths) {
                     outputPaths.add(outPath);
                 }
 
@@ -313,72 +264,6 @@ public class SongRecognizer {
     }
 
 
-    private List<String> listDownloadedFiles(String directoryPath) {
-        List<String> filePaths = new ArrayList<>();
-        try {
-            Files.walk(Paths.get(directoryPath))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> filePaths.add(path.toString()));
-        } catch (Exception e) {
-            System.out.println("Error listing downloaded files: " + e.getMessage());
-        }
-        return filePaths;
-    }
-
-
-    public String identifyYTUrlTimestamp(String startTime, String downloadAudioPath) {
-
-        System.out.println("Starting trimming....");
-        int startTimeInt = Integer.parseInt(startTime);
-        int endTime = startTimeInt + 30; // Calculate end time for a 10-second clip
-
-        String trimmedOutputPath = downloadAudioPath.replace(".m4a", "_trimmed.m4a");
-        System.out.println("trimmed outpath: " + trimmedOutputPath);
-
-        List<String> trimCommand = Arrays.asList(
-                "ffmpeg",
-                "-y", // Force overwrite without asking
-                "-ss", String.valueOf(startTimeInt), // Start time
-                "-to", String.valueOf(endTime), // End time, adjust accordingly
-                "-i", downloadAudioPath, // Input file
-                "-acodec", "copy", // Use the same audio codec to avoid re-encoding
-                trimmedOutputPath // Output file
-        );
-
-        trimmedOutputPath = executeProcess(trimCommand, trimmedOutputPath);
-
-        if (trimmedOutputPath == null) {
-            System.out.println("Trimming failed.");
-            return null;
-        } else {
-            System.out.println("trimming success output file+" + trimmedOutputPath);
-        }
-        return trimmedOutputPath;
-    }
-
-    public static void listFormats(String youtubeUrl) {
-        ProcessBuilder listBuilder = new ProcessBuilder(
-                "yt-dlp",
-                "-F",
-                youtubeUrl);
-        listBuilder.redirectErrorStream(true);
-
-        try {
-            Process process = listBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            System.out.println("Available formats:");
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                System.out.println("Error listing formats, exit code " + exitCode);
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }
 
 

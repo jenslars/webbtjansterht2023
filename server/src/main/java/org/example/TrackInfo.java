@@ -85,19 +85,11 @@ public class TrackInfo {
     }
 
 
-
-
-
-
-
     @Override
     public int hashCode() {
         // Include URI in the hash code computation if it is non-null; otherwise, rely on title and artist
         return (uri != null) ? Objects.hash(uri) : Objects.hash(title, artist);
     }
-
-
-
 
 
     @Override

@@ -1,6 +1,6 @@
 package org.example;
 
-public  class Playlist {
+public class Playlist {
     private String name;
     private String id;
     private String imageUrl;

@@ -87,8 +87,9 @@ public class YouTubeVideoInfoExtractor {
         String youtubeApiUrl = "https://www.googleapis.com/youtube/v3/videos";
         String params = String.format("part=contentDetails&id=%s&key=%s", videoId, apiKey);
 
-        HttpGet httpGet = new HttpGet(youtubeApiUrl + "?" + params);
+
         try {
+            HttpGet httpGet = new HttpGet(youtubeApiUrl + "?" + params);
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseBody = EntityUtils.toString(response.getEntity());
             Gson gson = new Gson();
@@ -157,6 +158,14 @@ public class YouTubeVideoInfoExtractor {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(url);
         return matcher.find() ? matcher.group() : null;
+    }
+
+    public String extractPlaylistId(String url) {
+        System.out.println("extract playlist id called");
+        String regex = "[&?]list=([^&]+)";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+        java.util.regex.Matcher matcher = pattern.matcher(url);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     public String extractTimestamp(String youtubeUrl) {
