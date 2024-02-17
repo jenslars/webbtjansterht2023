@@ -273,17 +273,6 @@ public class SpotifySongSearcher {
     }
 
 
-    private boolean isDuplicate(List<TrackInfo> trackInfoList, TrackInfo newTrack) {
-        System.out.println("isDuplicate called");
-        for (TrackInfo existingTrack : trackInfoList) {
-            if (existingTrack.getTitle().equalsIgnoreCase(newTrack.getTitle()) &&
-                    existingTrack.getArtist().equalsIgnoreCase(newTrack.getArtist())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private TrackInfo extractTrackInfo(JsonElement track) {
         JsonObject trackInfoJson = new JsonObject();
         trackInfoJson.addProperty("title", track.getAsJsonObject().getAsJsonPrimitive("name").getAsString());

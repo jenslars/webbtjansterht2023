@@ -18,7 +18,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.HttpHeaders;
 import org.apache.http.util.EntityUtils;
-import org.example.ServerRunner.Playlist;
 import org.apache.http.entity.ContentType;
 
 
@@ -292,36 +291,6 @@ public class ServerRunner {
             e.printStackTrace();
         }
         return new ArrayList<>();
-    }
-
-    public static class Playlist {
-        private String name;
-        private String id;
-        private String imageUrl;
-        private int trackCount;
-
-        public Playlist(String name, String id, String imageUrl, int trackCount) {
-            this.name = name;
-            this.id = id;
-            this.imageUrl = imageUrl;
-            this.trackCount = trackCount;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getImageUrl() {
-            return imageUrl;
-        }
-
-        public int getTrackCount() {
-            return trackCount;
-        }
     }
 
 
