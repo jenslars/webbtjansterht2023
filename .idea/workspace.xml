@@ -23,6 +23,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -36,6 +39,7 @@
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Application.ServerRunner.executor&quot;: &quot;Run&quot;,
+    &quot;Attach to process.pid 19008.executor&quot;: &quot;ProcessAttachDebug&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -106,7 +110,9 @@
       <workItem from="1707997591813" duration="18162000" />
       <workItem from="1708022372037" duration="2711000" />
       <workItem from="1708093763510" duration="16772000" />
-      <workItem from="1708186506566" duration="2908000" />
+      <workItem from="1708186506566" duration="18205000" />
+      <workItem from="1708211038317" duration="7693000" />
+      <workItem from="1708261906554" duration="14853000" />
     </task>
     <servers />
   </component>
