@@ -769,44 +769,48 @@ function identifyAllSongs() {
 
 function convertVideo() {
   console.log("In convert video");
-  selectedTrackUris = addLoaderToButton("URLsubmit-btn1");
+  addLoaderToButton("URLsubmit-btn1"); // Assuming this function modifies the global `selectedTrackUris` or has side effects
   var url = document.getElementById("convertVideoInput").value;
   fetch("/convertVideo?url=" + encodeURIComponent(url), {
     method: "GET",
   })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Backend response:", data);
-      if (data.tracks && Array.isArray(data.tracks)) {
-        // Extract the URIs from the array and filter out empty ones
-        selectedTrackUris = data.tracks
-          .slice(0, 50)
-          .map((track) => track.uri)
-          .filter((uri) => uri);
+      .then((response) => {
+        if (response.status === 400) {
+          // Handle 400 specifically
+          throw new Error("No song found with the provided URL.");
+        }
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Backend response:", data);
+        if (data.tracks && Array.isArray(data.tracks)) {
+          selectedTrackUris = data.tracks
+              .slice(0, 50)
+              .map((track) => track.uri)
+              .filter((uri) => uri);
+          console.log("Extracted URIs:", selectedTrackUris);
 
-        console.log("Extracted URIs:", selectedTrackUris);
-        var serviceContainer = document.getElementById("serviceContainer");
-        var expandedIdentifySongContainer = document.getElementById(
-          "expandedIdentifySongContainer"
-        );
+          var serviceContainer = document.getElementById("serviceContainer");
+          var expandedIdentifySongContainer = document.getElementById("expandedIdentifySongContainer");
 
-        expandedIdentifySongContainer.classList.add("active");
-        serviceContainer.classList.add("active");
-        createPlaylistElements(data, "identifySong");
+          expandedIdentifySongContainer.classList.add("active");
+          serviceContainer.classList.add("active");
+          createPlaylistElements(data, "identifySong");
+        } else {
+          console.error("Data.tracks is not an array");
+        }
         removeLoaderFromButton("URLsubmit-btn1");
-      } else {
-        console.error("Data.tracks is not an array");
-      }
-    })
-    .catch((error) => {
-      console.error("Error sending data to backend:", error);
-    });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert(error.message); // Display the error to the user
+        removeLoaderFromButton("URLsubmit-btn1");
+      });
 }
+
 
 function createPlaylistElements(data, feature) {
   if (feature == "identifySong") {

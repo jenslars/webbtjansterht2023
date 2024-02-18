@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.UUID;
 public class SongRecognizer {
     private final AtomicInteger fileCounter;
 
@@ -79,6 +79,15 @@ public class SongRecognizer {
     }
 
 
+    /**
+     * Returnerar en kommaseparerad sträng av artistnamn från en JSON-Array av artister.
+     *
+     *
+     * @param artists En JSON-Array av artister som ska parsas.
+     * @return En kommaseparerad sträng av artistnamn.
+     */
+
+
     public String parseArtists(JsonArray artists) {
         List<String> artistNames = new ArrayList<>();
         for (JsonElement artistElement : artists) {
@@ -88,10 +97,24 @@ public class SongRecognizer {
         }
         return String.join(", ", artistNames);
     }
+    /**
+     * Returnerar namnet på ett album från en JsonObject som representerar albuminformation.
+     *
+     * @param album JsonObject som representerar albuminformation.
+     * @return Namnet på albumet om det finns, annars "Unknown Album".
+     */
 
     public String parseAlbum(JsonObject album) {
         return album != null && album.has("name") ? album.get("name").getAsString() : "Unknown Album";
     }
+
+
+    /**
+     * Sätter Spotify-URI:en för en låt baserat på information från en JsonObject som representerar musikinformation.
+     *
+     * @param track En TrackInfo-objekt som representerar låten som Spotify-URI:en ska sättas för.
+     * @param musicInfo En JsonObject som representerar musikinformation, inklusive Spotify-metadata.
+     */
 
     private void setSpotifyURI(TrackInfo track, JsonObject musicInfo) {
         if (musicInfo.has("external_metadata") && musicInfo.getAsJsonObject("external_metadata").has("spotify")) {
@@ -105,29 +128,29 @@ public class SongRecognizer {
 
 
     /**
-     * Downloads audio from a given YouTube URL and saves it as an audio file to the specified output path.
+     * Utför en given kommandoradsprocess och fångar upp- och utdata.
      *
-     * @param youtubeUrl The YouTube URL from which to download the audio.
-     * @param outputPath The path where the downloaded audio will be saved, including the desired filename.
-     * @return The path to the downloaded MP3 audio file if the download is successful, or null if there's an error.
+     * @param command En lista med kommandon som ska utföras av processen.
+     * @param outputPath Sökvägen för utdata från processen.
+     * @return Sökvägen för utdata om processen lyckades, annars returneras null.
      */
 
     private String executeProcess(List<String> command, String outputPath) {
         ProcessBuilder downloadBuilder = new ProcessBuilder(command);
-        downloadBuilder.redirectErrorStream(true); // Merge standard output and error stream
+        downloadBuilder.redirectErrorStream(true);
 
         try {
             Process process = downloadBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line); // Print command line output for monitoring
+                System.out.println(line);
             }
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
                 System.out.println("Download/trimming successful: " + outputPath);
-                return outputPath; // Successful download path
+                return outputPath;
             } else {
                 System.out.println("Error downloading/trimming audio, exit code: " + exitCode);
             }
@@ -136,15 +159,27 @@ public class SongRecognizer {
             e.printStackTrace();
         }
 
-        return null; // Return null on failure
+        return null;
     }
 
 
+    /**
+     * Identifierar låtar från en YouTube-video.
+     *
+     * Metoden tar en YouTube-video-URL och en starttid som inmatning.
+     * Den laddar ner ljudet från YouTube-videon och identifierar sedan låtar från ljudet.
+     * Om en starttid ges, identifierar den bara låtar från den angivna starttiden.
+     * Metoden returnerar en lista av TrackInfo-objekt som representerar de identifierade låtarna.
+     *
+     * @param youtubeUrl URL till YouTube-videon som ska identifieras.
+     * @param startTime Starttid för identifiering av låtar från videon. Om negativ används hela videon.
+     * @return En lista av TrackInfo-objekt som representerar de identifierade låtarna från YouTube-videon.
+     */
     public List<TrackInfo> identifyYouTubeVideo(String youtubeUrl, int startTime) {
-        String outputPath = "resources/downloaded_audio.m4a";
+        String uniqueFileName = "downloaded_audioOneSong-" + UUID.randomUUID().toString() + ".m4a";
+        String outputPath = "resources/" + uniqueFileName;
         String downloadAudioPath = downloadAudio(youtubeUrl, outputPath);
         List<TrackInfo> tracks;
-
 
         if (startTime >= 0) {
             System.out.println("Timestamp start:" + startTime);
@@ -157,43 +192,47 @@ public class SongRecognizer {
     }
 
 
+
+
+    /**
+     * Identifierar alla låtar i en YouTube-video och returnerar en lista med TrackInfo-objekt.
+     *
+     * @param youtubeUrl       URL:en för YouTube-videoklippet.
+     * @param totalAudioLength Total ljudlängd i videon.
+     * @return En lista med TrackInfo-objekt som representerar de identifierade låtarna.
+     */
     public List<TrackInfo> identifyAllSongsInYTVideo(String youtubeUrl, double totalAudioLength) {
-        String outputPath = "resources/downloaded_audio.m4a";
+
+        String uniqueFileName = "downloaded_audioIdentifyAllsongs-" + UUID.randomUUID().toString() + ".m4a";
+        String outputPath = "resources/" + uniqueFileName;
         String downloadAudioPath = downloadAudio(youtubeUrl, outputPath);
 
         List<TrackInfo> tracks = new ArrayList<>();
         double startTime = 0;
-        final double buffer = 5; // Buffer length in seconds to avoid skipping songs
-
+        final double buffer = 5;
 
         while (startTime < totalAudioLength) {
             List<TrackInfo> identifiedTracks = recognizeSongs(downloadAudioPath, startTime);
-            boolean newTrackAdded = false; // Flag to track if a new track is added
+            boolean newTrackAdded = false;
 
-
-            // Process all identified tracks for adding to the final list
             for (TrackInfo identifiedTrack : identifiedTracks) {
                 if (!tracks.contains(identifiedTrack)) {
-
                     if (!DuplicateChecker.isDuplicate(tracks, identifiedTrack)) {
                         tracks.add(identifiedTrack);
                         System.out.println("Song added to final tracklist: " + identifiedTrack);
-                        newTrackAdded = true; // Set flag to true since a new track was added
+                        newTrackAdded = true;
                     }
-
                 }
             }
 
-
             if (newTrackAdded && !identifiedTracks.isEmpty()) {
-                // Only adjust start time based on the first track if a new track was added
                 TrackInfo firstIdentifiedTrack = identifiedTracks.get(0);
                 startTime += firstIdentifiedTrack.getSongDuration() + buffer;
             } else {
-                // If no new track is added, or no tracks are identified, increment the start time to scan the next segment
                 startTime += buffer;
             }
         }
+
         tracks = DuplicateChecker.checkDuplicates(tracks);
         System.out.println("Final tracks: ");
         for (TrackInfo track : tracks) {
@@ -204,15 +243,22 @@ public class SongRecognizer {
     }
 
 
+    /**
+     * Laddar ner ljudet från en YouTube-video till en lokal fil.
+     *
+     * @param youtubeUrl   URL:en för YouTube-videoklippet.
+     * @param outputPath   Sökväg till den lokala filen där ljudet ska sparas.
+     * @return Sökvägen till den nerladdade ljudfilen om nedladdningen lyckades, annars null.
+     */
     public String downloadAudio(String youtubeUrl, String outputPath) {
+        System.out.println("download audio called");
 
-        // listFormats(youtubeUrl);
 
-        List<String> downloadCommand = Arrays.asList("yt-dlp", "-f", "m4a", // Select m4a formats
-                "-S", "+size", // Prioritize by file size to get the smallest file
-                "--extract-audio", "--audio-format", "m4a", "--force-overwrite", // Force overwriting existing files
-                "-o", outputPath, // Specify the output file path
-                youtubeUrl // YouTube video URL
+        List<String> downloadCommand = Arrays.asList("yt-dlp", "-f", "m4a",
+                "-S", "+size",
+                "--extract-audio", "--audio-format", "m4a", "--force-overwrite",
+                "-o", outputPath,
+                youtubeUrl
         );
 
 
@@ -225,23 +271,35 @@ public class SongRecognizer {
         return downloadOutPutpath;
     }
 
-
+    /**
+     * Laddar ner flera videor från en spellista på YouTube parallellt.
+     *
+     * @param videoUrls   En lista med URL:er för videoklippen i spellistan.
+     * @return En lista med sökvägar till de nerladdade ljudfilerna om nedladdningen lyckades.
+     */
     public List<String> downloadPlaylistVideosInParallel(List<String> videoUrls) {
-        // Set a conservative number of threads for parallel downloads to avoid rate-limiting
-        int numberOfThreads = 15; // For example, 4 threads
-        String outputDirectory = "resources/Playlistfiles"; // Set the desired output directory
+
+        int numberOfThreads = 5;
+        String outputDirectory = "resources/Playlistfiles";
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         List<String> outputPaths = new ArrayList<>();
 
 
         for (String videoUrl : videoUrls) {
             executorService.submit(() -> {
-                int count = fileCounter.getAndIncrement(); // Safely increment
-                String outputFileName = String.format("%s/downloaded_audio%d.m4a", outputDirectory, count);
-                List<String> downloadCommand = Arrays.asList("yt-dlp", "-f", "bestaudio", "--extract-audio", "--audio-format", "m4a", "--force-overwrite", "-o", outputFileName, videoUrl);
+                String uniqueFileName = String.format("%s/downloaded_audio_%s.m4a", outputDirectory, UUID.randomUUID().toString());
 
-                // Execute the download command
-                String outPath = executeProcess(downloadCommand, outputFileName);
+                List<String> downloadCommand = Arrays.asList("yt-dlp",
+                        "-f",
+                        "bestaudio",
+                        "--extract-audio",
+                        "--audio-format",
+                        "m4a",
+                        "--force-overwrite",
+                        "-o", uniqueFileName, videoUrl);
+
+
+                String outPath = executeProcess(downloadCommand, uniqueFileName);
                 synchronized (outputPaths) {
                     outputPaths.add(outPath);
                 }
@@ -249,9 +307,9 @@ public class SongRecognizer {
             });
         }
 
-        executorService.shutdown(); // Stop accepting new tasks
+        executorService.shutdown();
         try {
-            // Wait for all tasks to finish executing or timeout after a certain period
+
             if (!executorService.awaitTermination(1, TimeUnit.HOURS)) {
                 executorService.shutdownNow();
             }
