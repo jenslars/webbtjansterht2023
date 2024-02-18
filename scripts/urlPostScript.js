@@ -543,7 +543,7 @@ function createPlaylistUrlElements(playlistUrl) {
   pElement.textContent = "Visit playlist here:";
 
   var linkElement = document.createElement("a");
-  linkElement.textContent = playlistUrl;
+  linkElement.textContent = "click here"; 
   linkElement.href = playlistUrl;
   spotifyPopupCreate.appendChild(linkElement);
 
@@ -768,9 +768,20 @@ function identifyAllSongs() {
     });
 }
 
+function displayErrorMessage(message) {
+  var errorMessageContainer = document.getElementById("errorMessage");
+  errorMessageContainer.textContent = message;
+  errorMessageContainer.style.display = "block";
+}
+
+function hideErrorMessage() {
+  var errorMessageContainer = document.getElementById("errorMessage");
+  errorMessageContainer.style.display = "none";
+}
+
 function convertVideo() {
   console.log("In convert video");
-  addLoaderToButton("URLsubmit-btn1"); // Assuming this function modifies the global `selectedTrackUris` or has side effects
+  addLoaderToButton("URLsubmit-btn1"); // Assuming this function modifies the global selectedTrackUris or has side effects
   var url = document.getElementById("convertVideoInput").value;
   fetch("/convertVideo?url=" + encodeURIComponent(url), {
     method: "GET",
@@ -807,7 +818,7 @@ function convertVideo() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message); // Display the error to the user
+       // alert(error.message); 
         removeLoaderFromButton("URLsubmit-btn1");
       });
 }
