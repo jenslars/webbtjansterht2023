@@ -70,7 +70,6 @@ public class ServerRunner {
                         ctx.status(400).result("Bad Request: trackUris is missing or not an array");
                         return;
                     }
-
                     List<String> trackUris = new ArrayList<>();
                     for (JsonElement trackUriJson : trackUrisJson) {
                         trackUris.add(trackUriJson.getAsString());
