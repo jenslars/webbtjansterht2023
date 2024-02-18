@@ -137,7 +137,7 @@ public class ServerRunner {
                     String url = ctx.queryParam("url");
 
                     List<TrackInfo> trackInfoList = serverRunner.convertPlayList(url);
-                    if(trackInfoList == null){
+                    if(trackInfoList == null || trackInfoList.isEmpty()){
                         JsonObject jsonResponse = new JsonObject();
                         ctx.status(400);
                         jsonResponse.addProperty("message", "No songs were found");
@@ -179,8 +179,10 @@ public class ServerRunner {
                     System.out.println(trackInfoList.size());
 
                     if(trackInfoList.isEmpty()){
+                        Gson gson = new Gson();
                         JsonObject jsonResponse = new JsonObject();
                         ctx.status(400);
+                        jsonResponse.add("tracks", gson.toJsonTree(trackInfoList));
                         jsonResponse.addProperty("message", "No songs were found");
                         ctx.json(jsonResponse.toString());
                     }else {
