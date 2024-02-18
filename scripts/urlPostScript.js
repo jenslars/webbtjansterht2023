@@ -478,10 +478,9 @@ function confirmAddToPlaylist(playlistId) {
   pElement.textContent = "Visit playlist here:";
   var spotifyPlaylistUrl = `https://open.spotify.com/playlist/${playlistId}`;
   var linkElement = document.createElement("a");
-  linkElement.textContent = "Click here";
+  linkElement.textContent = spotifyPlaylistUrl;
   linkElement.href = spotifyPlaylistUrl;
   spotifyPopupAdd.appendChild(linkElement);
-  
 
   var resetButton = document.createElement("button");
   resetButton.classList.add("cancelSpotifyPopup");
