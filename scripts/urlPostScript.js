@@ -753,7 +753,7 @@ function identifyAllSongs() {
         .catch((error) => {
             console.error("Error:", error);
             displayErrorMessage(error.message, errorElementId);
-            selectedTrackUris = [];
+
 
 
         })
@@ -821,6 +821,8 @@ function convertVideo() {
             url.disabled = false;
             submitButton1.disabled = false;
             submitButton1.classList.add("active");
+
+
         });
 
 }
