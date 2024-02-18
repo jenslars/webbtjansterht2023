@@ -580,10 +580,9 @@ public class ServerRunner {
 
             StringEntity requestEntity = new StringEntity("{\"uris\":" + jsonTrackUris + "}", ContentType.APPLICATION_JSON);
             httpPost.setEntity(requestEntity);
-            CloseableHttpResponse response;
-            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                response = httpClient.execute(httpPost);
-            }
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+
 
             String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             System.out.println("Response from Spotify API: " + responseBody);
