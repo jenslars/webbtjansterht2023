@@ -37,8 +37,8 @@ public class SongRecognizer {
     public List<TrackInfo> recognizeSongs(String downloadedAudioPath, double starttime) {
         Map<String, Object> config = new HashMap<>();
         config.put("host", "identify-eu-west-1.acrcloud.com");
-        config.put("access_key", "e456d40680a67ea2b49ebc1dc9d074ab");
-        config.put("access_secret", "VZcI8Hd0r0Xfnu5rRDR52M4ZYfDMKABQzq9YRDy5");
+        config.put("access_key", "4489b7284fdeaba761df5b03c63faa14");
+        config.put("access_secret", "e4mp893fsRRm5a2vyILg54XeKk0njWAiBtP9cWaV");
         config.put("timeout", 10);
 
         ACRCloudRecognizer recognizer = new ACRCloudRecognizer(config);
