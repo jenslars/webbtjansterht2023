@@ -273,8 +273,10 @@ public class ServerRunner {
 
                         // Extract the image URL
                         String imageUrl = "";
-                        if (playlistJson.getAsJsonArray("images").size() > 0) {
-                            imageUrl = playlistJson.getAsJsonArray("images").get(0).getAsJsonObject().get("url").getAsString();
+                        JsonElement imagesElement = playlistJson.get("images");
+                        if (imagesElement != null && imagesElement.isJsonArray() && imagesElement.getAsJsonArray().size() > 0) {
+                            imageUrl = imagesElement.getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
+                            System.out.println(imageUrl);
                         }
 
                         // Extract the number of tracks
